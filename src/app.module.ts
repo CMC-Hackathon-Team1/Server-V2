@@ -16,7 +16,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       port: Number(process.env.DEVELOPMENT_DB_PORT),
       username: String(process.env.DEVELOPMENT_DB_USER),
       password: String(process.env.DEVELOPMENT_DB_PASS),
-      database: 'dev',
+      database: String(process.env.DEVELOPMENT_DB_NAME),
       entities: [],
       synchronize: true,
     }),

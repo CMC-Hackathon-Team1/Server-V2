@@ -1,4 +1,8 @@
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
-export class ProfilesService {}
+export class ProfilesService {
+  createProfile() {
+    return true;
+  }
+}

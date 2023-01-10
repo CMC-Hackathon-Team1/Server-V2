@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import baseResponse from 'src/config/baseResponseStatus';
+import { errResponse, response } from 'src/config/response';
 import { Repository } from 'typeorm';
 import { CreateProfileDto } from './createProfile.dto';
 import { Profile } from './profile.entity';
@@ -13,16 +15,15 @@ export class ProfilesService {
 
   async createProfile(createProfileDto: CreateProfileDto): Promise<object> {
     try {
-      const newProfile = this.profileTable.create({
-        ...createProfileDto
-      });
+      const newProfile = await this.profileTable.save(createProfileDto);
 
-      const result = await this.profileTable.save(newProfile);
+      const result = {
+        profileId: newProfile.profileId,
+      };
 
-      return {'isSuccess': true, 'code': 100, 'message': 'SUCCESS', 'result': {'profileId': result.profileId}};
-    }
-    catch (e) {
-      return e;
+      return response(baseResponse.SUCCESS, result);
+    } catch (e) {
+      return errResponse(baseResponse.DB_ERROR);
     }
   }
 }

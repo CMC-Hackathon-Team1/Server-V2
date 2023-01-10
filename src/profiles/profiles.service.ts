@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
+import { CreateProfileDto } from './createProfile.dto';
 
 @Injectable()
 export class ProfilesService {
-  createProfile() {
-    return true;
+  createProfile(createProfileDto: CreateProfileDto) {
+    return createProfileDto;
   }
 }

@@ -3,22 +3,21 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateProfileDto } from './createProfile.dto';
 import { Profile } from './profile.entity';
+import { ProfileModel } from './profile.model';
 
 @Injectable()
 export class ProfilesService {
   constructor(
     @InjectRepository(Profile)
-    private profile: Repository<Profile>,
+    private profileTable: Repository<Profile>,
   ) {}
-  async createProfile(createProfileDto: CreateProfileDto) {
+  async createProfile(createProfileDto: CreateProfileDto): Promise<ProfileModel> {
     try {
-      const newProfile = this.profile.create({
+      const newProfile = this.profileTable.create({
         ...createProfileDto
       });
 
-      await this.profile.save(newProfile);
-
-      return newProfile;
+      return await this.profileTable.save(newProfile);
     } catch (e) {
       return e;
     }

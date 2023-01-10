@@ -14,16 +14,12 @@ export class ProfilesService {
   ) {}
 
   async createProfile(createProfileDto: CreateProfileDto): Promise<object> {
-    try {
-      const newProfile = await this.profileTable.save(createProfileDto);
+    const newProfile = await this.profileTable.save(createProfileDto);
 
-      const result = {
-        profileId: newProfile.profileId,
-      };
+    const result = {
+      profileId: newProfile.profileId,
+    };
 
-      return response(baseResponse.SUCCESS, result);
-    } catch (e) {
-      return errResponse(baseResponse.DB_ERROR);
-    }
+    return response(baseResponse.SUCCESS, result);
   }
 }

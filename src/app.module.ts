@@ -4,7 +4,20 @@ import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProfilesModule } from './profiles/profiles.module';
-import { Profile } from './profiles/profile.entity';
+import { Profiles } from './entities/Profiles';
+import { Categories } from './entities/Categories';
+import { FeedCategoryMapping } from './entities/FeedCategoryMapping';
+import { FeedHashTagMapping } from './entities/FeedHashTagMapping';
+import { FeedImgs } from './entities/FeedImgs';
+import { Feeds } from './entities/Feeds';
+import { FollowFromTo } from './entities/FollowFromTo';
+import { HashTags } from './entities/HashTags';
+import { Likes } from './entities/Likes';
+import { Persona } from './entities/Persona';
+import { ProfileHashTagMapping } from './entities/ProfileHashTagMapping';
+import { QuestionContent } from './entities/QuestionContent';
+import { Questions } from './entities/Questions';
+import { Users } from './entities/Users';
 
 @Module({
   imports: [
@@ -19,7 +32,22 @@ import { Profile } from './profiles/profile.entity';
       username: String(process.env.DEVELOPMENT_DB_USER),
       password: String(process.env.DEVELOPMENT_DB_PASS),
       database: String(process.env.DEVELOPMENT_DB_NAME),
-      entities: [Profile],
+      entities: [
+        Categories,
+        FeedCategoryMapping,
+        FeedHashTagMapping,
+        FeedImgs,
+        Feeds,
+        FollowFromTo,
+        HashTags,
+        Likes,
+        Persona,
+        ProfileHashTagMapping,
+        Profiles,
+        QuestionContent,
+        Questions,
+        Users,
+      ],
       synchronize: true,
     }),
     ProfilesModule,

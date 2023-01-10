@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateProfileDto } from './createProfile.dto';
 import { Profile } from './profile.entity';
-import { ProfileModel } from './profile.model';
 
 @Injectable()
 export class ProfilesService {
@@ -11,14 +10,18 @@ export class ProfilesService {
     @InjectRepository(Profile)
     private profileTable: Repository<Profile>,
   ) {}
-  async createProfile(createProfileDto: CreateProfileDto): Promise<ProfileModel> {
+
+  async createProfile(createProfileDto: CreateProfileDto): Promise<object> {
     try {
       const newProfile = this.profileTable.create({
         ...createProfileDto
       });
 
-      return await this.profileTable.save(newProfile);
-    } catch (e) {
+      const result = await this.profileTable.save(newProfile);
+
+      return {'isSuccess': true, 'code': 100, 'message': 'SUCCESS', 'result': {'profileId': result.profileId}};
+    }
+    catch (e) {
       return e;
     }
   }

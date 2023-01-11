@@ -14,10 +14,18 @@ export class ProfilesService {
   ) {}
 
   async createProfile(createProfileDto: CreateProfileDto): Promise<object> {
+    const userProfiles = await this.getUserProfiles(createProfileDto.userId);
+
     // 프로필 갯수 validation
-    const userProfileCount = await this.getProfile(createProfileDto.userId);
-    if (userProfileCount.length >= 3) {
-      return errResponse(baseResponse.PROFILE_COUNT_OVER, {'currentProfileCount': userProfileCount.length});
+    if (userProfiles.length >= 3) {
+      return errResponse(baseResponse.PROFILE_COUNT_OVER, {'currentProfileCount': userProfiles.length});
+    }
+
+    // 같은 페르소나 생성 validation
+    for(let i = 0; i < userProfiles.length; i++) {
+      if (createProfileDto.personaId === userProfiles[i].personaId) {
+        return errResponse(baseResponse.PROFILE_SAME_PERSONA);
+      }
     }
 
     const newProfile = await this.profileTable.save(createProfileDto);
@@ -29,7 +37,7 @@ export class ProfilesService {
     return response(baseResponse.SUCCESS, result);
   }
 
-  async getProfile(userId: number) {
+  async getUserProfiles(userId: number) {
     const userProfiles = await this.profileTable.find({ where: { userId: userId } });
 
     return userProfiles;

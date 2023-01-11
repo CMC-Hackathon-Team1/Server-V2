@@ -34,7 +34,7 @@ export class Profiles {
   @Column("text", { name: "profileImgUrl" })
   profileImgUrl: string;
 
-  @Column("varchar", { name: "statusMessage", length: 100 })
+  @Column("varchar", { name: "statusMessage", length: 100, default: ''})
   statusMessage: string;
 
   @Column("timestamp", {

@@ -13,6 +13,5 @@ export class CreateProfileDto {
   @IsNotEmpty()
   profileImgUrl: string;
 
-  @IsNotEmpty()
   statusMessage: string;
 }

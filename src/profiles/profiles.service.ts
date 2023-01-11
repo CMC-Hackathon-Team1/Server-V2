@@ -1,45 +1,37 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import baseResponse from '../config/baseResponseStatus';
 import { errResponse, response } from '../config/response';
-import { Profiles } from '../entities/Profiles';
 import { CreateProfileDto } from './createProfile.dto';
+import { ProfilesRepository } from './profiles.repository';
 
 @Injectable()
 export class ProfilesService {
   constructor(
-    @InjectRepository(Profiles)
-    private profileTable: Repository<Profiles>,
+    private profileRepository: ProfilesRepository,
   ) {}
 
   async createProfile(createProfileDto: CreateProfileDto): Promise<object> {
-    const userProfiles = await this.getUserProfiles(createProfileDto.userId);
+    const userProfilesList = await this.profileRepository.getUserProfilesList(createProfileDto.userId);
 
     // 프로필 갯수 validation
-    if (userProfiles.length >= 3) {
-      return errResponse(baseResponse.PROFILE_COUNT_OVER, {'currentProfileCount': userProfiles.length});
+    if (userProfilesList.length >= 3) {
+      return errResponse(baseResponse.PROFILE_COUNT_OVER, {'currentProfileCount': userProfilesList.length});
     }
 
     // 같은 페르소나 생성 validation
-    for(let i = 0; i < userProfiles.length; i++) {
-      if (createProfileDto.personaId === userProfiles[i].personaId) {
+    for(let i = 0; i < userProfilesList.length; i++) {
+      if (createProfileDto.personaId === userProfilesList[i].personaId) {
         return errResponse(baseResponse.PROFILE_SAME_PERSONA);
       }
     }
 
-    const newProfile = await this.profileTable.save(createProfileDto);
+    // TODO: 존재하지 않는 페르소나(페르소나 ID가 유효하지 않은 페르소나)로 생성하는 경우에 대한 validation 추가
 
+    const newProfile = await this.profileRepository.saveNewProfile(createProfileDto);
     const result = {
       profileId: newProfile.profileId,
-    };
+    }
 
     return response(baseResponse.SUCCESS, result);
-  }
-
-  async getUserProfiles(userId: number) {
-    const userProfiles = await this.profileTable.find({ where: { userId: userId } });
-
-    return userProfiles;
   }
 }

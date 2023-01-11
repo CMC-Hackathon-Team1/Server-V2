@@ -4,20 +4,20 @@ import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProfilesModule } from './profiles/profiles.module';
-import { Categories } from './entities/Categories';
-import { FeedCategoryMapping } from './entities/FeedCategoryMapping';
-import { FeedHashTagMapping } from './entities/FeedHashTagMapping';
-import { FeedImgs } from './entities/FeedImgs';
-import { Feeds } from './entities/Feeds';
-import { FollowFromTo } from './entities/FollowFromTo';
-import { HashTags } from './entities/HashTags';
-import { Likes } from './entities/Likes';
-import { Persona } from './entities/Persona';
-import { ProfileHashTagMapping } from './entities/ProfileHashTagMapping';
-import { Profiles } from './entities/Profiles';
-import { QuestionContent } from './entities/QuestionContent';
-import { Questions } from './entities/Questions';
-import { Users } from './entities/Users';
+import { Categories } from './_entities/Categories';
+import { FeedCategoryMapping } from './_entities/FeedCategoryMapping';
+import { FeedHashTagMapping } from './_entities/FeedHashTagMapping';
+import { FeedImgs } from './_entities/FeedImgs';
+import { Feeds } from './_entities/Feeds';
+import { FollowFromTo } from './_entities/FollowFromTo';
+import { HashTags } from './_entities/HashTags';
+import { Likes } from './_entities/Likes';
+import { Persona } from './_entities/Persona';
+import { ProfileHashTagMapping } from './_entities/ProfileHashTagMapping';
+import { Profiles } from './_entities/Profiles';
+import { QuestionContent } from './_entities/QuestionContent';
+import { Questions } from './_entities/Questions';
+import { Users } from './_entities/Users';
 
 @Module({
   imports: [

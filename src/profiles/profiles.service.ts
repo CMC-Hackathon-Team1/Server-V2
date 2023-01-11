@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import baseResponse from '../config/baseResponseStatus';
-import { errResponse, response } from '../config/response';
+import baseResponse from '../_utilities/baseResponseStatus';
+import { errResponse, response } from '../_utilities/response';
 import { CreateProfileDto } from './createProfile.dto';
 import { ProfilesRepository } from './profiles.repository';
 

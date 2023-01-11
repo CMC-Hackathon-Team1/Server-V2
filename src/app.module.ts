@@ -18,6 +18,7 @@ import { ProfileHashTagMapping } from './entities/ProfileHashTagMapping';
 import { QuestionContent } from './entities/QuestionContent';
 import { Questions } from './entities/Questions';
 import { Users } from './entities/Users';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -51,6 +52,7 @@ import { Users } from './entities/Users';
       synchronize: true,
     }),
     ProfilesModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

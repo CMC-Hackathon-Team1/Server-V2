@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import baseResponse from '../_utilities/baseResponseStatus';
-import { errResponse, response } from '../_utilities/response';
+import { errResponse, sucResponse } from '../_utilities/response';
 import { CreateProfileDto } from './createProfile.dto';
 import { ProfilesRepository } from './profiles.repository';
 
@@ -32,6 +32,6 @@ export class ProfilesService {
       profileId: newProfile.profileId,
     }
 
-    return response(baseResponse.SUCCESS, result);
+    return sucResponse(baseResponse.SUCCESS, result);
   }
 }

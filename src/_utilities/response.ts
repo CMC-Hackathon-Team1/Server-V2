@@ -1,4 +1,4 @@
-export const response = ({ statusCode, message }, result?: any) => {
+export const sucResponse = ({ statusCode, message }, result?: any) => {
   if (result) {
     return {
       statusCode: statusCode,

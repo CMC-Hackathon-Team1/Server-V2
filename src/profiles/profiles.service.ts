@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import baseResponse from 'src/config/baseResponseStatus';
-import { errResponse, response } from 'src/config/response';
-import { Profiles } from 'src/entities/Profiles';
 import { Repository } from 'typeorm';
+import baseResponse from '../config/baseResponseStatus';
+import { errResponse, response } from '../config/response';
+import { Profiles } from '../entities/Profiles';
 import { CreateProfileDto } from './createProfile.dto';
 
 @Injectable()

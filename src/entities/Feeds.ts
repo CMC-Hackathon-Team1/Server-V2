@@ -71,6 +71,6 @@ export class Feeds {
   @JoinColumn([{ name: "profileId", referencedColumnName: "profileId" }])
   profile: Profiles;
 
-  @OneToMany(() => Likes, (likes) => likes.feed)
-  likes: Likes[];
+  @OneToOne(() => Likes, (likes) => likes.feed)
+  likes: Likes;
 }

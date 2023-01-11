@@ -12,8 +12,8 @@ import { Feeds } from "./Feeds";
 import { FollowFromTo } from "./FollowFromTo";
 import { Likes } from "./Likes";
 import { ProfileHashTagMapping } from "./ProfileHashTagMapping";
-import { Persona } from "./Persona";
 import { Users } from "./Users";
+import { Persona } from "./Persona";
 
 @Index("FK_Profiles_personaId_Persona_personaId", ["personaId"], {})
 @Index("FK_Profiles_userId_Users_userId", ["userId"], {})
@@ -46,11 +46,11 @@ export class Profiles {
   @OneToMany(() => Feeds, (feeds) => feeds.profile)
   feeds: Feeds[];
 
-  @OneToMany(() => FollowFromTo, (followFromTo) => followFromTo.fiomUser)
-  followFromTos: FollowFromTo[];
+  @OneToOne(() => FollowFromTo, (followFromTo) => followFromTo.fiomUser)
+  followFromTo: FollowFromTo;
 
   @OneToMany(() => FollowFromTo, (followFromTo) => followFromTo.toUser)
-  followFromTos2: FollowFromTo[];
+  followFromTos: FollowFromTo[];
 
   @OneToMany(() => Likes, (likes) => likes.profile)
   likes: Likes[];
@@ -61,17 +61,17 @@ export class Profiles {
   )
   profileHashTagMapping: ProfileHashTagMapping;
 
-  @ManyToOne(() => Persona, (persona) => persona.profiles, {
-    onDelete: "RESTRICT",
-    onUpdate: "RESTRICT",
-  })
-  @JoinColumn([{ name: "personaId", referencedColumnName: "personaId" }])
-  persona: Persona;
-
   @ManyToOne(() => Users, (users) => users.profiles, {
     onDelete: "RESTRICT",
     onUpdate: "RESTRICT",
   })
   @JoinColumn([{ name: "userId", referencedColumnName: "userId" }])
   user: Users;
+
+  @ManyToOne(() => Persona, (persona) => persona.profiles, {
+    onDelete: "RESTRICT",
+    onUpdate: "RESTRICT",
+  })
+  @JoinColumn([{ name: "personaId", referencedColumnName: "personaId" }])
+  persona: Persona;
 }

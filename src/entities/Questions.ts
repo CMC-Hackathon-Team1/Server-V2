@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { QuestionContent } from "./QuestionContent";
 
 @Entity("Questions", { schema: "devDB" })
@@ -9,9 +9,9 @@ export class Questions {
   @Column("int", { name: "userId", unsigned: true })
   userId: number;
 
-  @OneToMany(
+  @OneToOne(
     () => QuestionContent,
     (questionContent) => questionContent.question
   )
-  questionContents: QuestionContent[];
+  questionContent: QuestionContent;
 }

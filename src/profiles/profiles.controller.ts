@@ -6,6 +6,7 @@ import { ProfilesService } from './profiles.service';
 export class ProfilesController {
   constructor(private profilesService: ProfilesService) {}
 
+  // API No. 1.1 프로필 생성
   @Post()
   @UsePipes(ValidationPipe)
   createProfile(@Body() createProfileDto: CreateProfileDto) {

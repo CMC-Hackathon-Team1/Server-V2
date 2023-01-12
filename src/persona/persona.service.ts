@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { CreatePersonaDto } from './createPersona.dto';
 import { PersonaModel } from './persona.model';
 import { PersonaRepository } from './persona.repository';
 
@@ -12,5 +13,11 @@ export class PersonaService {
     const personaList = await this.personaRepository.getPersonaList();
 
     return personaList;
+  }
+
+  async createPersona(createPersonaDto: CreatePersonaDto) {
+    const newPersona = await this.personaRepository.createPersona(createPersonaDto);
+
+    return newPersona;
   }
 }

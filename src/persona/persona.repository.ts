@@ -21,4 +21,9 @@ export class PersonaRepository {
   async createPersona(createPersonaDto: CreatePersonaDto) {
     return await this.personaTable.save(createPersonaDto)
   }
+
+  // 페르소나 이름으로 페르소나 ID 가져오기
+  async getPersonaByName(personaName: string) {
+    return await this.personaTable.findOne({where: { personaName: personaName }});
+  }
 }

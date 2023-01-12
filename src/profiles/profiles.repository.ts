@@ -1,8 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
+import { SaveProfileDto } from "../persona/saveProfile.dto";
 import { Profiles } from "../_entities/Profiles";
-import { CreateProfileDto } from "./createProfile.dto";
 import { ProfileModel } from "./profile.model";
 
 @Injectable()
@@ -18,7 +18,7 @@ export class ProfilesRepository {
   }
 
   // 새 프로필 저장하기
-  async saveNewProfile(createProfileDto: CreateProfileDto): Promise<ProfileModel> {
-    return await this.profilesTable.save(createProfileDto);
+  async saveNewProfile(saveProfileDto: SaveProfileDto): Promise<ProfileModel> {
+    return await this.profilesTable.save(saveProfileDto);
   }
 }

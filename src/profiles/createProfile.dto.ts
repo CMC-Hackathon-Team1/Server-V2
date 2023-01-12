@@ -11,8 +11,8 @@ export class CreateProfileDto {
   profileName: string;
 
   @IsNotEmpty()
-  @IsNumber()
-  personaId: number;
+  @IsString()
+  personaName: string;
 
   @IsNotEmpty()
   @IsString()

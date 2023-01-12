@@ -1,4 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { PersonaRepository } from '../persona/persona.repository';
+import { SaveProfileDto } from '../persona/saveProfile.dto';
 import baseResponse from '../_utilities/baseResponseStatus';
 import { errResponse, sucResponse } from '../_utilities/response';
 import { CreateProfileDto } from './createProfile.dto';
@@ -8,9 +10,10 @@ import { ProfilesRepository } from './profiles.repository';
 export class ProfilesService {
   constructor(
     private profileRepository: ProfilesRepository,
+    private personaRepository: PersonaRepository
   ) {}
 
-  async createProfile(createProfileDto: CreateProfileDto): Promise<object> {
+  async createProfile(createProfileDto: CreateProfileDto): Promise<any> {
     const userProfilesList = await this.profileRepository.getUserProfilesList(createProfileDto.userId);
 
     // 프로필 갯수 validation
@@ -19,15 +22,37 @@ export class ProfilesService {
     }
 
     // 같은 페르소나 생성 validation
+    const existPersonaId = await this.personaRepository.getPersonaByName(createProfileDto.personaName);
     for(let i = 0; i < userProfilesList.length; i++) {
-      if (createProfileDto.personaId === userProfilesList[i].personaId) {
+      if (existPersonaId?.personaId === userProfilesList[i].personaId) {
         return errResponse(baseResponse.PROFILE_SAME_PERSONA);
       }
     }
 
-    // TODO: 존재하지 않는 페르소나(페르소나 ID가 유효하지 않은 페르소나)로 생성하는 경우에 대한 validation 추가
+    // 존재하는 페르소나 확인 및 미존재 페르소나 추가
+    let check = 0;
+    const personaList = await this.personaRepository.getPersonaList();
+    for (let i = 0; i < personaList.length; i++) {
+      if (personaList[i].personaName === createProfileDto.personaName) {
+        check = 1;
+        break;
+      }
+    }
+    // 페르소나가 존재하지 않으면 생성
+    if (check === 0) {
+      await this.personaRepository.createPersona({personaName: createProfileDto.personaName});
+    }
 
-    const newProfile = await this.profileRepository.saveNewProfile(createProfileDto);
+    // 새로운 프로필 생성
+    const newProfilePersonaId = (await this.personaRepository.getPersonaByName(createProfileDto.personaName)).personaId;
+    const newProfileDto: SaveProfileDto = {
+      userId: createProfileDto.userId,
+      profileName: createProfileDto.profileName,
+      personaId: newProfilePersonaId,
+      profileImgUrl: createProfileDto.profileImgUrl,
+      statusMessage: createProfileDto.statusMessage
+    }
+    const newProfile = await this.profileRepository.saveNewProfile(newProfileDto);
     const result = {
       profileId: newProfile.profileId,
     }

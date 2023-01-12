@@ -3,10 +3,17 @@ import { UserService } from './user.service';
 import { UserDTO } from './dto/user.dto';
 import { errResponse, response } from '../config/response';
 import baseResponse from '../config/baseResponseStatus';
+import * as bcrypt from 'bcrypt';
+import { Payload } from './security/payload.interface';
+import { Users } from '../entities/Users';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
-  constructor(private userService: UserService) {}
+  constructor(
+    private userService: UserService,
+    private jwtService: JwtService,
+  ) {}
 
   async registerUser(newUser: UserDTO): Promise<object> {
     // 이미 있는 계정인지 체크
@@ -30,16 +37,32 @@ export class AuthService {
   }
 
   async validateUser(userDTO: UserDTO): Promise<object> {
-    const userFind: UserDTO = await this.userService.findByFields({
+    const userFind: Users = await this.userService.findByFields({
       where: { email: userDTO.email },
     });
 
+    const validatePassword = await bcrypt.compare(userDTO.password, userFind.password);
+    // console.log(validatePassword);
+
     // [Validation 처리]
     // 로그인 정보를 잘못 입력한 경우
-    if (!userFind || userDTO.password !== userFind.password) {
+    if (!userFind || !validatePassword) {
       return errResponse(baseResponse.USER_NOT_FOUND);
     }
+    // ---
 
-    return response(baseResponse.SUCCESS, userFind);
+    const payload: Payload = { userId: userFind.userId, email: userFind.email };
+    const jwtToken = this.jwtService.sign(payload);
+
+    return response(baseResponse.SUCCESS, {
+      userId: userFind.userId,
+      accessToken: jwtToken,
+    });
+  }
+
+  async userValidateToken(payload: Payload): Promise<Users | undefined> {
+    return await this.userService.findByFields({
+      where: { userId: payload.userId },
+    });
   }
 }

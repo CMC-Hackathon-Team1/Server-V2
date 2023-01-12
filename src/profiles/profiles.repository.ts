@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { SaveProfileDto } from "../persona/saveProfile.dto";
+import { SaveProfileDto } from "./saveProfile.dto";
 import { Profiles } from "../_entities/Profiles";
 import { ProfileModel } from "./profile.model";
 

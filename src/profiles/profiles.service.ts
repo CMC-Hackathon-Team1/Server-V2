@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PersonaRepository } from '../persona/persona.repository';
-import { SaveProfileDto } from '../persona/saveProfile.dto';
+import { SaveProfileDto } from './saveProfile.dto';
 import baseResponse from '../_utilities/baseResponseStatus';
 import { errResponse, sucResponse } from '../_utilities/response';
 import { CreateProfileDto } from './createProfile.dto';

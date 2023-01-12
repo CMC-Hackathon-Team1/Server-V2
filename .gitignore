@@ -12,7 +12,6 @@ yarn-error.log*
 lerna-debug.log*
 
 # secrets
-package-lock.json
 .env
 
 # OS

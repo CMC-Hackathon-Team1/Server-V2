@@ -12,8 +12,8 @@ yarn-error.log*
 lerna-debug.log*
 
 # secrets
-package-lock.json
 .env
+/src/_secret/*
 
 # OS
 .DS_Store

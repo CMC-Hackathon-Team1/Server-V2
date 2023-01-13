@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
@@ -19,6 +19,8 @@ import { QuestionContent } from './_entities/QuestionContent';
 import { Questions } from './_entities/Questions';
 import { Users } from './_entities/Users';
 import { PersonaModule } from './persona/persona.module';
+import { AuthModule } from './auth/auth.module';
+import { JwtMiddleware } from './_middleware/jwt.middleware';
 
 @Module({
   imports: [
@@ -53,8 +55,18 @@ import { PersonaModule } from './persona/persona.module';
     }),
     ProfilesModule,
     PersonaModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}
+
+// TODO: 미들웨어 적용시 아래로 변경
+// export class AppModule implements NestModule{
+//   configure(consumer: MiddlewareConsumer): any {
+//     consumer
+//       .apply(JwtMiddleware)
+//       .forRoutes('auth');
+//   }
+// }

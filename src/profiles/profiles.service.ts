@@ -23,34 +23,28 @@ export class ProfilesService {
     }
 
     // 같은 페르소나 생성 validation
-    const existPersonaId = await this.personaRepository.getPersonaByName(newProfilePersonaName);
+    const checkExistPerona = await this.personaRepository.getPersonaByName(newProfilePersonaName);
+
+    // existPersonaId = 페르소나 테이블에 해당 페르소나가 존재하는 경우: 해당 페르소나 ID 사용 / 존재하지 않는 경우: 새로운 페르소나를 생성하여 생성된 페르소나 ID를 사용
+    // existPersonaId를 이용해 프로필 생성에 필요한 personaId 저장
+    let existPersonaId = checkExistPerona?.personaId; // checkExistPersona가 undefined인 경우가 있을 수 있으므로 ? 부여
     for(let i = 0; i < userProfilesList.length; i++) {
-      if (existPersonaId?.personaId === userProfilesList[i].personaId) {
+      if (existPersonaId === userProfilesList[i].personaId) {
         return errResponse(baseResponse.PROFILE_SAME_PERSONA);
       }
     }
 
-    // 존재하는 페르소나 확인 및 미존재 페르소나 추가
-    let check = 0;
-    const personaList = await this.personaRepository.getPersonaList();
-    for (let i = 0; i < personaList.length; i++) {
-      // 페르소나 리스트에 있는 페르소나 이름들과 생성할 프로필의 페르소나 이름이 같은 경우
-      if (personaList[i].personaName === newProfilePersonaName) {
-        check = 1;
-        break;
-      }
-    }
-    // 페르소나가 존재하지 않으면 생성
-    if (check === 0) {
-      await this.personaRepository.createPersona({ personaName: newProfilePersonaName });
+    // 아무도 사용하지 않은 새로운 페르소나인 경우 페르소나를 생성한 후 생성된 페르소나 ID를 이용하여 프로필을 생성
+    if (checkExistPerona === undefined) { // 아무도 해당 페르소나를 이용하지 않는 경우
+      const newPersona = await this.personaRepository.createPersona({ personaName: newProfilePersonaName });
+      existPersonaId = newPersona.personaId;
     }
 
     // 새로운 프로필 생성
-    const newProfilePersonaId = (await this.personaRepository.getPersonaByName(newProfilePersonaName)).personaId;
     const newProfileDto: SaveProfileDto = {
       userId: createProfileDto.userId,
       profileName: createProfileDto.profileName,
-      personaId: newProfilePersonaId,
+      personaId: existPersonaId,
       profileImgUrl: createProfileDto.profileImgUrl,
       statusMessage: createProfileDto.statusMessage
     }

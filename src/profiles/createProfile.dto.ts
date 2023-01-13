@@ -12,6 +12,7 @@ export class CreateProfileDto {
 
   @IsNotEmpty()
   @IsString()
+  @MaxLength(45)
   personaName: string;
 
   @IsNotEmpty()

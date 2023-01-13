@@ -15,6 +15,7 @@ export class ProfilesService {
 
   async createProfile(createProfileDto: CreateProfileDto): Promise<any> {
     const userProfilesList = await this.profileRepository.getUserProfilesList(createProfileDto.userId);
+    const newProfilePersonaName = createProfileDto.personaName;
 
     // 프로필 갯수 validation
     if (userProfilesList.length >= 3) {
@@ -22,7 +23,7 @@ export class ProfilesService {
     }
 
     // 같은 페르소나 생성 validation
-    const existPersonaId = await this.personaRepository.getPersonaByName(createProfileDto.personaName);
+    const existPersonaId = await this.personaRepository.getPersonaByName(newProfilePersonaName);
     for(let i = 0; i < userProfilesList.length; i++) {
       if (existPersonaId?.personaId === userProfilesList[i].personaId) {
         return errResponse(baseResponse.PROFILE_SAME_PERSONA);
@@ -33,18 +34,19 @@ export class ProfilesService {
     let check = 0;
     const personaList = await this.personaRepository.getPersonaList();
     for (let i = 0; i < personaList.length; i++) {
-      if (personaList[i].personaName === createProfileDto.personaName) {
+      // 페르소나 리스트에 있는 페르소나 이름들과 생성할 프로필의 페르소나 이름이 같은 경우
+      if (personaList[i].personaName === newProfilePersonaName) {
         check = 1;
         break;
       }
     }
     // 페르소나가 존재하지 않으면 생성
     if (check === 0) {
-      await this.personaRepository.createPersona({personaName: createProfileDto.personaName});
+      await this.personaRepository.createPersona({ personaName: newProfilePersonaName });
     }
 
     // 새로운 프로필 생성
-    const newProfilePersonaId = (await this.personaRepository.getPersonaByName(createProfileDto.personaName)).personaId;
+    const newProfilePersonaId = (await this.personaRepository.getPersonaByName(newProfilePersonaName)).personaId;
     const newProfileDto: SaveProfileDto = {
       userId: createProfileDto.userId,
       profileName: createProfileDto.profileName,

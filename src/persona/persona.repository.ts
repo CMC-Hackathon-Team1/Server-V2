@@ -18,12 +18,12 @@ export class PersonaRepository {
   }
 
   // 페르소나 생성
-  async createPersona(createPersonaDto: CreatePersonaDto) {
+  async createPersona(createPersonaDto: CreatePersonaDto): Promise<PersonaModel> {
     return await this.personaTable.save(createPersonaDto)
   }
 
   // 페르소나 이름으로 페르소나 ID 가져오기
-  async getPersonaByName(personaName: string) {
+  async getPersonaByName(personaName: string): Promise<PersonaModel> {
     return await this.personaTable.findOne({where: { personaName: personaName }});
   }
 }

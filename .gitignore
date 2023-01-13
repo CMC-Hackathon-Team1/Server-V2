@@ -14,7 +14,7 @@ lerna-debug.log*
 # secrets
 package-lock.json
 .env
-/src/auth/secret/*
+/src/secret/*
 
 # OS
 .DS_Store

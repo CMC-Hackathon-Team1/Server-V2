@@ -36,28 +36,36 @@ export class AuthService {
     return response(baseResponse.SUCCESS, result);
   }
 
-  async validateUser(userDTO: UserDTO): Promise<object> {
+  async validateUser(userDTO: UserDTO): Promise<any> {
     const userFind: Users = await this.userService.findByFields({
       where: { email: userDTO.email },
     });
+    // console.log(userFind);
+
+    // [Validation 처리]
+    // 해당 이메일의 계정이 없는 경우
+    if (!userFind || userFind == undefined) {
+      return errResponse(baseResponse.USER_NOT_FOUND);
+    }
 
     const validatePassword = await bcrypt.compare(userDTO.password, userFind.password);
     // console.log(validatePassword);
 
-    // [Validation 처리]
-    // 로그인 정보를 잘못 입력한 경우
-    if (!userFind || !validatePassword) {
+    // 비밀번호를 잘못 입력한 경우
+    if (!validatePassword) {
       return errResponse(baseResponse.USER_NOT_FOUND);
     }
     // ---
 
     const payload: Payload = { userId: userFind.userId, email: userFind.email };
     const jwtToken = this.jwtService.sign(payload);
+    // console.log(jwtToken);
 
-    return response(baseResponse.SUCCESS, {
-      userId: userFind.userId,
-      accessToken: jwtToken,
-    });
+    // return response(baseResponse.SUCCESS, {
+    //   userId: userFind.userId,
+    //   accessToken: jwtToken,
+    // });
+    return { accessToken: jwtToken };
   }
 
   async userValidateToken(payload: Payload): Promise<Users | undefined> {

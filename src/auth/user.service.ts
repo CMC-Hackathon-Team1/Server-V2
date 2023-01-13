@@ -13,6 +13,14 @@ export class UserService {
     private userRepository: Repository<Users>,
   ) {}
 
+  // (테스트용) user 아이디로 유저 정보 가져오기
+  async getUserInfo(userId: number) {
+    const userInfo = await this.userRepository.findOne(userId);
+    // console.log(userInfo);
+
+    return userInfo;
+  }
+
   // 이메일+비밀번호 로 회원 1명 검색하기
   async findByFields(
     options: FindOneOptions<UserDTO>,

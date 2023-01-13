@@ -54,7 +54,9 @@ export class AuthController {
   @Get('/authenticate')
   async isAuthenticated(@Req() req: Request): Promise<any> {
     const user: any = req.user;
+    // console.log(user);
     const userId: number = user.userId;
+    // console.log(userId);
     // const email: string = user.email;
 
     const userInfo = await this.userService.getUserInfo(userId);

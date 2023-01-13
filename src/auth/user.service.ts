@@ -13,9 +13,15 @@ export class UserService {
     private userRepository: Repository<Users>,
   ) {}
 
-  // (테스트용) user 아이디로 유저 정보 가져오기
+  // user id로 기본적인 유저 정보 가져오기
   async getUserInfo(userId: number) {
-    const userInfo = await this.userRepository.findOne(userId);
+    const userInfo = await this.userRepository
+      .createQueryBuilder('user')
+      .select(['user.userId', 'user.email', 'user.status', 'user.createdAt'])
+      .where('user.userId = :id', { id: userId })
+      .getOne();
+
+    // const userInfo = await this.userRepository.findOne(userId);
     // console.log(userInfo);
 
     return userInfo;

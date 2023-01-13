@@ -24,13 +24,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     // console.log(validatedUser);
 
     if (!validatedUser) {
-      // FIXME: 이상하게 이 부분의 예외처리가 안된다. 자체적으로 에러 메시지를 처리할 수 있게 바꾸면 좋을듯. (default는 401 상태코드로 고정)
+      // FIXME: 자체적으로 에러 메시지를 처리할 수 있게 바꾸면 좋을듯. 왠지 모르겠지만 이건 안된다. (default는 401 상태코드로 고정)
       return errResponse(baseResponse.USER_NOT_FOUND);
       // throw new UnauthorizedException();
     }
 
     // return done(null, validatedUser);
-    return sucResponse(baseResponse.SUCCESS, validatedUser);
-    // return validatedUser;
+    // return sucResponse(baseResponse.SUCCESS, validatedUser);
+    return validatedUser;
   }
 }

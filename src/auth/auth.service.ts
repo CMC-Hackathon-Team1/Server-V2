@@ -69,8 +69,9 @@ export class AuthService {
   }
 
   async userValidateToken(payload: Payload): Promise<Users | undefined> {
-    return await this.userService.findByFields({
-      where: { userId: payload.userId },
-    });
+    // return await this.userService.findByFields({
+    //   where: { userId: payload.userId },
+    // });
+    return await this.userService.getUserInfo(payload.userId);
   }
 }

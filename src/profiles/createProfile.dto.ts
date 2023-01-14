@@ -11,8 +11,9 @@ export class CreateProfileDto {
   profileName: string;
 
   @IsNotEmpty()
-  @IsNumber()
-  personaId: number;
+  @IsString()
+  @MaxLength(45)
+  personaName: string;
 
   @IsNotEmpty()
   @IsString()

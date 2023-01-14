@@ -15,6 +15,7 @@ import { Feeds } from './_entities/Feeds';
 import { FollowFromTo } from './_entities/FollowFromTo';
 import { HashTags } from './_entities/HashTags';
 import { Likes } from './_entities/Likes';
+import { Notice } from './_entities/Notice';
 import { Persona } from './_entities/Persona';
 import { ProfileHashTagMapping } from './_entities/ProfileHashTagMapping';
 import { Profiles } from './_entities/Profiles';
@@ -44,6 +45,7 @@ import { Users } from './_entities/Users';
         FollowFromTo,
         HashTags,
         Likes,
+        Notice,
         Persona,
         ProfileHashTagMapping,
         Profiles,

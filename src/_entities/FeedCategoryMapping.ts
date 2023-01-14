@@ -2,12 +2,12 @@ import { Column, Entity, Index, JoinColumn, ManyToOne } from "typeorm";
 import { Categories } from "./Categories";
 import { Feeds } from "./Feeds";
 
-@Index("FK_FeedCategoryMapping_feedId_Feeds_feedId", ["feedId"], {})
 @Index(
   "FK_FeedCategoryMapping_categoryId_Categories_categoryId",
   ["categoryId"],
   {}
 )
+@Index("FK_FeedCategoryMapping_feedId_Feeds_feedId", ["feedId"], {})
 @Entity("FeedCategoryMapping", { schema: "devDB" })
 export class FeedCategoryMapping {
   @Column("int", { name: "feedId", unsigned: true })

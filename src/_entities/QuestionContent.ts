@@ -1,16 +1,11 @@
-import {
-  Column,
-  Entity,
-  Index,
-  JoinColumn,
-  OneToOne,
-  PrimaryGeneratedColumn,
-} from "typeorm";
+import { Column, Entity, JoinColumn, OneToOne } from "typeorm";
 import { Questions } from "./Questions";
 
-@Index("FK_QuestionContent_questionId_Questions_questionId", ["questionId"], {})
 @Entity("QuestionContent", { schema: "devDB" })
 export class QuestionContent {
+  @Column("int", { primary: true, name: "questionId", unsigned: true })
+  questionId: number;
+
   @Column("int", { name: "userId", unsigned: true })
   userId: number;
 
@@ -19,9 +14,6 @@ export class QuestionContent {
 
   @Column("timestamp", { name: "createdAt" })
   createdAt: Date;
-
-  @PrimaryGeneratedColumn({ type: "int", name: "questionId", unsigned: true })
-  questionId: number;
 
   @OneToOne(() => Questions, (questions) => questions.questionContent, {
     onDelete: "RESTRICT",

@@ -6,28 +6,29 @@ export class Users {
   @PrimaryGeneratedColumn({ type: "int", name: "userId", unsigned: true })
   userId: number;
 
-  @Column("text", { name: "alarm_token", nullable: true })
-  alarmToken: string | null;
+  @Column("text", { name: "alarm_token" })
+  alarmToken: string;
 
   @Column("varchar", { name: "email", nullable: true, length: 100 })
   email: string | null;
 
-  @Column("varchar", { name: "password", nullable: true, length: 255 })
+  @Column("text", { name: "password", nullable: true })
   password: string | null;
-
-  @Column("varchar", {
-    name: "status",
-    comment: "ACTIVE,INACTIVE,DELETED",
-    length: 45,
-    default: () => "'ACTIVE'",
-  })
-  status: string;
 
   @Column("timestamp", {
     name: "createdAt",
+    nullable: true,
     default: () => "CURRENT_TIMESTAMP",
   })
-  createdAt: Date;
+  createdAt: Date | null;
+
+  @Column("varchar", {
+    name: "status",
+    nullable: true,
+    length: 45,
+    default: () => "'ACTIVE'",
+  })
+  status: string | null;
 
   @OneToMany(() => Profiles, (profiles) => profiles.user)
   profiles: Profiles[];

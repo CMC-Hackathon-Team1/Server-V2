@@ -1,14 +1,8 @@
-import {
-  Column,
-  Entity,
-  Index,
-  JoinColumn,
-  ManyToOne,
-  OneToOne,
-} from "typeorm";
-import { Feeds } from "./Feeds";
+import { Column, Entity, Index, JoinColumn, ManyToOne } from "typeorm";
 import { Categories } from "./Categories";
+import { Feeds } from "./Feeds";
 
+@Index("FK_FeedCategoryMapping_feedId_Feeds_feedId", ["feedId"], {})
 @Index(
   "FK_FeedCategoryMapping_categoryId_Categories_categoryId",
   ["categoryId"],
@@ -16,18 +10,14 @@ import { Categories } from "./Categories";
 )
 @Entity("FeedCategoryMapping", { schema: "devDB" })
 export class FeedCategoryMapping {
-  @Column("int", { primary: true, name: "feedId", unsigned: true })
+  @Column("int", { name: "feedId", unsigned: true })
   feedId: number;
 
   @Column("int", { name: "categoryId", unsigned: true })
   categoryId: number;
 
-  @OneToOne(() => Feeds, (feeds) => feeds.feedCategoryMapping, {
-    onDelete: "RESTRICT",
-    onUpdate: "RESTRICT",
-  })
-  @JoinColumn([{ name: "feedId", referencedColumnName: "feedId" }])
-  feed: Feeds;
+  @Column("int", { primary: true, name: "id", unsigned: true })
+  id: number;
 
   @ManyToOne(
     () => Categories,
@@ -36,4 +26,11 @@ export class FeedCategoryMapping {
   )
   @JoinColumn([{ name: "categoryId", referencedColumnName: "categoryId" }])
   category: Categories;
+
+  @ManyToOne(() => Feeds, (feeds) => feeds.feedCategoryMappings, {
+    onDelete: "RESTRICT",
+    onUpdate: "RESTRICT",
+  })
+  @JoinColumn([{ name: "feedId", referencedColumnName: "feedId" }])
+  feed: Feeds;
 }

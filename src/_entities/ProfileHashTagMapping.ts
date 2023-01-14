@@ -1,14 +1,12 @@
-import {
-  Column,
-  Entity,
-  Index,
-  JoinColumn,
-  ManyToOne,
-  OneToOne,
-} from "typeorm";
+import { Column, Entity, Index, JoinColumn, ManyToOne } from "typeorm";
 import { HashTags } from "./HashTags";
 import { Profiles } from "./Profiles";
 
+@Index(
+  "FK_ProfileHashTagMapping_profileId_Profiles_profileId",
+  ["profileId"],
+  {}
+)
 @Index(
   "FK_ProfileHashTagMapping_hashTagId_HashTags_hashTagId",
   ["hashTagId"],
@@ -16,7 +14,7 @@ import { Profiles } from "./Profiles";
 )
 @Entity("ProfileHashTagMapping", { schema: "devDB" })
 export class ProfileHashTagMapping {
-  @Column("int", { primary: true, name: "profileId", unsigned: true })
+  @Column("int", { name: "profileId", unsigned: true })
   profileId: number;
 
   @Column("int", { name: "hashTagId", unsigned: true })
@@ -28,6 +26,9 @@ export class ProfileHashTagMapping {
   })
   createdAt: Date;
 
+  @Column("int", { primary: true, name: "id", unsigned: true })
+  id: number;
+
   @ManyToOne(() => HashTags, (hashTags) => hashTags.profileHashTagMappings, {
     onDelete: "RESTRICT",
     onUpdate: "RESTRICT",
@@ -35,7 +36,7 @@ export class ProfileHashTagMapping {
   @JoinColumn([{ name: "hashTagId", referencedColumnName: "hashTagId" }])
   hashTag: HashTags;
 
-  @OneToOne(() => Profiles, (profiles) => profiles.profileHashTagMapping, {
+  @ManyToOne(() => Profiles, (profiles) => profiles.profileHashTagMappings, {
     onDelete: "RESTRICT",
     onUpdate: "RESTRICT",
   })

@@ -17,9 +17,9 @@ jobs:
           username: ${{ secrets.REMOTE_USER }}
           password: ${{ secrets.REMOTE_PASSWORD }}
           port: ${{ secrets.REMOTE_SSH_PORT }}
-          run: |
+          script: |
             cd /home/ubuntu/Server-V2
             git pull origin dev
-            npm ci
+            npm i --force
             npm run build
             pm2 restart dist/main.js

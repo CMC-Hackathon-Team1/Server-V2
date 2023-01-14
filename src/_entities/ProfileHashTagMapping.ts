@@ -3,13 +3,13 @@ import { HashTags } from "./HashTags";
 import { Profiles } from "./Profiles";
 
 @Index(
-  "FK_ProfileHashTagMapping_profileId_Profiles_profileId",
-  ["profileId"],
+  "FK_ProfileHashTagMapping_hashTagId_HashTags_hashTagId",
+  ["hashTagId"],
   {}
 )
 @Index(
-  "FK_ProfileHashTagMapping_hashTagId_HashTags_hashTagId",
-  ["hashTagId"],
+  "FK_ProfileHashTagMapping_profileId_Profiles_profileId",
+  ["profileId"],
   {}
 )
 @Entity("ProfileHashTagMapping", { schema: "devDB" })

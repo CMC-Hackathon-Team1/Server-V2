@@ -2,8 +2,8 @@ import { Column, Entity, Index, JoinColumn, ManyToOne } from "typeorm";
 import { Feeds } from "./Feeds";
 import { HashTags } from "./HashTags";
 
-@Index("FK_FeedHashTagMapping_hashTagId_HashTags_hashTagId", ["hashTagId"], {})
 @Index("FK_FeedHashTagMapping_feedId_Feeds_feedId", ["feedId"], {})
+@Index("FK_FeedHashTagMapping_hashTagId_HashTags_hashTagId", ["hashTagId"], {})
 @Entity("FeedHashTagMapping", { schema: "devDB" })
 export class FeedHashTagMapping {
   @Column("int", { name: "feedId", unsigned: true })

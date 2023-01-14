@@ -14,8 +14,8 @@ import { ProfileHashTagMapping } from "./ProfileHashTagMapping";
 import { Persona } from "./Persona";
 import { Users } from "./Users";
 
-@Index("FK_Profiles_userId_Users_userId", ["userId"], {})
 @Index("FK_Profiles_personaId_Persona_personaId", ["personaId"], {})
+@Index("FK_Profiles_userId_Users_userId", ["userId"], {})
 @Entity("Profiles", { schema: "devDB" })
 export class Profiles {
   @PrimaryGeneratedColumn({ type: "int", name: "profileId", unsigned: true })
@@ -45,7 +45,7 @@ export class Profiles {
   @OneToMany(() => Feeds, (feeds) => feeds.profile)
   feeds: Feeds[];
 
-  @OneToMany(() => FollowFromTo, (followFromTo) => followFromTo.fiomUser)
+  @OneToMany(() => FollowFromTo, (followFromTo) => followFromTo.fromUser)
   followFromTos: FollowFromTo[];
 
   @OneToMany(() => FollowFromTo, (followFromTo) => followFromTo.toUser)

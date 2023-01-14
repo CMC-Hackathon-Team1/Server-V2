@@ -1,0 +1,25 @@
+name: dev branch auto ci process script
+
+on:
+  push:
+    branches: [ "dev" ]
+
+jobs:
+  deploy:
+    name: deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: excuting remote ssh commands
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.REMOTE_IP }}
+          username: ${{ secrets.REMOTE_USER }}
+          password: ${{ secrets.REMOTE_PASSWORD }}
+          port: ${{ secrets.REMOTE_SSH_PORT }}
+          script: |
+            cd /home/ubuntu/Server-V2
+            git pull origin dev
+            npm ci
+            npm run build
+            pm2 restart dist/main.js

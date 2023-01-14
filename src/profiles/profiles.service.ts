@@ -27,7 +27,7 @@ export class ProfilesService {
 
     // existPersonaId = 페르소나 테이블에 해당 페르소나가 존재하는 경우: 해당 페르소나 ID 사용 / 존재하지 않는 경우: 새로운 페르소나를 생성하여 생성된 페르소나 ID를 사용
     // existPersonaId를 이용해 프로필 생성에 필요한 personaId 저장
-    let existPersonaId = checkExistPerona?.personaId; // checkExistPersona가 undefined인 경우가 있을 수 있으므로 ? 부여
+    const existPersonaId = checkExistPerona?.personaId; // checkExistPersona가 undefined인 경우가 있을 수 있으므로 ? 부여
     for(let i = 0; i < userProfilesList.length; i++) {
       if (existPersonaId === userProfilesList[i].personaId) {
         return errResponse(baseResponse.PROFILE_SAME_PERSONA);
@@ -35,16 +35,17 @@ export class ProfilesService {
     }
 
     // 아무도 사용하지 않은 새로운 페르소나인 경우 페르소나를 생성한 후 생성된 페르소나 ID를 이용하여 프로필을 생성
+    let newProfilePeronaId = existPersonaId;
     if (checkExistPerona === undefined) { // 아무도 해당 페르소나를 이용하지 않는 경우
       const newPersona = await this.personaRepository.createPersona({ personaName: newProfilePersonaName });
-      existPersonaId = newPersona.personaId;
+      newProfilePeronaId = newPersona.personaId;
     }
 
     // 새로운 프로필 생성
     const newProfileDto: SaveProfileDto = {
       userId: createProfileDto.userId,
       profileName: createProfileDto.profileName,
-      personaId: existPersonaId,
+      personaId: newProfilePeronaId,
       profileImgUrl: createProfileDto.profileImgUrl,
       statusMessage: createProfileDto.statusMessage
     }

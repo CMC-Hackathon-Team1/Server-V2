@@ -6,8 +6,8 @@ export class Users {
   @PrimaryGeneratedColumn({ type: "int", name: "userId", unsigned: true })
   userId: number;
 
-  @Column("text", { name: "alarm_token" })
-  alarmToken: string;
+  @Column("text", { name: "alarm_token", nullable: true })
+  alarmToken: string | null;
 
   @Column("varchar", { name: "email", nullable: true, length: 100 })
   email: string | null;

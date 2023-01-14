@@ -80,6 +80,7 @@ export class AuthController {
   }
 
   // 로그아웃 (쿠키의 jwt 값 삭제, 유효기간: 0 으로 변경)
+  @UseGuards(JWTAuthGuard)
   @Post('/logout')
   logout(@Res() res: Response): any {
     // [쿠키를 지우는 방법]

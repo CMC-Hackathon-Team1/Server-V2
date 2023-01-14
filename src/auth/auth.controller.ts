@@ -40,7 +40,9 @@ export class AuthController {
       maxAge: 24 * 60 * 60 * 1000,  // 1day
     });
 
-    return res.send(sucResponse(baseResponse.SUCCESS));
+    return res.send(
+      sucResponse(baseResponse.SUCCESS, { userId: jwtResult.userId }),
+    );
 
     // [쿠키로 jwt를 보낼거면, response에서 jwt 노출시키면 안됨] -> 아래 주석처리하고 위 주석해제하기
     // return res.send(

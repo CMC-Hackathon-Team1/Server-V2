@@ -65,7 +65,7 @@ export class AuthService {
     //   userId: userFind.userId,
     //   accessToken: jwtToken,
     // });
-    return { accessToken: jwtToken };
+    return { userId: userFind.userId, accessToken: jwtToken };
   }
 
   async userValidateToken(payload: Payload): Promise<Users | undefined> {

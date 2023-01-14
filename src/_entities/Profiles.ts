@@ -5,18 +5,17 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
-  OneToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { Feeds } from "./Feeds";
 import { FollowFromTo } from "./FollowFromTo";
 import { Likes } from "./Likes";
 import { ProfileHashTagMapping } from "./ProfileHashTagMapping";
-import { Users } from "./Users";
 import { Persona } from "./Persona";
+import { Users } from "./Users";
 
-@Index("FK_Profiles_personaId_Persona_personaId", ["personaId"], {})
 @Index("FK_Profiles_userId_Users_userId", ["userId"], {})
+@Index("FK_Profiles_personaId_Persona_personaId", ["personaId"], {})
 @Entity("Profiles", { schema: "devDB" })
 export class Profiles {
   @PrimaryGeneratedColumn({ type: "int", name: "profileId", unsigned: true })
@@ -34,7 +33,7 @@ export class Profiles {
   @Column("text", { name: "profileImgUrl" })
   profileImgUrl: string;
 
-  @Column("varchar", { name: "statusMessage", length: 100, default: ''})
+  @Column("varchar", { name: "statusMessage", length: 100 })
   statusMessage: string;
 
   @Column("timestamp", {
@@ -46,27 +45,20 @@ export class Profiles {
   @OneToMany(() => Feeds, (feeds) => feeds.profile)
   feeds: Feeds[];
 
-  @OneToOne(() => FollowFromTo, (followFromTo) => followFromTo.fiomUser)
-  followFromTo: FollowFromTo;
+  @OneToMany(() => FollowFromTo, (followFromTo) => followFromTo.fiomUser)
+  followFromTos: FollowFromTo[];
 
   @OneToMany(() => FollowFromTo, (followFromTo) => followFromTo.toUser)
-  followFromTos: FollowFromTo[];
+  followFromTos2: FollowFromTo[];
 
   @OneToMany(() => Likes, (likes) => likes.profile)
   likes: Likes[];
 
-  @OneToOne(
+  @OneToMany(
     () => ProfileHashTagMapping,
     (profileHashTagMapping) => profileHashTagMapping.profile
   )
-  profileHashTagMapping: ProfileHashTagMapping;
-
-  @ManyToOne(() => Users, (users) => users.profiles, {
-    onDelete: "RESTRICT",
-    onUpdate: "RESTRICT",
-  })
-  @JoinColumn([{ name: "userId", referencedColumnName: "userId" }])
-  user: Users;
+  profileHashTagMappings: ProfileHashTagMapping[];
 
   @ManyToOne(() => Persona, (persona) => persona.profiles, {
     onDelete: "RESTRICT",
@@ -74,4 +66,11 @@ export class Profiles {
   })
   @JoinColumn([{ name: "personaId", referencedColumnName: "personaId" }])
   persona: Persona;
+
+  @ManyToOne(() => Users, (users) => users.profiles, {
+    onDelete: "RESTRICT",
+    onUpdate: "RESTRICT",
+  })
+  @JoinColumn([{ name: "userId", referencedColumnName: "userId" }])
+  user: Users;
 }

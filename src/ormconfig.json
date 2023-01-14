@@ -6,8 +6,8 @@
     "port": 3306,
     "username": "root",
     "password": "p@ssword",
-    "database": "devDB",
+    "database": "",
     "synchronize": false,
-    "entities": ["entities/*.js"]
+    "entities": ["_entities/*.js"]
   }
 ]

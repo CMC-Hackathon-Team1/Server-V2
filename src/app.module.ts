@@ -4,6 +4,9 @@ import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProfilesModule } from './profiles/profiles.module';
+import { PersonaModule } from './persona/persona.module';
+import { AuthModule } from './auth/auth.module';
+import { JwtMiddleware } from './_middleware/jwt.middleware';
 import { Categories } from './_entities/Categories';
 import { FeedCategoryMapping } from './_entities/FeedCategoryMapping';
 import { FeedHashTagMapping } from './_entities/FeedHashTagMapping';
@@ -18,9 +21,6 @@ import { Profiles } from './_entities/Profiles';
 import { QuestionContent } from './_entities/QuestionContent';
 import { Questions } from './_entities/Questions';
 import { Users } from './_entities/Users';
-import { PersonaModule } from './persona/persona.module';
-import { AuthModule } from './auth/auth.module';
-import { JwtMiddleware } from './_middleware/jwt.middleware';
 
 @Module({
   imports: [
@@ -51,7 +51,7 @@ import { JwtMiddleware } from './_middleware/jwt.middleware';
         Questions,
         Users,
       ],
-      synchronize: true,
+      synchronize: false,
     }),
     ProfilesModule,
     PersonaModule,

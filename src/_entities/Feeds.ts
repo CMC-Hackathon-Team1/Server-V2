@@ -5,7 +5,6 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
-  OneToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { FeedCategoryMapping } from "./FeedCategoryMapping";
@@ -49,17 +48,17 @@ export class Feeds {
   })
   status: string;
 
-  @OneToOne(
+  @OneToMany(
     () => FeedCategoryMapping,
     (feedCategoryMapping) => feedCategoryMapping.feed
   )
-  feedCategoryMapping: FeedCategoryMapping;
+  feedCategoryMappings: FeedCategoryMapping[];
 
-  @OneToOne(
+  @OneToMany(
     () => FeedHashTagMapping,
     (feedHashTagMapping) => feedHashTagMapping.feed
   )
-  feedHashTagMapping: FeedHashTagMapping;
+  feedHashTagMappings: FeedHashTagMapping[];
 
   @OneToMany(() => FeedImgs, (feedImgs) => feedImgs.feed)
   feedImgs: FeedImgs[];
@@ -71,6 +70,6 @@ export class Feeds {
   @JoinColumn([{ name: "profileId", referencedColumnName: "profileId" }])
   profile: Profiles;
 
-  @OneToOne(() => Likes, (likes) => likes.feed)
-  likes: Likes;
+  @OneToMany(() => Likes, (likes) => likes.feed)
+  likes: Likes[];
 }

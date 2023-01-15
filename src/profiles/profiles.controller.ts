@@ -1,4 +1,5 @@
-import { Body, Controller, Post, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
+import { JWTAuthGuard } from '../auth/security/auth.guard.jwt';
 import { CreateProfileDto } from './createProfile.dto';
 import { ProfilesService } from './profiles.service';
 
@@ -7,6 +8,7 @@ export class ProfilesController {
   constructor(private profilesService: ProfilesService) {}
 
   // API No. 1.1 프로필 생성
+  @UseGuards(JWTAuthGuard)
   @Post()
   @UsePipes(ValidationPipe)
   createProfile(@Body() createProfileDto: CreateProfileDto) {

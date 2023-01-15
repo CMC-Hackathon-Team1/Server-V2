@@ -47,7 +47,7 @@ export class ProfilesService {
       profileName: createProfileDto.profileName,
       personaId: newProfilePeronaId,
       profileImgUrl: createProfileDto.profileImgUrl,
-      statusMessage: createProfileDto.statusMessage || ''
+      statusMessage: createProfileDto.statusMessage
     }
     const newProfile = await this.profileRepository.saveNewProfile(newProfileDto);
     const result = {

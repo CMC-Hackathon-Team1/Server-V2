@@ -22,5 +22,5 @@ export class CreateProfileDto {
   @IsOptional()
   @MaxLength(100)
   @IsString()
-  statusMessage: string | '';
+  statusMessage: string;
 }

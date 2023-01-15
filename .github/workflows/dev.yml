@@ -24,4 +24,4 @@ jobs:
             git pull origin dev
             npm i --force
             npm run build
-            pm2 restart main.js
+            pm2 restart main

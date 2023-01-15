@@ -3,6 +3,8 @@ name: dev branch auto ci process script
 on:
   push:
     branches: [ dev ]
+  pull_request:
+    branches: [ dev ]
 
 jobs:
   deploy:
@@ -11,15 +13,15 @@ jobs:
 
     steps:
       - name: excuting remote ssh commands
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v0.1.6
         with:
           host: ${{ secrets.REMOTE_IP }}
           username: ${{ secrets.REMOTE_USER }}
-          password: ${{ secrets.REMOTE_PASSWORD }}
+          key: ${{ secrets.REMOTE_PRIVATE_KEY }}
           port: ${{ secrets.REMOTE_SSH_PORT }}
           script: |
             cd /home/ubuntu/Server-V2
             git pull origin dev
             npm i --force
             npm run build
-            pm2 restart dist/main.js
+            pm2 restart main

@@ -2,12 +2,14 @@ const baseResponse = {
   // SUCCESS
   SUCCESS: { statusCode: 100, message: 'SUCCESS' },
 
-  // 서버, Pipe 등 관련 statusCode -> 400~500번대
-  // { statusCode: 400, message: (각 Pipe에 의해 메시지 출력), error: 'Bad Request' }
+  // PIPE ERROR
+  PIPE_ERROR_EXAMPLE: { statusCode: 400, message: ['profileImgUrl must be a string'], error: 'Bad Request' },
 
-  // DB,Server ERROR
-  // { statusCode: 500, message: 'Internal server error' }
-  DB_ERROR: { statusCode: 501, message: 'DB_ERROR' },
+  // JWT ERROR
+  JWT_UNAUTHORIZED: { statusCode: 401, message: 'Unauthorized' },
+
+  // DB, Server ERROR
+  SERVER_ERROR: { statusCode: 501, message: 'Internal_Server_ERROR' },
 
   // -- 파트별로 1000번대부터 500개씩 나눠서 --
 

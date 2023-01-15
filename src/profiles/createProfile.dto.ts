@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsString, MaxLength } from "class-validator";
+import { IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength } from "class-validator";
 
 export class CreateProfileDto {
   @IsNotEmpty()
@@ -19,7 +19,8 @@ export class CreateProfileDto {
   @IsString()
   profileImgUrl: string;
 
-  @MaxLength(30)
+  @IsOptional()
+  @MaxLength(100)
   @IsString()
   statusMessage: string;
 }

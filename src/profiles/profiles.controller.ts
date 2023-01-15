@@ -9,7 +9,7 @@ export class ProfilesController {
 
   // API No. 1.1 프로필 생성
   @UseGuards(JWTAuthGuard)
-  @Post()
+  @Post('/create')
   @UsePipes(ValidationPipe)
   createProfile(@Body() createProfileDto: CreateProfileDto) {
     return this.profilesService.createProfile(createProfileDto);

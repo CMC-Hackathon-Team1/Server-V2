@@ -11,11 +11,11 @@ jobs:
 
     steps:
       - name: excuting remote ssh commands
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@0.1.7
         with:
           host: ${{ secrets.REMOTE_IP }}
           username: ${{ secrets.REMOTE_USER }}
-          password: ${{ secrets.REMOTE_PASSWORD }}
+          key: ${{ secrets.REMOTE_PRIVATE_KEY }}
           port: ${{ secrets.REMOTE_SSH_PORT }}
           script: |
             cd /home/ubuntu/Server-V2

@@ -28,6 +28,11 @@ async function bootstrap() {
       name: 'JWT',
       in: 'header'
     }, 'Authorization')
+    // .addCookieAuth('authCookie', {
+    //   type: 'http',
+    //   in: 'Header',
+    //   scheme: 'Bearer',
+    // })
     .build();
   const document: OpenAPIObject = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);

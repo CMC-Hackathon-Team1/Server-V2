@@ -9,7 +9,8 @@ const baseResponse = {
   JWT_UNAUTHORIZED: { statusCode: 401, message: 'Unauthorized' },
 
   // DB, Server ERROR
-  SERVER_ERROR: { statusCode: 501, message: 'Internal_Server_ERROR' },
+  SERVER_ERROR: { statusCode: 500, message: 'Internal_Server_ERROR' },
+  DB_ERROR: { statusCode: 501, message: 'DB ERROR' },
 
   // -- 파트별로 1000번대부터 500개씩 나눠서 --
 

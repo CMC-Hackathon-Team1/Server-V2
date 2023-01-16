@@ -6,7 +6,7 @@ import { Request, Response } from 'express';
 import { errResponse, sucResponse } from '../_utilities/response';
 import baseResponse from '../_utilities/baseResponseStatus';
 import { UserService } from './user.service';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {ApiBearerAuth, ApiBody, ApiHeader, ApiOperation, ApiResponse, ApiTags} from '@nestjs/swagger';
 
 @ApiTags('로그인, 인증 API')
 @Controller('auth')
@@ -18,9 +18,10 @@ export class AuthController {
 
   // API No. 4.1.4.1. 자체로그인 - 회원가입
   @ApiOperation({
-    summary: '자체 로그인 - 회원가입 API',
+    summary: '4.1.4.1. 자체 로그인 - 회원가입',
     description: '이메일,비밀번호로 직접 회원가입한다.',
   })
+  @ApiBody({ type: UserDTO })
   @ApiResponse({
     status: 100,
     description: 'SUCCESS',
@@ -50,6 +51,11 @@ export class AuthController {
   }
 
   // API No. 4.1.4.2. 자체로그인 - 로그인
+  @ApiOperation({
+    summary: '4.1.4.2. 자체 로그인 - 로그인',
+    description: '이메일,비밀번호로 직접 로그인 한다.',
+  })
+  @ApiBody({ type: UserDTO })
   @ApiResponse({
     status: 100,
     description: 'SUCCESS',
@@ -90,7 +96,7 @@ export class AuthController {
     res.cookie('jwt', jwtResult.accessToken, {
       // domain: 'OnAndOff Login',
       httpOnly: true,              // 브라우저에서의 쿠키 사용 막기 (XSS등의 보안강화용)
-      maxAge: 24 * 60 * 60 * 1000, // 1day
+      // maxAge: 24 * 60 * 60 * 1000, // 1day
     });
 
     return res.send(
@@ -135,11 +141,15 @@ export class AuthController {
   }
 
   // API No. 4.1.4.3. 자체로그인 - 로그아웃 (쿠키의 jwt 값 삭제, 유효기간: 0 으로 변경)
+  @ApiOperation({
+    summary: '4.1.4.3. 자체 로그인 - 로그아웃',
+    description: '로그아웃 한다. (헤더에 jwt 정보를 함께 보내세요)',
+  })
   @ApiBearerAuth('Authorization')
   @ApiResponse({
     status: 100,
     description: 'SUCCESS',
-    schema: { example: sucResponse(baseResponse.SUCCESS, { userId: 5 }) },
+    schema: { example: sucResponse(baseResponse.SUCCESS) },
   })
   @ApiResponse({
     status: 400,

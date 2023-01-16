@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import * as expressBasicAuth from 'express-basic-auth';
 import { SwaggerModule, DocumentBuilder, OpenAPIObject } from '@nestjs/swagger';
 import * as cookieParser from 'cookie-parser';
+import { BaseAPIDocument } from './_config/swagger.document.config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -16,25 +17,8 @@ async function bootstrap() {
       },
     }),
   );
-  const config = new DocumentBuilder()
-    .setTitle('OnandOff')
-    .setDescription('세상에 없던 멀티 페르소나 기록 플랫폼 OnandOff')
-    .setVersion('2.0.0')
-    .addBearerAuth({
-      type: 'http',
-      scheme: 'bearer',
-      bearerFormat: 'JWT',
-      description: 'JWT 토큰을 입력하세요 (Bearer 뒷 부분)',
-      name: 'JWT',
-      in: 'header'
-    }, 'Authorization')
-    // .addCookieAuth('authCookie', {
-    //   type: 'http',
-    //   in: 'Header',
-    //   scheme: 'Bearer',
-    // })
-    .build();
-  const document: OpenAPIObject = SwaggerModule.createDocument(app, config);
+  const swagger_config = new BaseAPIDocument().initializeOptions();
+  const document: OpenAPIObject = SwaggerModule.createDocument(app, swagger_config);
   SwaggerModule.setup('docs', app, document);
 
   app.enableCors({

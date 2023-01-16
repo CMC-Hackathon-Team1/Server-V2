@@ -1,7 +1,7 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
 import { AppService } from './app.service';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import {ApiBearerAuth, ApiOperation, ApiTags} from '@nestjs/swagger';
 
 @ApiTags('Test API')
 @Controller()
@@ -14,7 +14,8 @@ export class AppController {
     return this.appService.getHello();
   }
 
-  @ApiOperation({ summary: 'jwt 인증 테스트', description: '헤더 정보를 올바르게 넣었을 때 반환이 잘 되는지 테스트' })
+  @ApiOperation({ summary: 'jwt 인증 테스트', description: '헤더에 jwt 정보를 올바르게 넣었을 때 반환이 잘 되는지 테스트' })
+  @ApiBearerAuth('Authorization')
   @UseGuards(AuthGuard('jwt'))
   @Get('/jwt-test')
   jwtTest(): string {

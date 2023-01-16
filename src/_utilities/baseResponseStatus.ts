@@ -3,7 +3,7 @@ const baseResponse = {
   SUCCESS: { statusCode: 100, message: 'SUCCESS' },
 
   // PIPE ERROR
-  PIPE_ERROR_EXAMPLE: { statusCode: 400, message: ['profileImgUrl must be a string'], error: 'Bad Request' },
+  PIPE_ERROR_EXAMPLE: { statusCode: 400, message: ['... must be a string'], error: 'Bad Request' },
 
   // JWT ERROR
   JWT_UNAUTHORIZED: { statusCode: 401, message: 'Unauthorized' },

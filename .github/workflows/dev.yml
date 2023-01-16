@@ -22,6 +22,7 @@ jobs:
           script: |
             cd /home/ubuntu/Server-V2
             git pull origin dev
+            pm2 kill
             npm i --force
             npm run build
-            pm2 restart main
+            pm2 start dist/main.js

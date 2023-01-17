@@ -10,9 +10,10 @@ import { ProfilesRepository } from './profiles.repository';
 export class ProfilesService {
   constructor(
     private profileRepository: ProfilesRepository,
-    private personaRepository: PersonaRepository
+    private personaRepository: PersonaRepository,
   ) {}
 
+  // 프로필 생성
   async createProfile(createProfileDto: CreateProfileDto): Promise<any> {
     const userProfilesList = await this.profileRepository.getUserProfilesList(createProfileDto.userId);
     const newProfilePersonaName = createProfileDto.personaName;
@@ -28,7 +29,7 @@ export class ProfilesService {
     // existPersonaId = 페르소나 테이블에 해당 페르소나가 존재하는 경우: 해당 페르소나 ID 사용 / 존재하지 않는 경우: 새로운 페르소나를 생성하여 생성된 페르소나 ID를 사용
     // existPersonaId를 이용해 프로필 생성에 필요한 personaId 저장
     const existPersonaId = checkExistPerona?.personaId; // checkExistPersona가 undefined인 경우가 있을 수 있으므로 ? 부여
-    for(let i = 0; i < userProfilesList.length; i++) {
+    for (let i = 0; i < userProfilesList.length; i++) {
       if (existPersonaId === userProfilesList[i].personaId) {
         return errResponse(baseResponse.PROFILE_SAME_PERSONA);
       }
@@ -47,13 +48,31 @@ export class ProfilesService {
       profileName: createProfileDto.profileName,
       personaId: newProfilePeronaId,
       profileImgUrl: createProfileDto.profileImgUrl,
-      statusMessage: createProfileDto.statusMessage
-    }
-    const newProfile = await this.profileRepository.saveNewProfile(newProfileDto);
+      statusMessage: createProfileDto.statusMessage,
+    };
+    const newProfile = await this.profileRepository.saveNewProfile(
+      newProfileDto,
+    );
     const result = {
       profileId: newProfile.profileId,
-    }
+    };
 
     return sucResponse(baseResponse.SUCCESS, result);
+  }
+
+  // 프로필 삭제
+  async deleteProfile(profileId: number) {
+    try {
+      const result =  await this.profileRepository.deleteProfile(profileId);
+
+      // profileId에 해당하는 프로필이 없는 경우
+      if (result.affected === 0) {
+        return errResponse(baseResponse.PROFILE_NOT_EXIST)
+      }
+      
+      return sucResponse(baseResponse.SUCCESS);
+    } catch (error) {
+      return errResponse(baseResponse.DB_ERROR);
+    }
   }
 }

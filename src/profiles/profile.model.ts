@@ -6,5 +6,4 @@ export interface ProfileModel {
   profileImgUrl: string;
   statusMessage: string;
   createdAt: Date;
-  status: string;
 }

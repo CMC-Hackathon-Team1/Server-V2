@@ -62,15 +62,13 @@ export class ProfilesService {
 
   // 프로필 삭제
   async deleteProfile(profileId: number) {
-    const targetProfile = await this.profileRepository.findProfileByProfileId(profileId,);
-
-    // 삭제하려는 프로필이 존재하지 않는 경우
-    if (!targetProfile) {
-      return errResponse(baseResponse.PROFILE_NOT_EXIST);
-    }
-
     try {
-      await this.profileRepository.deleteProfile(targetProfile);
+      const result =  await this.profileRepository.deleteProfile(profileId);
+
+      // profileId에 해당하는 프로필이 없는 경우
+      if (result.affected === 0) {
+        return errResponse(baseResponse.PROFILE_NOT_EXIST)
+      }
       
       return sucResponse(baseResponse.SUCCESS);
     } catch (error) {

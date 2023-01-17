@@ -42,9 +42,6 @@ export class Profiles {
   })
   createdAt: Date;
 
-  @Column("varchar", { name: "status", length: 20, default: "ACTIVE" })
-  status: string;
-
   @OneToMany(() => Feeds, (feeds) => feeds.profile)
   feeds: Feeds[];
 

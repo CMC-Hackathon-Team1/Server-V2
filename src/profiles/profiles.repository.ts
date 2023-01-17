@@ -25,14 +25,12 @@ export class ProfilesRepository {
   // 프로필 ID로 프로필 찾기
   async findProfileByProfileId(profileId: number) {
     return await this.profilesTable.findOne({
-      where: { profileId: profileId, status: 'ACTIVE' },
+      where: { profileId: profileId },
     });
   }
 
   // 프로필 삭제
-  async deleteProfile(targetProfile: ProfileModel) {
-    return await this.profilesTable.update(targetProfile.profileId, {
-      status: 'INACTIVE',
-    });
+  async deleteProfile(profileId: number) {
+    return await this.profilesTable.delete(profileId);
   }
 }

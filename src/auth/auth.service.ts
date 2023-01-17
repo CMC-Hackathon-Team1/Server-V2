@@ -7,6 +7,9 @@ import * as bcrypt from 'bcrypt';
 import { Payload } from './security/payload.interface';
 import { Users } from '../_entities/Users';
 import { JwtService } from '@nestjs/jwt';
+import axios from 'axios';
+import * as qs from 'qs';
+import { kakaoConfig } from '../_config/kakao.config';
 
 @Injectable()
 export class AuthService {
@@ -73,5 +76,66 @@ export class AuthService {
     //   where: { userId: payload.userId },
     // });
     return await this.userService.getUserInfo(payload.userId);
+  }
+
+  async kakaoLogin(code: any): Promise<any> {
+    const kakaoKey = process.env.KAKAO_REST_API_KEY;
+    const kakaoRedirectUrl = process.env.KAKAO_REDIRECT_URL;
+    // const kakaoTokenUrl = 'https://kauth.kakao.com/oauth/token';
+    // const kakaoUserInfoUrl = 'https://kapi.kakao.com/v2/user/me';
+
+    const headers = {
+      'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
+    };
+    const body = {
+      grant_type: 'authorization_code',
+      client_id: kakaoKey,
+      redirect_url: kakaoRedirectUrl,
+      code: code,
+    };
+
+    // 2. 카카오에게 인가 코드를 보내고 액세스 토큰 받기
+    const kakaoTokenResponse = await axios({
+      method: 'POST',
+      url: kakaoConfig.kakaoTokenUrl,
+      timeout: 30000,
+      headers,
+      data: qs.stringify(body),
+    });
+
+    // [Validation 처리]
+    // 응답이 잘 안 온 경우 (access token을 못 받은 경우)
+    if (kakaoTokenResponse.status !== 200) {
+      return errResponse(baseResponse.KAKAO_ACCESS_TOKEN_FAIL);
+    }
+    // ---
+
+    const kakaoTokenInfo = kakaoTokenResponse.data;
+    console.log(kakaoTokenInfo);
+    const access_token = kakaoTokenInfo.access_token;
+
+    const headerUserInfo = {
+      'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
+      Authorization: `Bearer ${access_token}`,
+    };
+
+    // 3. 액세스 토큰으로 카카오 유저 정보 가져오기
+    const kakaoUserInfoResponse = await axios({
+      method: 'GET',
+      url: kakaoConfig.kakaoUserInfoUrl,
+      timeout: 30000,
+      headers: headerUserInfo,
+    });
+
+    // [Validation 처리]
+    // 응답이 잘 안 온 경우
+    if (kakaoUserInfoResponse.status !== 200) {
+      return errResponse(baseResponse.KAKAO_USER_INFO_FAIL);
+    }
+    // ---
+
+    const kakaoUserInfo = kakaoUserInfoResponse.data;
+    console.log(kakaoUserInfo);
+    return kakaoUserInfo;
   }
 }

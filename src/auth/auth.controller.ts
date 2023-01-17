@@ -6,7 +6,7 @@ import { Request, Response } from 'express';
 import { errResponse, sucResponse } from '../_utilities/response';
 import baseResponse from '../_utilities/baseResponseStatus';
 import { UserService } from './user.service';
-import {ApiBearerAuth, ApiBody, ApiHeader, ApiOperation, ApiResponse, ApiTags} from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('로그인, 인증 API')
 @Controller('auth')
@@ -95,7 +95,7 @@ export class AuthController {
     res.setHeader('Authorization', 'Bearer ' + jwtResult.accessToken);
     res.cookie('jwt', jwtResult.accessToken, {
       // domain: 'OnAndOff Login',
-      httpOnly: true,              // 브라우저에서의 쿠키 사용 막기 (XSS등의 보안강화용)
+      httpOnly: true, // 브라우저에서의 쿠키 사용 막기 (XSS등의 보안강화용)
       // maxAge: 24 * 60 * 60 * 1000, // 1day
     });
 
@@ -175,5 +175,19 @@ export class AuthController {
     });
 
     return res.send(sucResponse(baseResponse.SUCCESS));
+  }
+
+  // API No. 4.1.1.1. 카카오 로그인
+  @Post('/kakao-login')
+  async kakaoLogin(@Body() body: any): Promise<any> {
+    // 1. 클라이언트로부터 인가 코드 전달 받기
+    const { code } = body;
+    if (!code) {
+      return errResponse(baseResponse.KAKAO_AUTH_CODE_EMPTY);
+    }
+
+    const kakaoResult = await this.authService.kakaoLogin(code);
+
+    return kakaoResult;
   }
 }

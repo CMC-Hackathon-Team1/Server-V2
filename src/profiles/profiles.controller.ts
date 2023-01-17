@@ -1,5 +1,19 @@
-import { Body, Controller, ParseIntPipe, Post, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  ParseIntPipe,
+  Post,
+  UseGuards,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { JWTAuthGuard } from '../auth/security/auth.guard.jwt';
 import baseResponse from '../_utilities/baseResponseStatus';
 import { errResponse, sucResponse } from '../_utilities/response';
@@ -17,7 +31,7 @@ export class ProfilesController {
   @ApiResponse({
     status: 100,
     description: 'SUCCESS',
-    schema: {  example: sucResponse(baseResponse.SUCCESS, { profileId: 25 }) },
+    schema: { example: sucResponse(baseResponse.SUCCESS, { profileId: 25 }) },
   })
   @ApiResponse({
     status: 400,
@@ -56,7 +70,35 @@ export class ProfilesController {
   }
 
   // 3.1 프로필 삭제
+  @ApiOperation({ summary: '프로필 삭제', description: '프로필 삭제' })
+  @ApiBearerAuth('Authorization')
   @UseGuards(JWTAuthGuard)
+  @ApiBody({ schema: { example: { profileId: 1 } } })
+  @ApiResponse({
+    status: 100,
+    description: 'SUCCESS',
+    schema: { example: sucResponse(baseResponse.SUCCESS, { profileId: 25 }) },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Body 오류',
+    schema: { example: baseResponse.PIPE_ERROR_EXAMPLE },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'JWT 오류',
+    schema: { example: errResponse(baseResponse.JWT_UNAUTHORIZED) },
+  })
+  @ApiResponse({
+    status: 501,
+    description: 'DB 오류',
+    schema: { example: errResponse(baseResponse.DB_ERROR) },
+  })
+  @ApiResponse({
+    status: 1502,
+    description: 'profileId에 해당하는 프로필이 없는 경우',
+    schema: { example: errResponse(baseResponse.PROFILE_NOT_EXIST) },
+  })
   @Post('/delete')
   deleteProfile(@Body('profileId', ParseIntPipe) profileId: number) {
     return this.profilesService.deleteProfile(profileId);

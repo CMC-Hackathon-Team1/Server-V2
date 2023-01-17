@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, ParseIntPipe, Post, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JWTAuthGuard } from '../auth/security/auth.guard.jwt';
 import baseResponse from '../_utilities/baseResponseStatus';
@@ -53,5 +53,12 @@ export class ProfilesController {
   @UsePipes(ValidationPipe)
   createProfile(@Body() createProfileDto: CreateProfileDto) {
     return this.profilesService.createProfile(createProfileDto);
+  }
+
+  // 3.1 프로필 삭제
+  @UseGuards(JWTAuthGuard)
+  @Post('/delete')
+  deleteProfile(@Body('profileId', ParseIntPipe) profileId: number) {
+    return this.profilesService.deleteProfile(profileId);
   }
 }

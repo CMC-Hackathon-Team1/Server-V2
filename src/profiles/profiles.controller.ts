@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Param,
   ParseIntPipe,
   Post,
   UseGuards,
@@ -18,6 +19,7 @@ import { JWTAuthGuard } from '../auth/security/auth.guard.jwt';
 import baseResponse from '../_utilities/baseResponseStatus';
 import { errResponse, sucResponse } from '../_utilities/response';
 import { CreateProfileDto } from './dto/createProfile.dto';
+import { EditProfileDto } from './dto/editProfile.dto';
 import { ProfilesService } from './profiles.service';
 
 @ApiTags('Profiles')
@@ -69,7 +71,7 @@ export class ProfilesController {
     return this.profilesService.createProfile(createProfileDto);
   }
 
-  // 3.1 프로필 삭제
+  // API No. 3.1 프로필 삭제
   @ApiOperation({ summary: '프로필 삭제', description: '프로필 삭제' })
   @ApiBearerAuth('Authorization')
   @UseGuards(JWTAuthGuard)
@@ -102,5 +104,14 @@ export class ProfilesController {
   @Post('/delete')
   deleteProfile(@Body('profileId', ParseIntPipe) profileId: number) {
     return this.profilesService.deleteProfile(profileId);
+  }
+
+  // API No. 3.1 프로필 수정
+  @Post('/edit/:profileId')
+  editProfile(
+    @Param('profileId', ParseIntPipe) profileId: number,
+    @Body() editProfileDto: EditProfileDto
+  ) {
+    return this.profilesService.editProfile(profileId, editProfileDto);
   }
 }

@@ -5,6 +5,7 @@ import baseResponse from '../_utilities/baseResponseStatus';
 import { errResponse, sucResponse } from '../_utilities/response';
 import { CreateProfileDto } from './dto/createProfile.dto';
 import { ProfilesRepository } from './profiles.repository';
+import { EditProfileDto } from './dto/editProfile.dto';
 
 @Injectable()
 export class ProfilesService {
@@ -15,16 +16,22 @@ export class ProfilesService {
 
   // 프로필 생성
   async createProfile(createProfileDto: CreateProfileDto): Promise<any> {
-    const userProfilesList = await this.profileRepository.getUserProfilesList(createProfileDto.userId);
+    const userProfilesList = await this.profileRepository.getUserProfilesList(
+      createProfileDto.userId,
+    );
     const newProfilePersonaName = createProfileDto.personaName;
 
     // 프로필 갯수 validation
     if (userProfilesList.length >= 3) {
-      return errResponse(baseResponse.PROFILE_COUNT_OVER, {'currentProfileCount': userProfilesList.length});
+      return errResponse(baseResponse.PROFILE_COUNT_OVER, {
+        currentProfileCount: userProfilesList.length,
+      });
     }
 
     // 같은 페르소나 생성 validation
-    const checkExistPerona = await this.personaRepository.getPersonaByName(newProfilePersonaName);
+    const checkExistPerona = await this.personaRepository.getPersonaByName(
+      newProfilePersonaName,
+    );
 
     // existPersonaId = 페르소나 테이블에 해당 페르소나가 존재하는 경우: 해당 페르소나 ID 사용 / 존재하지 않는 경우: 새로운 페르소나를 생성하여 생성된 페르소나 ID를 사용
     // existPersonaId를 이용해 프로필 생성에 필요한 personaId 저장
@@ -37,8 +44,11 @@ export class ProfilesService {
 
     // 아무도 사용하지 않은 새로운 페르소나인 경우 페르소나를 생성한 후 생성된 페르소나 ID를 이용하여 프로필을 생성
     let newProfilePeronaId = existPersonaId;
-    if (checkExistPerona === undefined) { // 아무도 해당 페르소나를 이용하지 않는 경우
-      const newPersona = await this.personaRepository.createPersona({ personaName: newProfilePersonaName });
+    if (checkExistPerona === undefined) {
+      // 아무도 해당 페르소나를 이용하지 않는 경우
+      const newPersona = await this.personaRepository.createPersona({
+        personaName: newProfilePersonaName,
+      });
       newProfilePeronaId = newPersona.personaId;
     }
 
@@ -63,14 +73,31 @@ export class ProfilesService {
   // 프로필 삭제
   async deleteProfile(profileId: number) {
     try {
-      const result =  await this.profileRepository.deleteProfile(profileId);
+      const result = await this.profileRepository.deleteProfile(profileId);
 
       // profileId에 해당하는 프로필이 없는 경우
       if (result.affected === 0) {
-        return errResponse(baseResponse.PROFILE_NOT_EXIST)
+        return errResponse(baseResponse.PROFILE_NOT_EXIST);
       }
-      
+
       return sucResponse(baseResponse.SUCCESS);
+    } catch (error) {
+      return errResponse(baseResponse.DB_ERROR);
+    }
+  }
+
+  // 프로필 수정
+  async editProfile(profileId: number, editProfileDto: EditProfileDto) {
+    try {
+      const editResult = await this.profileRepository.editProfile(profileId, editProfileDto);
+
+      if (editResult.affected === 0) {
+        return errResponse(baseResponse.PROFILE_NOT_EXIST);
+      }
+
+      const editedProfile = await this.profileRepository.findProfileByProfileId(profileId);
+
+      return sucResponse(baseResponse.SUCCESS, editedProfile);
     } catch (error) {
       return errResponse(baseResponse.DB_ERROR);
     }

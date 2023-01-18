@@ -24,6 +24,7 @@ import { Questions } from './_entities/Questions';
 import { Users } from './_entities/Users';
 import { LikesModule } from './likes/likes.module';
 import { FollowingModule } from './following/following.module';
+import { FeedsModule } from './feeds/feeds.module';
 
 @Module({
   imports: [
@@ -62,6 +63,7 @@ import { FollowingModule } from './following/following.module';
     AuthModule,
     LikesModule,
     FollowingModule,
+    FeedsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

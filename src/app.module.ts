@@ -22,20 +22,24 @@ import { Profiles } from './_entities/Profiles';
 import { QuestionContent } from './_entities/QuestionContent';
 import { Questions } from './_entities/Questions';
 import { Users } from './_entities/Users';
+import { Environment } from './_utilities/constants';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: '.env',
+      envFilePath:
+        process.env.NODE_ENV === Environment.Development
+          ? '.env.dev'
+          : '.env.prod',
       isGlobal: true,
     }),
     TypeOrmModule.forRoot({
       type: 'mysql',
-      host: String(process.env.DEVELOPMENT_DB_HOST),
-      port: Number(process.env.DEVELOPMENT_DB_PORT),
-      username: String(process.env.DEVELOPMENT_DB_USER),
-      password: String(process.env.DEVELOPMENT_DB_PASS),
-      database: String(process.env.DEVELOPMENT_DB_NAME),
+      host: String(process.env.DB_HOST),
+      port: Number(process.env.DB_PORT),
+      username: String(process.env.DB_USER),
+      password: String(process.env.DB_PASS),
+      database: String(process.env.DB_NAME),
       entities: [
         Categories,
         FeedCategoryMapping,

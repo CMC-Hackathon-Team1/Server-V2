@@ -28,7 +28,7 @@ export class FeedCategoryMapping {
   category: Categories;
 
   @ManyToOne(() => Feeds, (feeds) => feeds.feedCategoryMappings, {
-    onDelete: "RESTRICT",
+    onDelete: "CASCADE",
     onUpdate: "RESTRICT",
   })
   @JoinColumn([{ name: "feedId", referencedColumnName: "feedId" }])

@@ -22,14 +22,14 @@ export class Likes {
   createdAt: Date;
 
   @ManyToOne(() => Feeds, (feeds) => feeds.likes, {
-    onDelete: "RESTRICT",
+    onDelete: "CASCADE",
     onUpdate: "RESTRICT",
   })
   @JoinColumn([{ name: "feedId", referencedColumnName: "feedId" }])
   feed: Feeds;
 
   @ManyToOne(() => Profiles, (profiles) => profiles.likes, {
-    onDelete: "RESTRICT",
+    onDelete: "CASCADE",
     onUpdate: "RESTRICT",
   })
   @JoinColumn([{ name: "profileId", referencedColumnName: "profileId" }])

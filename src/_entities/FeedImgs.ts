@@ -21,7 +21,7 @@ export class FeedImgs {
   feedImgUrl: string;
 
   @ManyToOne(() => Feeds, (feeds) => feeds.feedImgs, {
-    onDelete: "RESTRICT",
+    onDelete: "CASCADE",
     onUpdate: "RESTRICT",
   })
   @JoinColumn([{ name: "feedId", referencedColumnName: "feedId" }])

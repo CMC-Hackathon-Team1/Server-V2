@@ -15,14 +15,14 @@ export class FollowFromTo {
   id: number;
 
   @ManyToOne(() => Profiles, (profiles) => profiles.followFromTos, {
-    onDelete: "RESTRICT",
+    onDelete: "CASCADE",
     onUpdate: "RESTRICT",
   })
   @JoinColumn([{ name: "fromUserId", referencedColumnName: "profileId" }])
   fromUser: Profiles;
 
   @ManyToOne(() => Profiles, (profiles) => profiles.followFromTos2, {
-    onDelete: "RESTRICT",
+    onDelete: "CASCADE",
     onUpdate: "RESTRICT",
   })
   @JoinColumn([{ name: "toUserId", referencedColumnName: "profileId" }])

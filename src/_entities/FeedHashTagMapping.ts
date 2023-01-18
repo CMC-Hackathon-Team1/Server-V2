@@ -16,7 +16,7 @@ export class FeedHashTagMapping {
   id: number;
 
   @ManyToOne(() => Feeds, (feeds) => feeds.feedHashTagMappings, {
-    onDelete: "RESTRICT",
+    onDelete: "CASCADE",
     onUpdate: "RESTRICT",
   })
   @JoinColumn([{ name: "feedId", referencedColumnName: "feedId" }])

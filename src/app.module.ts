@@ -22,6 +22,9 @@ import { Profiles } from './_entities/Profiles';
 import { QuestionContent } from './_entities/QuestionContent';
 import { Questions } from './_entities/Questions';
 import { Users } from './_entities/Users';
+import { LikesModule } from './likes/likes.module';
+import { FollowingModule } from './following/following.module';
+import { FeedsModule } from './feeds/feeds.module';
 
 @Module({
   imports: [
@@ -58,6 +61,9 @@ import { Users } from './_entities/Users';
     ProfilesModule,
     PersonaModule,
     AuthModule,
+    LikesModule,
+    FollowingModule,
+    FeedsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

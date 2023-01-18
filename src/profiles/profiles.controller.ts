@@ -17,7 +17,7 @@ import {
 import { JWTAuthGuard } from '../auth/security/auth.guard.jwt';
 import baseResponse from '../_utilities/baseResponseStatus';
 import { errResponse, sucResponse } from '../_utilities/response';
-import { CreateProfileDto } from './createProfile.dto';
+import { CreateProfileDto } from './dto/createProfile.dto';
 import { ProfilesService } from './profiles.service';
 
 @ApiTags('Profiles')

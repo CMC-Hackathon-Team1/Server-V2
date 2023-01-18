@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { SaveProfileDto } from './saveProfile.dto';
+import { SaveProfileDto } from './dto/saveProfile.dto';
 import { Profiles } from '../_entities/Profiles';
-import { ProfileModel } from './profile.model';
+import { ProfileModel } from './dto/profile.model';
 
 @Injectable()
 export class ProfilesRepository {

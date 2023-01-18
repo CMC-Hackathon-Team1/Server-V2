@@ -1,4 +1,5 @@
-import { Column, Entity, Index, JoinColumn, ManyToOne } from "typeorm";
+import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { PostLikeRequestDTO } from "../likes/dto/post-like.dto";
 import { Feeds } from "./Feeds";
 import { Profiles } from "./Profiles";
 
@@ -6,6 +7,7 @@ import { Profiles } from "./Profiles";
 @Index("FK_Likes_profileId_Profiles_profileId", ["profileId"], {})
 @Entity("Likes", { schema: "devDB" })
 export class Likes {
+  @PrimaryGeneratedColumn() 
   @Column("int", { primary: true, name: "id", unsigned: true })
   id: number;
 
@@ -34,4 +36,10 @@ export class Likes {
   })
   @JoinColumn([{ name: "profileId", referencedColumnName: "profileId" }])
   profile: Profiles;
+
+  constructor(profileId:number,feedId:number) {
+    this.profileId=profileId;
+    this.feedId=feedId;
+	}
+
 }

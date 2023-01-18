@@ -23,6 +23,7 @@ import { QuestionContent } from './_entities/QuestionContent';
 import { Questions } from './_entities/Questions';
 import { Users } from './_entities/Users';
 import { LikesModule } from './likes/likes.module';
+import { FollowingModule } from './following/following.module';
 
 @Module({
   imports: [
@@ -60,6 +61,7 @@ import { LikesModule } from './likes/likes.module';
     PersonaModule,
     AuthModule,
     LikesModule,
+    FollowingModule,
   ],
   controllers: [AppController],
   providers: [AppService],

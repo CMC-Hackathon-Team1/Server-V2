@@ -27,4 +27,9 @@ export class FollowFromTo {
   })
   @JoinColumn([{ name: "toUserId", referencedColumnName: "profileId" }])
   toUser: Profiles;
+  
+  constructor(fromUserId: number, toUserId: number) {
+    this.fromUserId=fromUserId;
+    this.toUserId=toUserId;
+  }
 }

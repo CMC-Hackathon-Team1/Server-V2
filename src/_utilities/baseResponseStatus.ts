@@ -31,6 +31,11 @@ const baseResponse = {
   // 좋아요 관련
   POST_LIKE:{statusCode:2000,message:'Like'},
   DELETE_LIKE:{statusCode:2001,message:"didn't Like"},
+
+
+  //팔로우 관련
+  POST_FOLLOW:{statusCode:2101,message:'Follow'},
+  DELETE_FOLLOW:{statusCode:2102,message:'Unfollow'}
 };
 
 export default baseResponse;

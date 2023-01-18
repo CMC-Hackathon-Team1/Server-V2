@@ -1,4 +1,4 @@
-import { Column, Entity, Index, JoinColumn, ManyToOne } from "typeorm";
+import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Profiles } from "./Profiles";
 
 @Index("FK_FollowFromTo_fromUserId_Profiles_profileId", ["fromUserId"], {})
@@ -11,7 +11,7 @@ export class FollowFromTo {
   @Column("int", { name: "toUserId", unsigned: true })
   toUserId: number;
 
-  @Column("int", { primary: true, name: "id", unsigned: true })
+  @PrimaryGeneratedColumn({ type: "int", name: "id", unsigned: true })
   id: number;
 
   @ManyToOne(() => Profiles, (profiles) => profiles.followFromTos, {

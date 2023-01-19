@@ -7,9 +7,8 @@ export class UserDTO {
   @IsString()
   @MaxLength(100)
   email: string;
-  @ApiProperty({ description: '비밀번호', example: 'test', required: true })
-  @IsNotEmpty()
+  @ApiProperty({ description: '비밀번호. (자체로그인에만 사용됩니다.)', example: 'test' })
   @IsString()
   @MaxLength(255)
-  password: string;
+  password: string | null;
 }

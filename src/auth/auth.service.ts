@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserDTO } from './dto/user.dto';
 import { errResponse, sucResponse } from '../_utilities/response';
@@ -7,9 +7,6 @@ import * as bcrypt from 'bcrypt';
 import { Payload } from './security/payload.interface';
 import { Users } from '../_entities/Users';
 import { JwtService } from '@nestjs/jwt';
-import axios from 'axios';
-import * as qs from 'qs';
-import { kakaoConfig } from '../_config/kakao.config';
 
 @Injectable()
 export class AuthService {
@@ -78,64 +75,32 @@ export class AuthService {
     return await this.userService.getUserInfo(payload.userId);
   }
 
-  async kakaoLogin(code: any): Promise<any> {
-    const kakaoKey = process.env.KAKAO_REST_API_KEY;
-    const kakaoRedirectUrl = process.env.KAKAO_REDIRECT_URL;
-    // const kakaoTokenUrl = 'https://kauth.kakao.com/oauth/token';
-    // const kakaoUserInfoUrl = 'https://kapi.kakao.com/v2/user/me';
-
-    const headers = {
-      'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
-    };
-    const body = {
-      grant_type: 'authorization_code',
-      client_id: kakaoKey,
-      redirect_url: kakaoRedirectUrl,
-      code: code,
-    };
-
-    // 2. 카카오에게 인가 코드를 보내고 액세스 토큰 받기
-    const kakaoTokenResponse = await axios({
-      method: 'POST',
-      url: kakaoConfig.kakaoTokenUrl,
-      timeout: 30000,
-      headers,
-      data: qs.stringify(body),
+  async handleSocialUser(email: string): Promise<any> {
+    const checkUser = await this.userService.findByFields({
+      where: { email: email },
     });
+    // console.log(checkUser);
 
-    // [Validation 처리]
-    // 응답이 잘 안 온 경우 (access token을 못 받은 경우)
-    if (kakaoTokenResponse.status !== 200) {
-      return errResponse(baseResponse.KAKAO_ACCESS_TOKEN_FAIL);
+    let socialUserId: number;
+    let message: string;
+
+    if (!checkUser || checkUser === undefined) {
+      // 회원가입하기
+      const newUser: UserDTO = { email: email, password: null };
+      const addedUser = await this.userService.save(newUser);
+      console.log(`추가된 회원 id: ${addedUser.userId}`);
+
+      socialUserId = addedUser.userId;
+      message = '회원가입 완료';
+    } else {
+      // 로그인하기
+      socialUserId = checkUser.userId;
+      message = '로그인 완료';
     }
-    // ---
 
-    const kakaoTokenInfo = kakaoTokenResponse.data;
-    console.log(kakaoTokenInfo);
-    const access_token = kakaoTokenInfo.access_token;
+    const payload: Payload = { userId: socialUserId, email: email };
+    const jwtToken = this.jwtService.sign(payload);
 
-    const headerUserInfo = {
-      'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
-      Authorization: `Bearer ${access_token}`,
-    };
-
-    // 3. 액세스 토큰으로 카카오 유저 정보 가져오기
-    const kakaoUserInfoResponse = await axios({
-      method: 'GET',
-      url: kakaoConfig.kakaoUserInfoUrl,
-      timeout: 30000,
-      headers: headerUserInfo,
-    });
-
-    // [Validation 처리]
-    // 응답이 잘 안 온 경우
-    if (kakaoUserInfoResponse.status !== 200) {
-      return errResponse(baseResponse.KAKAO_USER_INFO_FAIL);
-    }
-    // ---
-
-    const kakaoUserInfo = kakaoUserInfoResponse.data;
-    console.log(kakaoUserInfo);
-    return kakaoUserInfo;
+    return { userId: socialUserId, jwt: jwtToken, message: message };
   }
 }

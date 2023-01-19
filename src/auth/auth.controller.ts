@@ -1,4 +1,15 @@
-import { Body, Controller, Get, Post, Req, Res, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Query,
+  Req,
+  Res,
+  UseGuards,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UserDTO } from './dto/user.dto';
 import { JWTAuthGuard } from './security/auth.guard.jwt';
@@ -6,7 +17,15 @@ import { Request, Response } from 'express';
 import { errResponse, sucResponse } from '../_utilities/response';
 import baseResponse from '../_utilities/baseResponseStatus';
 import { UserService } from './user.service';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { KakaoLogin } from './kakao/kakao.service';
+import { kakaoConfig } from '../_config/kakao.config';
 
 @ApiTags('로그인, 인증 API')
 @Controller('auth')
@@ -14,6 +33,7 @@ export class AuthController {
   constructor(
     private authService: AuthService,
     private userService: UserService,
+    private kakaoService: KakaoLogin,
   ) {}
 
   // API No. 4.1.4.1. 자체로그인 - 회원가입
@@ -92,7 +112,7 @@ export class AuthController {
     // ---
 
     // 쿠키 설정 (jwt 담기)
-    res.setHeader('Authorization', 'Bearer ' + jwtResult.accessToken);
+    // res.setHeader('Authorization', 'Bearer ' + jwtResult.accessToken);
     res.cookie('jwt', jwtResult.accessToken, {
       // domain: 'OnAndOff Login',
       httpOnly: true, // 브라우저에서의 쿠키 사용 막기 (XSS등의 보안강화용)
@@ -179,15 +199,65 @@ export class AuthController {
 
   // API No. 4.1.1.1. 카카오 로그인
   @Post('/kakao-login')
-  async kakaoLogin(@Body() body: any): Promise<any> {
-    // 1. 클라이언트로부터 인가 코드 전달 받기
-    const { code } = body;
+  async kakaoLogin(@Query('code') code: any, @Res() res: Response): Promise<any> {
+    // 1. 클라이언트로부터 인가 코드 전달 받기 (query string)
+    // const { code } = qs.code;
     if (!code) {
       return errResponse(baseResponse.KAKAO_AUTH_CODE_EMPTY);
     }
 
-    const kakaoResult = await this.authService.kakaoLogin(code);
+    const kakaoResult = await this.kakaoService.kakaoLogin(code);
 
+    // [Validation 처리]
+    // jwt 토큰이 없으면 에러메시지 반환
+    if (!kakaoResult.serviceJwt) {
+      return res.send(kakaoResult);
+    }
+    // ---
+
+    // 쿠키 설정 (jwt 담기)
+    res.setHeader('Kakao-Access-Token', kakaoResult.kakaoAccessToken);
+    res.cookie('jwt', kakaoResult.serviceJwt, {
+      // domain: 'OnAndOff Login',
+      httpOnly: true, // 브라우저에서의 쿠키 사용 막기 (XSS등의 보안강화용)
+      // maxAge: 24 * 60 * 60 * 1000, // 1day
+    });
+
+    return res.send(
+      sucResponse(baseResponse.SUCCESS, {
+        state: kakaoResult.message,
+        userId: kakaoResult.socialUserId,
+        kakaoAccessToken: kakaoResult.kakaoAccessToken,
+      }),
+    );
+
+    // 최종. 서비스 로그인 토큰 반환(발급)
     return kakaoResult;
+  }
+
+  @Get('/kakao/user')
+  async kakaoUserInfo(@Req() req: Request): Promise<any> {
+    // 카카오 유저 정보 불러오기
+    const kakao_token = req.headers['kakao_token'];
+    // console.log(kakao_token);
+
+    const getKakaoUser = this.kakaoService.getKakaoUserInfoByToken(kakao_token);
+
+    return getKakaoUser;
+  }
+
+  @Post('/kakao-logout')
+  async kakaoLogout(@Req() req: Request, @Res() res: Response): Promise<any> {
+    const kakao_token = req.headers['kakao_token'];
+
+    // 카카오 액세스 토큰으로 카카오 로그아웃 호출하기
+    const kakaoResult = await this.kakaoService.kakaoLogout(kakao_token);
+
+    // 쿠키 지우기
+    res.cookie('jwt', '', {
+      maxAge: 0,
+    });
+
+    return res.send(kakaoResult);
   }
 }

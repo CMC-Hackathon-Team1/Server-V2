@@ -21,6 +21,7 @@ const baseResponse = {
   KAKAO_AUTH_CODE_EMPTY: { statusCode: 1003, message: '카카오 인가코드가 없습니다.' },
   KAKAO_ACCESS_TOKEN_FAIL: { statusCode: 1004, message: '카카오 인증토큰을 받는데 실패하였습니다.' },
   KAKAO_USER_INFO_FAIL: { statusCode: 1005, message: '카카오 유저 정보를 불러오는데 실패하였습니다.' },
+  KAKAO_LOGOUT_FAILED: { statusCode: 1006, message: '카카오 로그아웃에 실패했습니다.' },
 
   // 회원, 계정 관련
   USER_ALREADY_EXISTS: { statusCode: 1010, message: '이미 가입된 회원입니다.' },

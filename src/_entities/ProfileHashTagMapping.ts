@@ -37,7 +37,7 @@ export class ProfileHashTagMapping {
   hashTag: HashTags;
 
   @ManyToOne(() => Profiles, (profiles) => profiles.profileHashTagMappings, {
-    onDelete: "RESTRICT",
+    onDelete: "CASCADE",
     onUpdate: "RESTRICT",
   })
   @JoinColumn([{ name: "profileId", referencedColumnName: "profileId" }])

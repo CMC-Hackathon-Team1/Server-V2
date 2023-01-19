@@ -23,6 +23,9 @@ import { QuestionContent } from './_entities/QuestionContent';
 import { Questions } from './_entities/Questions';
 import { Users } from './_entities/Users';
 import { Environment } from './_utilities/constants';
+import { LikesModule } from './likes/likes.module';
+import { FollowingModule } from './following/following.module';
+import { FeedsModule } from './feeds/feeds.module';
 
 @Module({
   imports: [
@@ -58,10 +61,14 @@ import { Environment } from './_utilities/constants';
         Users,
       ],
       synchronize: false,
+      logging: true
     }),
     ProfilesModule,
     PersonaModule,
     AuthModule,
+    LikesModule,
+    FollowingModule,
+    FeedsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

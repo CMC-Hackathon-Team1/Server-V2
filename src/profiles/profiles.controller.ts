@@ -1,9 +1,27 @@
-import { Body, Controller, Post, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  UseGuards,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { JWTAuthGuard } from '../auth/security/auth.guard.jwt';
 import baseResponse from '../_utilities/baseResponseStatus';
 import { errResponse, sucResponse } from '../_utilities/response';
-import { CreateProfileDto } from './createProfile.dto';
+import { CreateProfileDto } from './dto/createProfile.dto';
+import { EditProfileDto } from './dto/editProfile.dto';
+import { ProfileModelExample } from './dto/profile.model';
 import { ProfilesService } from './profiles.service';
 
 @ApiTags('Profiles')
@@ -17,7 +35,7 @@ export class ProfilesController {
   @ApiResponse({
     status: 100,
     description: 'SUCCESS',
-    schema: {  example: sucResponse(baseResponse.SUCCESS, { profileId: 25 }) },
+    schema: { example: sucResponse(baseResponse.SUCCESS, { profileId: 25 }) },
   })
   @ApiResponse({
     status: 400,
@@ -53,5 +71,122 @@ export class ProfilesController {
   @UsePipes(ValidationPipe)
   createProfile(@Body() createProfileDto: CreateProfileDto) {
     return this.profilesService.createProfile(createProfileDto);
+  }
+
+  // API No. 3.1 프로필 삭제
+  @ApiOperation({
+    summary: '프로필 삭제',
+    description: '프로필 삭제에 관한 API이며 현재 삭제 방식에 대한 논의 중',
+  })
+  @ApiBearerAuth('Authorization')
+  @ApiBody({ schema: { example: { profileId: 1 } } })
+  @ApiResponse({
+    status: 100,
+    description: 'SUCCESS',
+    schema: { example: sucResponse(baseResponse.SUCCESS, { profileId: 25 }) },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Body 오류',
+    schema: { example: baseResponse.PIPE_ERROR_EXAMPLE },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'JWT 오류',
+    schema: { example: errResponse(baseResponse.JWT_UNAUTHORIZED) },
+  })
+  @ApiResponse({
+    status: 501,
+    description: 'DB 오류',
+    schema: { example: errResponse(baseResponse.DB_ERROR) },
+  })
+  @ApiResponse({
+    status: 1502,
+    description: 'profileId에 해당하는 프로필이 없는 경우',
+    schema: { example: errResponse(baseResponse.PROFILE_NOT_EXIST) },
+  })
+  @UseGuards(JWTAuthGuard)
+  @Post('/delete')
+  deleteProfile(@Body('profileId', ParseIntPipe) profileId: number) {
+    return this.profilesService.deleteProfile(profileId);
+  }
+  
+  // API No. 3.1 프로필 수정
+  @ApiOperation({
+    summary: '프로필 수정',
+    description:
+      '프로필을 생성하는 경우와 Body가 유사하지만, 페르소나는 변경이 불가능하므로 프로필 수정 Body에서는 제외된다.',
+  })
+  @ApiBearerAuth('Authorization')
+  @ApiResponse({
+    status: 100,
+    description: 'SUCCESS',
+    schema: { example: sucResponse(baseResponse.SUCCESS, ProfileModelExample) },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Body 오류',
+    schema: { example: baseResponse.PIPE_ERROR_EXAMPLE },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'JWT 오류',
+    schema: { example: errResponse(baseResponse.JWT_UNAUTHORIZED) },
+  })
+  @ApiResponse({
+    status: 501,
+    description: 'DB 오류',
+    schema: { example: errResponse(baseResponse.DB_ERROR) },
+  })
+  @ApiResponse({
+    status: 1502,
+    description: 'profileId에 해당하는 프로필이 없는 경우',
+    schema: { example: errResponse(baseResponse.PROFILE_NOT_EXIST) },
+  })
+  @UseGuards(JWTAuthGuard)
+  @Post('/edit/:profileId')
+  editProfile(
+    @Param('profileId', ParseIntPipe) profileId: number,
+    @Body() editProfileDto: EditProfileDto,
+  ) {
+    return this.profilesService.editProfile(profileId, editProfileDto);
+  }
+
+  // API No. 2.5 타유저 프로필
+  @ApiOperation({
+    summary: '프로필 ID로 프로필 받아오기',
+    description:
+      'API No. 2.5 타유저 프로필 등에서 활용 가능하도록 프로필 ID를 이용해 프로필 정보를 받아오는 API',
+  })
+  @ApiBearerAuth('Authorization')
+  @ApiResponse({
+    status: 100,
+    description: 'SUCCESS',
+    schema: { example: sucResponse(baseResponse.SUCCESS, ProfileModelExample) },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Parameter 오류',
+    schema: { example: baseResponse.PIPE_ERROR_EXAMPLE },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'JWT 오류',
+    schema: { example: errResponse(baseResponse.JWT_UNAUTHORIZED) },
+  })
+  @ApiResponse({
+    status: 501,
+    description: 'DB 오류',
+    schema: { example: errResponse(baseResponse.DB_ERROR) },
+  })
+  @ApiResponse({
+    status: 1502,
+    description: 'profileId에 해당하는 프로필이 없는 경우',
+    schema: { example: errResponse(baseResponse.PROFILE_NOT_EXIST) },
+  })
+  @UseGuards(JWTAuthGuard)
+  @Get('/:profileId')
+  getProfileByProfileId(@Param('profileId', ParseIntPipe) profileId: number) {
+    return this.profilesService.getProfileByProfileId(profileId);
   }
 }

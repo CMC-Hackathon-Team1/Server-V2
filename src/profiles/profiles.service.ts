@@ -102,4 +102,19 @@ export class ProfilesService {
       return errResponse(baseResponse.DB_ERROR);
     }
   }
+
+  // 프로필 ID로 프로필 가져오기
+  async getProfileByProfileId(profileId: number) {
+    try {
+      const result = await this.profileRepository.findProfileByProfileId(profileId);
+
+      if (!result) {
+        return errResponse(baseResponse.PROFILE_NOT_EXIST);
+      }
+
+      return sucResponse(baseResponse.SUCCESS, result);
+    } catch (error) {
+      return errResponse(baseResponse.DB_ERROR);
+    }
+  }
 }

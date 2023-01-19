@@ -117,4 +117,19 @@ export class ProfilesService {
       return errResponse(baseResponse.DB_ERROR);
     }
   }
+
+  // 사용자의 모든 프로필 가져오기
+  async getUserProfilesList(userId: number) {
+    try {
+      const profileList = await this.profileRepository.getUserProfilesList(userId);
+
+      if (profileList.length === 0) {
+        return errResponse(baseResponse.USER_NO_PROFILE);
+      }
+
+      return sucResponse(baseResponse.SUCCESS, profileList);
+    } catch (error) {
+      return errResponse(baseResponse.DB_ERROR);
+    }
+  }
 }

@@ -152,6 +152,15 @@ export class ProfilesController {
     return this.profilesService.editProfile(profileId, editProfileDto);
   }
 
+  // API No. 1.2 프로필 변경
+  // 프로필 변경을 할 수 있도록 사용자의 모든 프로필을 제공
+  @Get('/myProfiles/:userId')
+  getUserProfilesList(
+    @Param('userId', ParseIntPipe) userId: number
+  ) {
+    return this.profilesService.getUserProfilesList(userId);
+  }
+
   // API No. 2.5 타유저 프로필
   @ApiOperation({
     summary: '프로필 ID로 프로필 받아오기',

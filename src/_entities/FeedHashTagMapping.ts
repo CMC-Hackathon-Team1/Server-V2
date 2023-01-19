@@ -1,4 +1,4 @@
-import { Column, Entity, Index, JoinColumn, ManyToOne } from "typeorm";
+import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Feeds } from "./Feeds";
 import { HashTags } from "./HashTags";
 
@@ -6,7 +6,7 @@ import { HashTags } from "./HashTags";
 @Index("FK_FeedHashTagMapping_hashTagId_HashTags_hashTagId", ["hashTagId"], {})
 @Entity("FeedHashTagMapping", { schema: "devDB" })
 export class FeedHashTagMapping {
-  @Column("int", { name: "feedId", unsigned: true })
+  @PrimaryGeneratedColumn({ type: "int", name: "feedId", unsigned: true })
   feedId: number;
 
   @Column("int", { name: "hashTagId", unsigned: true })

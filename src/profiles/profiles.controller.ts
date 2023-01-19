@@ -154,6 +154,37 @@ export class ProfilesController {
 
   // API No. 1.2 프로필 변경
   // 프로필 변경을 할 수 있도록 사용자의 모든 프로필을 제공
+  @ApiOperation({
+    summary: '사용자 프로필 목록 가져오기',
+    description: '멀티 페르소나를 위해 사용자의 모든 프로필 목록을 가져오는 API',
+  })
+  @ApiBearerAuth('Authorization')
+  @ApiResponse({
+    status: 100,
+    description: 'SUCCESS',
+    schema: { example: sucResponse(baseResponse.SUCCESS, [{ ProfileModelExample }, { ProfileModelExample }]) },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Parameter 오류',
+    schema: { example: baseResponse.PIPE_ERROR_EXAMPLE },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'JWT 오류',
+    schema: { example: errResponse(baseResponse.JWT_UNAUTHORIZED) },
+  })
+  @ApiResponse({
+    status: 501,
+    description: 'DB 오류',
+    schema: { example: errResponse(baseResponse.DB_ERROR) },
+  })
+  @ApiResponse({
+    status: 1503,
+    description: '사용자의 프로필이 없는 경우',
+    schema: { example: errResponse(baseResponse.USER_NO_PROFILE) },
+  })
+  @UseGuards(JWTAuthGuard)
   @Get('/myProfiles/:userId')
   getUserProfilesList(
     @Param('userId', ParseIntPipe) userId: number

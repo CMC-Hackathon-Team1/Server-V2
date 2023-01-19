@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   Param,
   ParseIntPipe,
   Post,
@@ -150,5 +151,12 @@ export class ProfilesController {
     @Body() editProfileDto: EditProfileDto,
   ) {
     return this.profilesService.editProfile(profileId, editProfileDto);
+  }
+
+  @Get('/:profileId')
+  getProfileByProfileId(
+    @Param('profileId', ParseIntPipe) profileId: number
+  ) {
+    return this.profilesService.getProfileByProfileId(profileId);
   }
 }

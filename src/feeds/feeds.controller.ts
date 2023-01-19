@@ -6,6 +6,7 @@ import { FeedsService } from './feeds.service';
 import { ApiCreatedResponse, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { sucResponse } from '../_utilities/response';
 import baseResponse from '../_utilities/baseResponseStatus';
+import { MyFeed } from './dto/retreive-my-feed-bymonth.dto';
 
 @Controller('feeds')
 @ApiTags('Feed API')
@@ -58,5 +59,47 @@ export class FeedsController {
         // console.log(option);
 
         return this.feedsService.RetreiveFeeds(profileId,pageNumber,categoryId);
+    }
+
+    @Get('/my-feeds/by-month')
+    @ApiOperation({
+        summary: '프로필 (게시글모아보기) API 3.1.2',
+        description: '마이페이지에서 월별 게시글 모아보기 기능이다. year과 month를 통해 그달에 포스팅한 게시글들을 모아볼 수 있다.\n\
+                      pagination으로 동작한다.' ,
+    })
+    @ApiQuery({
+        name: 'profileId',
+        required:true,
+        description:'현재 유저의 profileId ex)29'
+    })
+    @ApiQuery({
+        name: 'year',
+        required:true,
+        description:'검색하고싶은 년도 "yyyy"형식으로 제공되어야한다.(4자리 수) ex) 2023'
+    })
+    @ApiQuery({
+        name: 'month',
+        required:true,
+        description:'검색하고싶은 달 "mm"형식으로 제공되어야한다.(2자리수) ex) 01'
+    })
+    @ApiQuery({
+        name: 'page',
+        required:true,
+        description:'pagination을 통해 scroll하면서 10개씩 정보를 받아온다. 현재 몇번째 정보를 받아와야하는지를 넘겨주시면 됩니다.\n\
+                      1~10번째 정보를 받아와야한다면 page=1, 11~20번째 피드를 받아와야한다면 page=2'
+    })
+    @ApiCreatedResponse({
+        status: 100,
+        type: MyFeed,
+        isArray: true,
+        description: "성공했을때 response"
+    })
+    RetreiveMyFeedByMonth(
+        @Query('profileId') profileId:number,
+        @Query('year') year:number,
+        @Query('month') month:number,
+        @Query('page') pageNumber: number
+    ){
+        return this.feedsService.RetreiveMyFeedByMonth(profileId,year,month,pageNumber);
     }
 }

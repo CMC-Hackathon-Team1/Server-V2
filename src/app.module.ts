@@ -57,6 +57,7 @@ import { FeedsModule } from './feeds/feeds.module';
         Users,
       ],
       synchronize: false,
+      logging: true
     }),
     ProfilesModule,
     PersonaModule,

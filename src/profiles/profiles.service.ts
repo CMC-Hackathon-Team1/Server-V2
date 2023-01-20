@@ -15,10 +15,9 @@ export class ProfilesService {
   ) {}
 
   // 프로필 생성
-  async createProfile(createProfileDto: CreateProfileDto): Promise<any> {
-    const userProfilesList = await this.profileRepository.getUserProfilesList(
-      createProfileDto.userId,
-    );
+  async createProfile(req: any, createProfileDto: CreateProfileDto): Promise<any> {
+    const requestUserId = req.user.userId;
+    const userProfilesList = await this.profileRepository.getUserProfilesList(requestUserId);
     const newProfilePersonaName = createProfileDto.personaName;
 
     // 프로필 갯수 validation
@@ -54,7 +53,7 @@ export class ProfilesService {
 
     // 새로운 프로필 생성
     const newProfileDto: SaveProfileDto = {
-      userId: createProfileDto.userId,
+      userId: requestUserId,
       profileName: createProfileDto.profileName,
       personaId: newProfilePeronaId,
       profileImgUrl: createProfileDto.profileImgUrl,

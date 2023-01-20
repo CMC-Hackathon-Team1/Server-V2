@@ -5,6 +5,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Request,
   UseGuards,
   UsePipes,
   ValidationPipe,
@@ -69,8 +70,11 @@ export class ProfilesController {
   @UseGuards(JWTAuthGuard)
   @Post('/create')
   @UsePipes(ValidationPipe)
-  createProfile(@Body() createProfileDto: CreateProfileDto) {
-    return this.profilesService.createProfile(createProfileDto);
+  createProfile(
+    @Body() createProfileDto: CreateProfileDto,
+    @Request() req: any
+  ) {
+    return this.profilesService.createProfile(req, createProfileDto);
   }
 
   // API No. 3.1 프로필 삭제

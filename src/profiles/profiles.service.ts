@@ -70,14 +70,22 @@ export class ProfilesService {
   }
 
   // 프로필 삭제
-  async deleteProfile(profileId: number) {
+  async deleteProfile(req: any, profileId: number) {
     try {
-      const result = await this.profileRepository.deleteProfile(profileId);
+      const requestUserId = req.user.userId;
+      const targetProfile = await this.profileRepository.findProfileByProfileId(profileId);
 
+      // 요청의 userId와 삭제 대상 프로필의 userId가 다른 경우
+      if (targetProfile?.userId !== requestUserId) {
+        return errResponse(baseResponse.PROFILE_NO_AUTHENTICATION);
+      }
+      
       // profileId에 해당하는 프로필이 없는 경우
-      if (result.affected === 0) {
+      if (!targetProfile) {
         return errResponse(baseResponse.PROFILE_NOT_EXIST);
       }
+      
+      await this.profileRepository.deleteProfile(profileId);
 
       return sucResponse(baseResponse.SUCCESS);
     } catch (error) {

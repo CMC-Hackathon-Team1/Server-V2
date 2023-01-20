@@ -80,7 +80,7 @@ export class ProfilesController {
   // API No. 3.1 프로필 삭제
   @ApiOperation({
     summary: '프로필 삭제',
-    description: '프로필 삭제에 관한 API이며 현재 삭제 방식에 대한 논의 중',
+    description: '프로필 삭제에 관한 API',
   })
   @ApiBearerAuth('Authorization')
   @ApiBody({ schema: { example: { profileId: 1 } } })
@@ -111,8 +111,11 @@ export class ProfilesController {
   })
   @UseGuards(JWTAuthGuard)
   @Post('/delete')
-  deleteProfile(@Body('profileId', ParseIntPipe) profileId: number) {
-    return this.profilesService.deleteProfile(profileId);
+  deleteProfile(
+    @Body('profileId', ParseIntPipe) profileId: number,
+    @Request() req: any
+  ) {
+    return this.profilesService.deleteProfile(req, profileId);
   }
   
   // API No. 3.1 프로필 수정

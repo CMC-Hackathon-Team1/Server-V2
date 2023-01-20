@@ -5,6 +5,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Request,
   UseGuards,
   UsePipes,
   ValidationPipe,
@@ -69,21 +70,24 @@ export class ProfilesController {
   @UseGuards(JWTAuthGuard)
   @Post('/create')
   @UsePipes(ValidationPipe)
-  createProfile(@Body() createProfileDto: CreateProfileDto) {
-    return this.profilesService.createProfile(createProfileDto);
+  createProfile(
+    @Body() createProfileDto: CreateProfileDto,
+    @Request() req: any
+  ) {
+    return this.profilesService.createProfile(req, createProfileDto);
   }
 
   // API No. 3.1 프로필 삭제
   @ApiOperation({
     summary: '프로필 삭제',
-    description: '프로필 삭제에 관한 API이며 현재 삭제 방식에 대한 논의 중',
+    description: '프로필 삭제에 관한 API',
   })
   @ApiBearerAuth('Authorization')
   @ApiBody({ schema: { example: { profileId: 1 } } })
   @ApiResponse({
     status: 100,
     description: 'SUCCESS',
-    schema: { example: sucResponse(baseResponse.SUCCESS, { profileId: 25 }) },
+    schema: { example: sucResponse(baseResponse.SUCCESS) },
   })
   @ApiResponse({
     status: 400,
@@ -105,10 +109,18 @@ export class ProfilesController {
     description: 'profileId에 해당하는 프로필이 없는 경우',
     schema: { example: errResponse(baseResponse.PROFILE_NOT_EXIST) },
   })
+  @ApiResponse({
+    status: 1504,
+    description: '자신의 프로필이 아닌 경우',
+    schema: { example: errResponse(baseResponse.PROFILE_NO_AUTHENTICATION) },
+  })
   @UseGuards(JWTAuthGuard)
   @Post('/delete')
-  deleteProfile(@Body('profileId', ParseIntPipe) profileId: number) {
-    return this.profilesService.deleteProfile(profileId);
+  deleteProfile(
+    @Body('profileId', ParseIntPipe) profileId: number,
+    @Request() req: any
+  ) {
+    return this.profilesService.deleteProfile(req, profileId);
   }
   
   // API No. 3.1 프로필 수정
@@ -143,20 +155,26 @@ export class ProfilesController {
     description: 'profileId에 해당하는 프로필이 없는 경우',
     schema: { example: errResponse(baseResponse.PROFILE_NOT_EXIST) },
   })
+  @ApiResponse({
+    status: 1504,
+    description: '자신의 프로필이 아닌 경우',
+    schema: { example: errResponse(baseResponse.PROFILE_NO_AUTHENTICATION) },
+  })
   @UseGuards(JWTAuthGuard)
   @Post('/edit/:profileId')
   editProfile(
     @Param('profileId', ParseIntPipe) profileId: number,
+    @Request() req: any,
     @Body() editProfileDto: EditProfileDto,
   ) {
-    return this.profilesService.editProfile(profileId, editProfileDto);
+    return this.profilesService.editProfile(req, profileId, editProfileDto);
   }
 
   // API No. 1.2 프로필 변경
   // 프로필 변경을 할 수 있도록 사용자의 모든 프로필을 제공
   @ApiOperation({
     summary: '사용자 프로필 목록 가져오기',
-    description: '멀티 페르소나를 위해 사용자의 모든 프로필 목록을 가져오는 API',
+    description: '멀티 페르소나를 위해 사용자의 모든 프로필 목록을 가져오는 API (Header의 JWT를 제외한 별도 데이터 필요 X)',
   })
   @ApiBearerAuth('Authorization')
   @ApiResponse({
@@ -184,12 +202,17 @@ export class ProfilesController {
     description: '사용자의 프로필이 없는 경우',
     schema: { example: errResponse(baseResponse.USER_NO_PROFILE) },
   })
+  @ApiResponse({
+    status: 1504,
+    description: '자신의 프로필이 아닌 경우',
+    schema: { example: errResponse(baseResponse.PROFILE_NO_AUTHENTICATION) },
+  })
   @UseGuards(JWTAuthGuard)
-  @Get('/myProfiles/:userId')
+  @Get('/myProfiles')
   getUserProfilesList(
-    @Param('userId', ParseIntPipe) userId: number
+    @Request() req: any
   ) {
-    return this.profilesService.getUserProfilesList(userId);
+    return this.profilesService.getUserProfilesList(req);
   }
 
   // API No. 2.5 타유저 프로필

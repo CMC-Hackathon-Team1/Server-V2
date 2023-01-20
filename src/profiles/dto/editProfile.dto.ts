@@ -2,11 +2,6 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class EditProfileDto {
-  @ApiProperty({ description: '사용자 ID', example: 1 })
-  @IsNotEmpty()
-  @IsNumber()
-  userId: number;
-
   @ApiProperty({ description: '프로필 이름', example: '작가 야옹이' })
   @IsNotEmpty()
   @MaxLength(20)

@@ -15,10 +15,9 @@ export class ProfilesService {
   ) {}
 
   // 프로필 생성
-  async createProfile(createProfileDto: CreateProfileDto): Promise<any> {
-    const userProfilesList = await this.profileRepository.getUserProfilesList(
-      createProfileDto.userId,
-    );
+  async createProfile(req: any, createProfileDto: CreateProfileDto): Promise<any> {
+    const requestUserId = req.user.userId;
+    const userProfilesList = await this.profileRepository.getUserProfilesList(requestUserId);
     const newProfilePersonaName = createProfileDto.personaName;
 
     // 프로필 갯수 validation
@@ -54,7 +53,7 @@ export class ProfilesService {
 
     // 새로운 프로필 생성
     const newProfileDto: SaveProfileDto = {
-      userId: createProfileDto.userId,
+      userId: requestUserId,
       profileName: createProfileDto.profileName,
       personaId: newProfilePeronaId,
       profileImgUrl: createProfileDto.profileImgUrl,
@@ -71,14 +70,22 @@ export class ProfilesService {
   }
 
   // 프로필 삭제
-  async deleteProfile(profileId: number) {
+  async deleteProfile(req: any, profileId: number) {
     try {
-      const result = await this.profileRepository.deleteProfile(profileId);
+      const requestUserId = req.user.userId;
+      const targetProfile = await this.profileRepository.findProfileByProfileId(profileId);
 
+      // 요청의 userId와 삭제 대상 프로필의 userId가 다른 경우
+      if (targetProfile?.userId !== requestUserId) {
+        return errResponse(baseResponse.PROFILE_NO_AUTHENTICATION);
+      }
+      
       // profileId에 해당하는 프로필이 없는 경우
-      if (result.affected === 0) {
+      if (!targetProfile) {
         return errResponse(baseResponse.PROFILE_NOT_EXIST);
       }
+      
+      await this.profileRepository.deleteProfile(profileId);
 
       return sucResponse(baseResponse.SUCCESS);
     } catch (error) {
@@ -87,15 +94,22 @@ export class ProfilesService {
   }
 
   // 프로필 수정
-  async editProfile(profileId: number, editProfileDto: EditProfileDto) {
+  async editProfile(req: any, profileId: number, editProfileDto: EditProfileDto) {
     try {
-      const editResult = await this.profileRepository.editProfile(profileId, editProfileDto);
+      const requestUserId = req.user.userId;
+      const targetProfile = await this.profileRepository.findProfileByProfileId(profileId);
 
-      if (editResult.affected === 0) {
+      if (targetProfile?.userId !== requestUserId) {
+        return errResponse(baseResponse.PROFILE_NO_AUTHENTICATION);
+      }
+
+      // 해당 프로필이 존재하지 않는 경우
+      if (!targetProfile) {
         return errResponse(baseResponse.PROFILE_NOT_EXIST);
       }
 
-      const editedProfile = await this.profileRepository.findProfileByProfileId(profileId);
+      const editedProfile = await this.profileRepository.editProfile(profileId, editProfileDto);
+      delete editedProfile.userId;
 
       return sucResponse(baseResponse.SUCCESS, editedProfile);
     } catch (error) {
@@ -119,10 +133,12 @@ export class ProfilesService {
   }
 
   // 사용자의 모든 프로필 가져오기
-  async getUserProfilesList(userId: number) {
+  async getUserProfilesList(req: any) {
     try {
-      const profileList = await this.profileRepository.getUserProfilesList(userId);
+      const requestUserId = req.user.userId;
+      const profileList = await this.profileRepository.getUserProfilesList(requestUserId);
 
+      // 사용자의 프로필이 존재하지 않는 경우
       if (profileList.length === 0) {
         return errResponse(baseResponse.USER_NO_PROFILE);
       }

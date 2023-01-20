@@ -133,10 +133,12 @@ export class ProfilesService {
   }
 
   // 사용자의 모든 프로필 가져오기
-  async getUserProfilesList(userId: number) {
+  async getUserProfilesList(req: any) {
     try {
-      const profileList = await this.profileRepository.getUserProfilesList(userId);
+      const requestUserId = req.user.userId;
+      const profileList = await this.profileRepository.getUserProfilesList(requestUserId);
 
+      // 사용자의 프로필이 존재하지 않는 경우
       if (profileList.length === 0) {
         return errResponse(baseResponse.USER_NO_PROFILE);
       }

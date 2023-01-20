@@ -193,11 +193,11 @@ export class ProfilesController {
     schema: { example: errResponse(baseResponse.USER_NO_PROFILE) },
   })
   @UseGuards(JWTAuthGuard)
-  @Get('/myProfiles/:userId')
+  @Get('/myProfiles')
   getUserProfilesList(
-    @Param('userId', ParseIntPipe) userId: number
+    @Request() req: any
   ) {
-    return this.profilesService.getUserProfilesList(userId);
+    return this.profilesService.getUserProfilesList(req);
   }
 
   // API No. 2.5 타유저 프로필

@@ -19,8 +19,8 @@ import baseResponse from '../_utilities/baseResponseStatus';
 import { UserService } from './user.service';
 import {
   ApiBearerAuth,
-  ApiBody,
-  ApiOperation,
+  ApiBody, ApiHeader,
+  ApiOperation, ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -197,7 +197,55 @@ export class AuthController {
     return res.send(sucResponse(baseResponse.SUCCESS));
   }
 
-  // API No. 4.1.1.1. 카카오 로그인
+  // API No. 4.1.1.1. 카카오 로그인 - 회원가입/로그인
+  @ApiOperation({
+    summary: '4.1.1.1. 카카오 로그인 - 회원가입/로그인',
+    description: `카카오 계정을 통해 로그인/회원가입 한다. (이때, 카카오 계정과 연동된 이메일로 가입되도록 한다.) \n
+        [Response Header, Cookie] - response에서 다음 2개 값이 넘어옵니다.\n
+        1. response header - 'kakao-access-token' : '{카카오 액세스 토큰}',
+        2. cookie - 'jwt={서비스 jwt값}' (또는 response header - 'set-cookie' : 'jwt={서비스 jwt값}'`,
+  })
+  @ApiQuery({
+    name: 'code',
+    required: true,
+    description: '클라이언트에서 받은 카카오 인가코드',
+    example: 'oDb1L9pz6qK3hdOMcop...',
+  })
+  @ApiResponse({
+    status: 100,
+    description: 'SUCCESS',
+    schema: {
+      example: sucResponse(baseResponse.SUCCESS, {
+        state: '로그인/회원가입 완료',
+        userId: 555,
+      }),
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Body 오류',
+    schema: { example: baseResponse.PIPE_ERROR_EXAMPLE },
+  })
+  @ApiResponse({
+    status: 500,
+    description: '서버 오류',
+    schema: { example: errResponse(baseResponse.SERVER_ERROR) },
+  })
+  @ApiResponse({
+    status: 1003,
+    description: '카카오 인가 코드를 request에서 넘겨주지 않음',
+    schema: { example: errResponse(baseResponse.KAKAO_AUTH_CODE_EMPTY) },
+  })
+  @ApiResponse({
+    status: 1004,
+    description: '카카오 액세서 토큰을 받아오는데 실패함. (인가 코드가 잘못되었거나 유효하지 않음.)',
+    schema: { example: errResponse(baseResponse.KAKAO_ACCESS_TOKEN_FAIL) },
+  })
+  @ApiResponse({
+    status: 1006,
+    description: '카카오 유저 정보를 불러오는데 실패함. (액세스 토큰이 잘못되었거나 유효하지 않음.)',
+    schema: { example: errResponse(baseResponse.KAKAO_USER_INFO_FAIL) },
+  })
   @Post('/kakao-login')
   async kakaoLogin(@Query('code') code: any, @Res() res: Response): Promise<any> {
     // 1. 클라이언트로부터 인가 코드 전달 받기 (query string)
@@ -227,7 +275,7 @@ export class AuthController {
       sucResponse(baseResponse.SUCCESS, {
         state: kakaoResult.message,
         userId: kakaoResult.socialUserId,
-        kakaoAccessToken: kakaoResult.kakaoAccessToken,
+        // kakaoAccessToken: kakaoResult.kakaoAccessToken,
       }),
     );
 
@@ -235,18 +283,111 @@ export class AuthController {
     return kakaoResult;
   }
 
+  @ApiOperation({
+    summary: '※ 카카오 로그인 - 카카오 계정 정보 가져오기',
+    description: `카카오 로그인을 통해 카카오 계정 정보를 볼 수 있습니다. (추후 이용 여부 결정)`,
+  })
+  @ApiHeader({
+    name: 'kakao_token',
+    required: true,
+    description: `'카카오 액세스 토큰'을 함께 보내야합니다. (서비스 jwt 값 아님!)`,
+    example: 'oDb1L9pz6qK3hdOMcop...',
+  })
+  @ApiResponse({
+    status: 100,
+    description: 'SUCCESS',
+    schema: {
+      example: {
+        '카카오 계정 정보들': '...',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Body 오류',
+    schema: { example: baseResponse.PIPE_ERROR_EXAMPLE },
+  })
+  @ApiResponse({
+    status: 500,
+    description: '서버 오류',
+    schema: { example: errResponse(baseResponse.SERVER_ERROR) },
+  })
+  @ApiResponse({
+    status: 1005,
+    description: '카카오 액세스 토큰을 request에서 넘겨주지 않음',
+    schema: { example: errResponse(baseResponse.KAKAO_ACCESS_TOKEN_EMPTY) },
+  })
+  @ApiResponse({
+    status: 1006,
+    description: '카카오 유저 정보를 불러오는데 실패함. (액세스 토큰이 잘못되었거나 유효하지 않음.)',
+    schema: { example: errResponse(baseResponse.KAKAO_USER_INFO_FAIL) },
+  })
   @Get('/kakao/user')
   async kakaoUserInfo(@Req() req: Request): Promise<any> {
     // 카카오 유저 정보 불러오기
     const kakao_token = req.headers['kakao_token'];
     // console.log(kakao_token);
+    if (!kakao_token) {
+      return errResponse(baseResponse.KAKAO_ACCESS_TOKEN_EMPTY);
+    }
 
     const getKakaoUser = this.kakaoService.getKakaoUserInfoByToken(kakao_token);
 
     return getKakaoUser;
   }
 
+  // API No. 4.1.1.2. 카카오 로그인 - 로그아웃
+  @ApiOperation({
+    summary: '4.1.1.2. 카카오 로그인 - 로그아웃',
+    description: `카카오 계정을 통해 로그아웃 한다. (추후 테스트와 보완이 필요함) \n
+        [Response Header, Cookie] - 로그아웃 시, 다음 2가지를 처리합니다.\n
+        1. kakao access token 말소 - 이후에 카카오 액세스 토큰을 다시 발급 받아야 로그인 가능합니다.
+        2. cookie 정보 제거 - 서비스 jwt를 담았던 cookie (또는 response header['set-cookie']) 를 지워서 반환합니다.`,
+  })
+  @ApiBearerAuth('Authorization')
+  @ApiHeader({
+    name: 'kakao_token',
+    required: true,
+    description: `'카카오 액세스 토큰' + '서비스 jwt'를 함께 보내야합니다. (서비스 jwt는 자체로그인에서 사용하던 방식과 같음)`,
+    example: 'oDb1L9pz6qK3hdOMcop...',
+  })
+  @ApiResponse({
+    status: 100,
+    description: 'SUCCESS',
+    schema: { example: baseResponse.SUCCESS },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Body 오류',
+    schema: { example: baseResponse.PIPE_ERROR_EXAMPLE },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'JWT 오류',
+    schema: { example: errResponse(baseResponse.JWT_UNAUTHORIZED) },
+  })
+  @ApiResponse({
+    status: 500,
+    description: '서버 오류',
+    schema: { example: errResponse(baseResponse.SERVER_ERROR) },
+  })
+  @ApiResponse({
+    status: 1003,
+    description: '카카오 인가 코드를 request에서 넘겨주지 않음',
+    schema: { example: errResponse(baseResponse.KAKAO_AUTH_CODE_EMPTY) },
+  })
+  @ApiResponse({
+    status: 1004,
+    description: '카카오 액세서 토큰을 받아오는데 실패함. (인가 코드가 잘못되었거나 유효하지 않음.)',
+    schema: { example: errResponse(baseResponse.KAKAO_ACCESS_TOKEN_FAIL) },
+  })
+  @ApiResponse({
+    status: 1006,
+    description: '카카오 유저 정보를 불러오는데 실패함. (액세스 토큰이 잘못되었거나 유효하지 않음.)',
+    schema: { example: errResponse(baseResponse.KAKAO_USER_INFO_FAIL) },
+  })
   @Post('/kakao-logout')
+  @UseGuards(JWTAuthGuard)
   async kakaoLogout(@Req() req: Request, @Res() res: Response): Promise<any> {
     const kakao_token = req.headers['kakao_token'];
 

@@ -126,6 +126,8 @@ export class ProfilesService {
         return errResponse(baseResponse.PROFILE_NOT_EXIST);
       }
 
+      delete result.userId;
+
       return sucResponse(baseResponse.SUCCESS, result);
     } catch (error) {
       return errResponse(baseResponse.DB_ERROR);

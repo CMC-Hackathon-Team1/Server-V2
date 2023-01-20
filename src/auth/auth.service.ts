@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserDTO } from './dto/user.dto';
 import { errResponse, sucResponse } from '../_utilities/response';
@@ -73,5 +73,34 @@ export class AuthService {
     //   where: { userId: payload.userId },
     // });
     return await this.userService.getUserInfo(payload.userId);
+  }
+
+  async handleSocialUser(email: string): Promise<any> {
+    const checkUser = await this.userService.findByFields({
+      where: { email: email },
+    });
+    // console.log(checkUser);
+
+    let socialUserId: number;
+    let message: string;
+
+    if (!checkUser || checkUser === undefined) {
+      // 회원가입하기
+      const newUser: UserDTO = { email: email, password: null };
+      const addedUser = await this.userService.save(newUser);
+      console.log(`추가된 회원 id: ${addedUser.userId}`);
+
+      socialUserId = addedUser.userId;
+      message = '회원가입 완료';
+    } else {
+      // 로그인하기
+      socialUserId = checkUser.userId;
+      message = '로그인 완료';
+    }
+
+    const payload: Payload = { userId: socialUserId, email: email };
+    const jwtToken = this.jwtService.sign(payload);
+
+    return { userId: socialUserId, jwt: jwtToken, message: message };
   }
 }

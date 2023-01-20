@@ -94,15 +94,22 @@ export class ProfilesService {
   }
 
   // 프로필 수정
-  async editProfile(profileId: number, editProfileDto: EditProfileDto) {
+  async editProfile(req: any, profileId: number, editProfileDto: EditProfileDto) {
     try {
-      const editResult = await this.profileRepository.editProfile(profileId, editProfileDto);
+      const requestUserId = req.user.userId;
+      const targetProfile = await this.profileRepository.findProfileByProfileId(profileId);
 
-      if (editResult.affected === 0) {
+      if (targetProfile?.userId !== requestUserId) {
+        return errResponse(baseResponse.PROFILE_NO_AUTHENTICATION);
+      }
+
+      // 해당 프로필이 존재하지 않는 경우
+      if (!targetProfile) {
         return errResponse(baseResponse.PROFILE_NOT_EXIST);
       }
 
-      const editedProfile = await this.profileRepository.findProfileByProfileId(profileId);
+      const editedProfile = await this.profileRepository.editProfile(profileId, editProfileDto);
+      delete editedProfile.userId;
 
       return sucResponse(baseResponse.SUCCESS, editedProfile);
     } catch (error) {

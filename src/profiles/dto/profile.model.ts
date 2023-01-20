@@ -10,7 +10,6 @@ export interface ProfileModel {
 
 export const ProfileModelExample = {
   profileId: 30,
-  userId: 2,
   profileName: '(프로필 이름)',
   personaId: 1,
   profileImgUrl: '(프로필 이미지)',

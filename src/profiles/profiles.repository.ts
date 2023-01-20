@@ -35,12 +35,16 @@ export class ProfilesRepository {
     return await this.profilesTable.delete(profileId);
   }
 
-  // 프로필 업데이트
+  // 프로필 업데이트 (업데이트를 수행한 후, 수정된 프로필을 return)
   async editProfile(profileId: number, editProfileDto: EditProfileDto) {
-    return await this.profilesTable.update(profileId, {
+    await this.profilesTable.update(profileId, {
       profileName: editProfileDto.profileName,
       profileImgUrl: editProfileDto.profileImgUrl,
       statusMessage: editProfileDto.statusMessage
     })
+
+    const editResult = await this.findProfileByProfileId(profileId);
+
+    return editResult;
   }
 }

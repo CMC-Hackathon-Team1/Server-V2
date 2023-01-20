@@ -87,7 +87,7 @@ export class ProfilesController {
   @ApiResponse({
     status: 100,
     description: 'SUCCESS',
-    schema: { example: sucResponse(baseResponse.SUCCESS, { profileId: 25 }) },
+    schema: { example: sucResponse(baseResponse.SUCCESS) },
   })
   @ApiResponse({
     status: 400,
@@ -154,9 +154,10 @@ export class ProfilesController {
   @Post('/edit/:profileId')
   editProfile(
     @Param('profileId', ParseIntPipe) profileId: number,
+    @Request() req: any,
     @Body() editProfileDto: EditProfileDto,
   ) {
-    return this.profilesService.editProfile(profileId, editProfileDto);
+    return this.profilesService.editProfile(req, profileId, editProfileDto);
   }
 
   // API No. 1.2 프로필 변경

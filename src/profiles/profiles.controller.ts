@@ -109,6 +109,11 @@ export class ProfilesController {
     description: 'profileId에 해당하는 프로필이 없는 경우',
     schema: { example: errResponse(baseResponse.PROFILE_NOT_EXIST) },
   })
+  @ApiResponse({
+    status: 1504,
+    description: '자신의 프로필이 아닌 경우',
+    schema: { example: errResponse(baseResponse.PROFILE_NO_AUTHENTICATION) },
+  })
   @UseGuards(JWTAuthGuard)
   @Post('/delete')
   deleteProfile(
@@ -150,6 +155,11 @@ export class ProfilesController {
     description: 'profileId에 해당하는 프로필이 없는 경우',
     schema: { example: errResponse(baseResponse.PROFILE_NOT_EXIST) },
   })
+  @ApiResponse({
+    status: 1504,
+    description: '자신의 프로필이 아닌 경우',
+    schema: { example: errResponse(baseResponse.PROFILE_NO_AUTHENTICATION) },
+  })
   @UseGuards(JWTAuthGuard)
   @Post('/edit/:profileId')
   editProfile(
@@ -164,7 +174,7 @@ export class ProfilesController {
   // 프로필 변경을 할 수 있도록 사용자의 모든 프로필을 제공
   @ApiOperation({
     summary: '사용자 프로필 목록 가져오기',
-    description: '멀티 페르소나를 위해 사용자의 모든 프로필 목록을 가져오는 API',
+    description: '멀티 페르소나를 위해 사용자의 모든 프로필 목록을 가져오는 API (Header의 JWT를 제외한 별도 데이터 필요 X)',
   })
   @ApiBearerAuth('Authorization')
   @ApiResponse({
@@ -191,6 +201,11 @@ export class ProfilesController {
     status: 1503,
     description: '사용자의 프로필이 없는 경우',
     schema: { example: errResponse(baseResponse.USER_NO_PROFILE) },
+  })
+  @ApiResponse({
+    status: 1504,
+    description: '자신의 프로필이 아닌 경우',
+    schema: { example: errResponse(baseResponse.PROFILE_NO_AUTHENTICATION) },
   })
   @UseGuards(JWTAuthGuard)
   @Get('/myProfiles')

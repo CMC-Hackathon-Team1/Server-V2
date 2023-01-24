@@ -208,7 +208,7 @@ export class ProfilesController {
     schema: { example: errResponse(baseResponse.PROFILE_NO_AUTHENTICATION) },
   })
   @UseGuards(JWTAuthGuard)
-  @Get('/myProfiles')
+  @Get('/my-profiles')
   getUserProfilesList(
     @Request() req: any
   ) {

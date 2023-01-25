@@ -259,6 +259,7 @@ export class ProfilesController {
   }
 
   @ApiOperation({ summary: '사용자 프로필 사진 업로드(테스트)' })
+  //                              클라이언트에서 사용할 key값, 최대 업로드 개수, 멀터 옵션
   @UseInterceptors(FilesInterceptor('image', 1, multerOptions('profile')))
   @Post('/uploadTest')
   uploadProfileImageTest(@UploadedFiles() files: Array<Express.Multer.File>) {

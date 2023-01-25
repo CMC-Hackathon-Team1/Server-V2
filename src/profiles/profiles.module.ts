@@ -1,3 +1,4 @@
+import { AwsService } from './../aws/aws.service';
 import { Module } from '@nestjs/common';
 import { MulterModule } from '@nestjs/platform-express';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -9,12 +10,14 @@ import { ProfilesRepository } from './profiles.repository';
 import { ProfilesService } from './profiles.service';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Profiles, Persona]),
-    MulterModule.register({ dest: './uploadImgTest' }), // 업로드할 사진 디렉토리
-  ],
+  imports: [TypeOrmModule.forFeature([Profiles, Persona])],
   controllers: [ProfilesController],
-  providers: [ProfilesService, ProfilesRepository, PersonaRepository],
+  providers: [
+    ProfilesService,
+    ProfilesRepository,
+    PersonaRepository,
+    AwsService,
+  ],
   exports: [ProfilesRepository, PersonaRepository]
 })
 export class ProfilesModule {}

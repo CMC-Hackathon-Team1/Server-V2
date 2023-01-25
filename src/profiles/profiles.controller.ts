@@ -1,3 +1,4 @@
+import { AwsService } from './../aws/aws.service';
 import { multerOptions } from './../_utilities/multer.option';
 import {
   Body,
@@ -14,7 +15,7 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { FilesInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -33,7 +34,10 @@ import { ProfilesService } from './profiles.service';
 @ApiTags('Profiles')
 @Controller('profiles')
 export class ProfilesController {
-  constructor(private profilesService: ProfilesService) {}
+  constructor(
+    private profilesService: ProfilesService,
+    private readonly AwsService: AwsService,
+  ) {}
 
   // API No. 1.1 프로필 생성
   @ApiOperation({ summary: '프로필 생성', description: '프로필 생성' })
@@ -259,11 +263,19 @@ export class ProfilesController {
   }
 
   @ApiOperation({ summary: '사용자 프로필 사진 업로드(테스트)' })
-  //                              클라이언트에서 사용할 key값, 최대 업로드 개수, 멀터 옵션
-  @UseInterceptors(FilesInterceptor('image', 1, multerOptions('profile')))
   @Post('/uploadTest')
-  uploadProfileImageTest(@UploadedFiles() files: Array<Express.Multer.File>) {
-    console.log(files);
-    return 'Success!';
+  @UseInterceptors(FileInterceptor('image'))
+  async uploadProfileImageTest(@UploadedFile() file: Express.Multer.File) {
+    console.log(file);
+    return await this.AwsService.uploadFileToS3('imageTest', file);
   }
+
+  @ApiOperation({ summary: '사용자 프로필 가져오기(테스트)' })
+  @UseGuards(JWTAuthGuard)
+  @Get('/image')
+  // 대충 인증 헤더에서 가져온 사용자 정보를 가지고 프로필 userId 추출하는 컨트롤러
+  async getProfileImageURLTest() {
+    return await this.AwsService.getAwsS3FileUrl('tempUserUUID');
+  }
+
 }

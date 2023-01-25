@@ -264,9 +264,11 @@ export class ProfilesController {
 
   @ApiOperation({ summary: '사용자 프로필 사진 업로드(테스트)' })
   @Post('/uploadTest')
+  //                  'image' 라는 key로 body에서 가져오겠다~
   @UseInterceptors(FileInterceptor('image'))
   async uploadProfileImageTest(@UploadedFile() file: Express.Multer.File) {
     console.log(file);
+    //                                    S3의 imageTest라는 경로에 해당 파일을 저장하겠다~
     return await this.AwsService.uploadFileToS3('imageTest', file);
   }
 

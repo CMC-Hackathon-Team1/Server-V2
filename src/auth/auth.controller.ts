@@ -19,15 +19,16 @@ import baseResponse from '../_utilities/baseResponseStatus';
 import { UserService } from './user.service';
 import {
   ApiBearerAuth,
-  ApiBody, ApiHeader,
-  ApiOperation, ApiQuery,
+  ApiBody,
+  ApiHeader,
+  ApiOperation,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { KakaoLogin } from './kakao/kakao.service';
-import { kakaoConfig } from '../_config/kakao.config';
+import { KakaoService } from './kakao/kakao.service';
 import { GoogleService } from './google/google.service';
-import { AuthGuard } from "@nestjs/passport";
+import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('로그인, 인증 API')
 @Controller('auth')
@@ -35,7 +36,7 @@ export class AuthController {
   constructor(
     private authService: AuthService,
     private userService: UserService,
-    private kakaoService: KakaoLogin,
+    private kakaoService: KakaoService,
     private googleService: GoogleService,
   ) {}
 
@@ -266,6 +267,7 @@ export class AuthController {
     }
     // ---
 
+    // 최종. 서비스 로그인 토큰 반환(발급)
     // 쿠키 설정 (jwt 담기)
     res.setHeader('Kakao-Access-Token', kakaoResult.kakaoAccessToken);
     res.cookie('jwt', kakaoResult.serviceJwt, {
@@ -282,8 +284,7 @@ export class AuthController {
       }),
     );
 
-    // 최종. 서비스 로그인 토큰 반환(발급)
-    return kakaoResult;
+    // return kakaoResult;
   }
 
   @ApiOperation({
@@ -405,6 +406,7 @@ export class AuthController {
     return res.send(kakaoResult);
   }
 
+  // API No. 4.2.1.1. 구글 로그인 - 로그인
   @Get('/google')
   @UseGuards(AuthGuard('google'))
   async googleAuth(@Req() req: Request): Promise<void> {
@@ -414,15 +416,80 @@ export class AuthController {
 
   @Get('/google/callback')
   @UseGuards(AuthGuard('google'))
-  async googleLogin(@Req() req: Request): Promise<any> {
+  async googleCallback(@Req() req: Request, @Res() res: Response): Promise<any> {
+    // console.log(req);
     const { user } = req;
     if (!user) {
-      return 'No user';
-    }
+      return errResponse(baseResponse.GOOGLE_AUTH_USER_FAILED);
+    } else {
+      // console.log(user);
+      const googleUserEmail = user['email'];
+      const googleAccessToken = user['accessToken'];
+      // console.log(googleUserEmail, googleAccessToken);
 
-    return {
-      user: req.user,
-    };
-    // return this.googleService.googleLogin(req);
+      const googleResult = await this.authService.handleSocialUser(
+        googleUserEmail,
+      );
+      // console.log(googleResult);
+
+      // [Validation 처리]
+      // jwt 토큰이 없으면 에러메시지 반환
+      if (!googleResult.serviceJwt) {
+        return res.send(googleResult);
+      }
+      // ---
+
+      // 쿠키 설정 (jwt 담기)
+      // res.setHeader('Google-Access-Token', googleAccessToken);
+      // res.cookie('jwt', googleResult.serviceJwt, {
+      //   // domain: 'OnAndOff Login',
+      //   httpOnly: true, // 브라우저에서의 쿠키 사용 막기 (XSS등의 보안강화용)
+      //   // maxAge: 24 * 60 * 60 * 1000, // 1day
+      // });
+
+      return res.send(
+        sucResponse(baseResponse.SUCCESS, {
+          state: googleAccessToken.message,
+          userId: googleAccessToken.socialUserId,
+          // googleAccessToken: googleAccessToken,
+        }),
+      );
+    }
   }
+
+  // [구글 로그인 안되는 버전?]
+  // @Post('/google-login')
+  // async googleLogin(@Query('code') code: any, @Res() res: Response): Promise<any> {
+  //   // 1. 클라이언트로부터 인가 코드 전달 받기 (query string)
+  //   // const { code } = qs.code;
+  //   if (!code) {
+  //     return errResponse(baseResponse.KAKAO_AUTH_CODE_EMPTY);
+  //   }
+  //
+  //   const googleResult = await this.googleService.googleLogin(code);
+  //
+  //   // [Validation 처리]
+  //   // jwt 토큰이 없으면 에러메시지 반환
+  //   if (!googleResult.serviceJwt) {
+  //     return res.send(googleResult);
+  //   }
+  //   // ---
+  //
+  //   // 최종. 서비스 로그인 토큰 반환(발급)
+  //   // 쿠키 설정 (jwt 담기)
+  //   res.setHeader('Google-Access-Token', googleResult.googleAccessToken);
+  //   res.cookie('jwt', googleResult.serviceJwt, {
+  //     // domain: 'OnAndOff Login',
+  //     httpOnly: true, // 브라우저에서의 쿠키 사용 막기 (XSS등의 보안강화용)
+  //     // maxAge: 24 * 60 * 60 * 1000, // 1day
+  //   });
+  //
+  //   return res.send(
+  //     sucResponse(baseResponse.SUCCESS, {
+  //       state: googleResult.message,
+  //       userId: googleResult.socialUserId,
+  //       // googleAccessToken: googleResult.googleAccessToken,
+  //     }),
+  //   );
+  // }
 }

@@ -8,7 +8,7 @@ import { errResponse, sucResponse } from '../../_utilities/response';
 import baseResponse from '../../_utilities/baseResponseStatus';
 
 @Injectable()
-export class KakaoLogin {
+export class KakaoService {
   check: boolean;
   // kakaoAccessToken: string;
 

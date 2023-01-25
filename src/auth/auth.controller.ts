@@ -26,6 +26,8 @@ import {
 } from '@nestjs/swagger';
 import { KakaoLogin } from './kakao/kakao.service';
 import { kakaoConfig } from '../_config/kakao.config';
+import { GoogleService } from './google/google.service';
+import { AuthGuard } from "@nestjs/passport";
 
 @ApiTags('로그인, 인증 API')
 @Controller('auth')
@@ -34,6 +36,7 @@ export class AuthController {
     private authService: AuthService,
     private userService: UserService,
     private kakaoService: KakaoLogin,
+    private googleService: GoogleService,
   ) {}
 
   // API No. 4.1.4.1. 자체로그인 - 회원가입
@@ -58,7 +61,7 @@ export class AuthController {
     schema: { example: errResponse(baseResponse.SERVER_ERROR) },
   })
   @ApiResponse({
-    status: 1010,
+    status: 1100,
     description: '해당 이메일로 이미 가입된 회원이 있음.',
     schema: {
       example: errResponse(baseResponse.USER_ALREADY_EXISTS),
@@ -93,7 +96,7 @@ export class AuthController {
     schema: { example: errResponse(baseResponse.SERVER_ERROR) },
   })
   @ApiResponse({
-    status: 1011,
+    status: 1101,
     description: '로그인 정보 (이메일 or 비밀번호) 를 잘못 입력함.',
     schema: {
       example: errResponse(baseResponse.USER_NOT_FOUND),
@@ -232,17 +235,17 @@ export class AuthController {
     schema: { example: errResponse(baseResponse.SERVER_ERROR) },
   })
   @ApiResponse({
-    status: 1003,
+    status: 1011,
     description: '카카오 인가 코드를 request에서 넘겨주지 않음',
     schema: { example: errResponse(baseResponse.KAKAO_AUTH_CODE_EMPTY) },
   })
   @ApiResponse({
-    status: 1004,
+    status: 1012,
     description: '카카오 액세서 토큰을 받아오는데 실패함. (인가 코드가 잘못되었거나 유효하지 않음.)',
     schema: { example: errResponse(baseResponse.KAKAO_ACCESS_TOKEN_FAIL) },
   })
   @ApiResponse({
-    status: 1006,
+    status: 1014,
     description: '카카오 유저 정보를 불러오는데 실패함. (액세스 토큰이 잘못되었거나 유효하지 않음.)',
     schema: { example: errResponse(baseResponse.KAKAO_USER_INFO_FAIL) },
   })
@@ -313,12 +316,12 @@ export class AuthController {
     schema: { example: errResponse(baseResponse.SERVER_ERROR) },
   })
   @ApiResponse({
-    status: 1005,
+    status: 1013,
     description: '카카오 액세스 토큰을 request에서 넘겨주지 않음',
     schema: { example: errResponse(baseResponse.KAKAO_ACCESS_TOKEN_EMPTY) },
   })
   @ApiResponse({
-    status: 1006,
+    status: 1014,
     description: '카카오 유저 정보를 불러오는데 실패함. (액세스 토큰이 잘못되었거나 유효하지 않음.)',
     schema: { example: errResponse(baseResponse.KAKAO_USER_INFO_FAIL) },
   })
@@ -372,17 +375,17 @@ export class AuthController {
     schema: { example: errResponse(baseResponse.SERVER_ERROR) },
   })
   @ApiResponse({
-    status: 1003,
+    status: 1011,
     description: '카카오 인가 코드를 request에서 넘겨주지 않음',
     schema: { example: errResponse(baseResponse.KAKAO_AUTH_CODE_EMPTY) },
   })
   @ApiResponse({
-    status: 1004,
+    status: 1012,
     description: '카카오 액세서 토큰을 받아오는데 실패함. (인가 코드가 잘못되었거나 유효하지 않음.)',
     schema: { example: errResponse(baseResponse.KAKAO_ACCESS_TOKEN_FAIL) },
   })
   @ApiResponse({
-    status: 1006,
+    status: 1014,
     description: '카카오 유저 정보를 불러오는데 실패함. (액세스 토큰이 잘못되었거나 유효하지 않음.)',
     schema: { example: errResponse(baseResponse.KAKAO_USER_INFO_FAIL) },
   })
@@ -400,5 +403,26 @@ export class AuthController {
     });
 
     return res.send(kakaoResult);
+  }
+
+  @Get('/google')
+  @UseGuards(AuthGuard('google'))
+  async googleAuth(@Req() req: Request): Promise<void> {
+    // initiate google oauth2 login flow
+    // redirect google login page
+  }
+
+  @Get('/google/callback')
+  @UseGuards(AuthGuard('google'))
+  async googleLogin(@Req() req: Request): Promise<any> {
+    const { user } = req;
+    if (!user) {
+      return 'No user';
+    }
+
+    return {
+      user: req.user,
+    };
+    // return this.googleService.googleLogin(req);
   }
 }

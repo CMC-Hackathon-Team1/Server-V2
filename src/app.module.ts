@@ -44,21 +44,7 @@ import { FeedsModule } from './feeds/feeds.module';
       password: String(process.env.DB_PASS),
       database: String(process.env.DB_NAME),
       entities: [
-        Categories,
-        FeedCategoryMapping,
-        FeedHashTagMapping,
-        FeedImgs,
-        Feeds,
-        FollowFromTo,
-        HashTags,
-        Likes,
-        Notice,
-        Persona,
-        ProfileHashTagMapping,
-        Profiles,
-        QuestionContent,
-        Questions,
-        Users,
+        'dist/**/*.entity{.ts,.js}'
       ],
       synchronize: false,
       logging: true

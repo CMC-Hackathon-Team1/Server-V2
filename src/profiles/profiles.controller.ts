@@ -1,3 +1,4 @@
+import { multerOptions } from './../_utilities/multer.option';
 import {
   Body,
   Controller,
@@ -6,10 +7,14 @@ import {
   ParseIntPipe,
   Post,
   Request,
+  UploadedFile,
+  UploadedFiles,
   UseGuards,
+  UseInterceptors,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -251,5 +256,13 @@ export class ProfilesController {
   @Get('/:profileId')
   getProfileByProfileId(@Param('profileId', ParseIntPipe) profileId: number) {
     return this.profilesService.getProfileByProfileId(profileId);
+  }
+
+  @ApiOperation({ summary: '사용자 프로필 사진 업로드(테스트)' })
+  @UseInterceptors(FilesInterceptor('image', 1, multerOptions('profile')))
+  @Post('/uploadTest')
+  uploadProfileImageTest(@UploadedFiles() files: Array<Express.Multer.File>) {
+    console.log(files);
+    return 'Success!';
   }
 }

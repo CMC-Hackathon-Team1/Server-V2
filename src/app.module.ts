@@ -26,6 +26,7 @@ import { Environment } from './_utilities/constants';
 import { LikesModule } from './likes/likes.module';
 import { FollowingModule } from './following/following.module';
 import { FeedsModule } from './feeds/feeds.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -69,6 +70,7 @@ import { FeedsModule } from './feeds/feeds.module';
     LikesModule,
     FollowingModule,
     FeedsModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -4,7 +4,7 @@ import { UserDTO } from './dto/user.dto';
 import { errResponse, sucResponse } from '../_utilities/response';
 import baseResponse from '../_utilities/baseResponseStatus';
 import * as bcrypt from 'bcrypt';
-import { Payload } from './security/payload.interface';
+import { Payload } from './security/jwt.payload.interface';
 import { Users } from '../_entities/Users';
 import { JwtService } from '@nestjs/jwt';
 

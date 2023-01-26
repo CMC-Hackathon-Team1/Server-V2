@@ -1,3 +1,4 @@
+import { AwsService } from './aws/aws.service';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -62,7 +63,7 @@ import { UsersModule } from './users/users.module';
         Users,
       ],
       synchronize: false,
-      logging: true
+      logging: true,
     }),
     ProfilesModule,
     PersonaModule,
@@ -73,7 +74,7 @@ import { UsersModule } from './users/users.module';
     UsersModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, AwsService],
 })
 export class AppModule {}
 

@@ -2,9 +2,9 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { profile } from "console";
 import { Repository } from "typeorm";
-import { FeedImgs } from "../_entities/FeedImgs";
-import { Feeds } from "../_entities/Feeds";
-import { Likes } from "../_entities/Likes";
+import { FeedImgs } from "../common/entities/FeedImgs";
+import { Feeds } from "../common/entities/Feeds";
+import { Likes } from "../common/entities/Likes";
 
 @Injectable()
 export class FeedRepository{

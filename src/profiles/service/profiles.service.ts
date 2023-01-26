@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { PersonaRepository } from '../persona/persona.repository';
-import { SaveProfileDto } from './dto/saveProfile.dto';
-import baseResponse from '../_utilities/baseResponseStatus';
-import { errResponse, sucResponse } from '../_utilities/response';
-import { CreateProfileDto } from './dto/createProfile.dto';
-import { ProfilesRepository } from './profiles.repository';
-import { EditProfileDto } from './dto/editProfile.dto';
-import { AwsService } from '../aws/aws.service';
+import { PersonaRepository } from '../../persona/persona.repository';
+import { SaveProfileDto } from '../dto/saveProfile.dto';
+import baseResponse from '../../common/utils/baseResponseStatus';
+import { errResponse, sucResponse } from '../../common/utils/response';
+import { CreateProfileDto } from '../dto/createProfile.dto';
+import { ProfilesRepository } from '../profiles.repository';
+import { EditProfileDto } from '../dto/editProfile.dto';
+import { AwsService } from '../../aws/aws.service';
 
 @Injectable()
 export class ProfilesService {

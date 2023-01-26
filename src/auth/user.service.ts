@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOneOptions, Repository } from 'typeorm';
 import { UserDTO } from './dto/user.dto';
-import { Users } from '../_entities/Users';
+import { Users } from '../common/entities/Users';
 import { UserInfoDTO } from './dto/user-info.dto';
 import * as bcrypt from 'bcrypt';
 

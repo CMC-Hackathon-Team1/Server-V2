@@ -1,11 +1,11 @@
 import { Controller, Get, Query } from '@nestjs/common';
-import { Feeds } from '../_entities/Feeds';
+import { Feeds } from '../common/entities/Feeds';
 import { Feed, retrieveFeedsReturnDto } from './dto/retreive-feeds-return.dto';
 import { feedExploreValidationPipe } from './validation/feeds.explore-validation-pipe';
 import { FeedsService } from './feeds.service';
 import { ApiCreatedResponse, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { sucResponse } from '../_utilities/response';
-import baseResponse from '../_utilities/baseResponseStatus';
+import { sucResponse } from '../common/utils/response';
+import baseResponse from '../common/utils/baseResponseStatus';
 import { MyFeed } from './dto/retreive-my-feed-bymonth.dto';
 
 @Controller('feeds')

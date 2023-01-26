@@ -2,10 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { AuthService } from '../auth.service';
 import { UserService } from '../user.service';
 import axios from 'axios';
-import { kakaoConfig } from '../../_config/kakao.config';
+import { kakaoConfig } from '../../../config/kakao.config';
 import * as qs from 'qs';
-import { errResponse, sucResponse } from '../../_utilities/response';
-import baseResponse from '../../_utilities/baseResponseStatus';
+import { errResponse, sucResponse } from '../../common/utils/response';
+import baseResponse from '../../common/utils/baseResponseStatus';
 
 @Injectable()
 export class KakaoService {

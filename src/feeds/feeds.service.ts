@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LikesRepository } from '../likes/likes.repository';
-import { Feeds } from '../_entities/Feeds';
+import { Feeds } from '../common/entities/Feeds';
 import { Feed, retrieveFeedsReturnDto } from './dto/retreive-feeds-return.dto';
 import { RetreiveMyFeedByMonthReturnDTO } from './dto/retreive-my-feed-bymonth.dto';
 import { FeedRepository } from './feeds.repository';

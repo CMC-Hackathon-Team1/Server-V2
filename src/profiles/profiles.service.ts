@@ -52,12 +52,20 @@ export class ProfilesService {
     }
     
     // 새로운 프로필 생성
-    const imageUploadResult = await this.AwsService.uploadFileToS3('imageTest', image);
+    let imgDir = '';
+    // 사용자가 이미지를 전달한 경우
+    if (image) {
+      const imageUploadResult = await this.AwsService.uploadFileToS3('imageTest', image);
+      imgDir = imageUploadResult.key;
+    }
+    else {
+      imgDir = 'defaultProfileImg/defaultProfileImg.png';
+    }
     const newProfileDto: SaveProfileDto = {
       userId: requestUserId,
       profileName: createProfileDto.profileName,
       personaId: newProfilePeronaId,
-      profileImgUrl: `https://${process.env.AWS_S3_BUCKET_NAME}.s3.amazonaws.com/${imageUploadResult.key}`,
+      profileImgUrl: `https://${process.env.AWS_S3_BUCKET_NAME}.s3.amazonaws.com/${imgDir}`,
       statusMessage: createProfileDto.statusMessage,
     };
     const newProfile = await this.profileRepository.saveNewProfile(

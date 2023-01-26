@@ -6,41 +6,41 @@ import { errResponse, sucResponse } from '../_utilities/response';
 import { CreateProfileDto } from './dto/createProfile.dto';
 import { ProfilesRepository } from './profiles.repository';
 import { EditProfileDto } from './dto/editProfile.dto';
+import { AwsService } from '../aws/aws.service';
 
 @Injectable()
 export class ProfilesService {
   constructor(
     private profileRepository: ProfilesRepository,
     private personaRepository: PersonaRepository,
+    private readonly AwsService: AwsService,
   ) {}
 
   // 프로필 생성
-  async createProfile(req: any, createProfileDto: CreateProfileDto): Promise<any> {
+  async createProfile(image: Express.Multer.File, req: any, createProfileDto: CreateProfileDto): Promise<any> {
     const requestUserId = req.user.userId;
     const userProfilesList = await this.profileRepository.getUserProfilesList(requestUserId);
     const newProfilePersonaName = createProfileDto.personaName;
-
+    
     // 프로필 갯수 validation
     if (userProfilesList.length >= 3) {
       return errResponse(baseResponse.PROFILE_COUNT_OVER, {
         currentProfileCount: userProfilesList.length,
       });
     }
-
+    
     // 같은 페르소나 생성 validation
-    const checkExistPerona = await this.personaRepository.getPersonaByName(
-      newProfilePersonaName,
-    );
-
-    // existPersonaId = 페르소나 테이블에 해당 페르소나가 존재하는 경우: 해당 페르소나 ID 사용 / 존재하지 않는 경우: 새로운 페르소나를 생성하여 생성된 페르소나 ID를 사용
-    // existPersonaId를 이용해 프로필 생성에 필요한 personaId 저장
-    const existPersonaId = checkExistPerona?.personaId; // checkExistPersona가 undefined인 경우가 있을 수 있으므로 ? 부여
-    for (let i = 0; i < userProfilesList.length; i++) {
-      if (existPersonaId === userProfilesList[i].personaId) {
-        return errResponse(baseResponse.PROFILE_SAME_PERSONA);
-      }
+    const checkExistPerona = await this.personaRepository.getPersonaByName(newProfilePersonaName);
+      
+      // existPersonaId = 페르소나 테이블에 해당 페르소나가 존재하는 경우: 해당 페르소나 ID 사용 / 존재하지 않는 경우: 새로운 페르소나를 생성하여 생성된 페르소나 ID를 사용
+      // existPersonaId를 이용해 프로필 생성에 필요한 personaId 저장
+      const existPersonaId = checkExistPerona?.personaId; // checkExistPersona가 undefined인 경우가 있을 수 있으므로 ? 부여
+      for (let i = 0; i < userProfilesList.length; i++) {
+        if (existPersonaId === userProfilesList[i].personaId) {
+          return errResponse(baseResponse.PROFILE_SAME_PERSONA);
+        }
     }
-
+    
     // 아무도 사용하지 않은 새로운 페르소나인 경우 페르소나를 생성한 후 생성된 페르소나 ID를 이용하여 프로필을 생성
     let newProfilePeronaId = existPersonaId;
     if (checkExistPerona === undefined) {
@@ -50,13 +50,14 @@ export class ProfilesService {
       });
       newProfilePeronaId = newPersona.personaId;
     }
-
+    
     // 새로운 프로필 생성
+    const imageUploadResult = await this.AwsService.uploadFileToS3('imageTest', image);
     const newProfileDto: SaveProfileDto = {
       userId: requestUserId,
       profileName: createProfileDto.profileName,
       personaId: newProfilePeronaId,
-      profileImgUrl: createProfileDto.profileImgUrl,
+      profileImgUrl: `https://${process.env.AWS_S3_BUCKET_NAME}.s3.amazonaws.com/${imageUploadResult.key}`,
       statusMessage: createProfileDto.statusMessage,
     };
     const newProfile = await this.profileRepository.saveNewProfile(

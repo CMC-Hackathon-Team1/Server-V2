@@ -15,14 +15,6 @@ export class CreateProfileDto {
   personaName: string;
 
   @ApiProperty({
-    description: '프로필 이미지 URL',
-    example: 'https://imgURL.com',
-  })
-  @IsNotEmpty()
-  @IsString()
-  profileImgUrl: string;
-
-  @ApiProperty({
     description: '상태 메시지',
     example: '작가가 되고싶은 야옹이',
     required: false,

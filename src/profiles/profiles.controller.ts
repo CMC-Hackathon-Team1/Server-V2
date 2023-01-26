@@ -79,11 +79,13 @@ export class ProfilesController {
   @UseGuards(JWTAuthGuard)
   @Post('/create')
   @UsePipes(ValidationPipe)
+  @UseInterceptors(FileInterceptor('image'))
   createProfile(
+    @UploadedFile() image: Express.Multer.File,
     @Body() createProfileDto: CreateProfileDto,
     @Request() req: any
   ) {
-    return this.profilesService.createProfile(req, createProfileDto);
+    return this.profilesService.createProfile(image, req, createProfileDto);
   }
 
   // API No. 3.1 프로필 삭제
@@ -262,7 +264,7 @@ export class ProfilesController {
     return this.profilesService.getProfileByProfileId(profileId);
   }
 
-  @ApiOperation({ summary: '사용자 프로필 사진 업로드(테스트)' })
+  /* @ApiOperation({ summary: '사용자 프로필 사진 업로드(테스트)' })
   @Post('/uploadTest')
   //                  'image' 라는 key로 body에서 가져오겠다~
   @UseInterceptors(FileInterceptor('image'))
@@ -278,6 +280,6 @@ export class ProfilesController {
   // 대충 인증 헤더에서 가져온 사용자 정보를 가지고 프로필 userId 추출하는 컨트롤러
   async getProfileImageURLTest() {
     return await this.AwsService.getAwsS3FileUrl('tempUserUUID');
-  }
+  } */
 
 }

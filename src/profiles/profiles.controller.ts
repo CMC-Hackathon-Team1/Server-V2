@@ -89,7 +89,6 @@ export class ProfilesController {
     @Body() createProfileDto: CreateProfileDto,
     @Request() req: any,
   ) {
-    console.log(createProfileDto)
     return this.profilesService.createProfile(image, req, createProfileDto);
   }
 

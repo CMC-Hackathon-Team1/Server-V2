@@ -59,7 +59,7 @@ export class ProfilesService {
       imgDir = imageUploadResult.key;
     }
     else {
-      imgDir = 'defaultProfileImg/defaultProfileImg.png';
+      imgDir = process.env.DEFAULT_PROFILE_IMAGE_DIR;
     }
     const newProfileDto: SaveProfileDto = {
       userId: requestUserId,

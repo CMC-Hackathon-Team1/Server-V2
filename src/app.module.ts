@@ -1,3 +1,4 @@
+import { AwsService } from './aws/aws.service';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -71,7 +72,7 @@ import { FeedsModule } from './feeds/feeds.module';
     FeedsModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, AwsService],
 })
 export class AppModule {}
 

@@ -14,8 +14,8 @@ import { AuthService } from './auth.service';
 import { UserDTO } from './dto/user.dto';
 import { JWTAuthGuard } from './security/auth.guard.jwt';
 import { Request, Response } from 'express';
-import { errResponse, sucResponse } from '../_utilities/response';
-import baseResponse from '../_utilities/baseResponseStatus';
+import { errResponse, sucResponse } from '../common/utils/response';
+import baseResponse from '../common/utils/baseResponseStatus';
 import { UserService } from './user.service';
 import {
   ApiBearerAuth,

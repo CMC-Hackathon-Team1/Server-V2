@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserDTO } from './dto/user.dto';
-import { errResponse, sucResponse } from '../_utilities/response';
-import baseResponse from '../_utilities/baseResponseStatus';
+import { errResponse, sucResponse } from '../common/utils/response';
+import baseResponse from '../common/utils/baseResponseStatus';
 import * as bcrypt from 'bcrypt';
 import { Payload } from './security/jwt.payload.interface';
-import { Users } from '../_entities/Users';
+import { Users } from '../common/entities/Users';
 import { JwtService } from '@nestjs/jwt';
 
 @Injectable()

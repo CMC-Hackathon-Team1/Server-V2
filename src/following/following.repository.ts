@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { FollowFromTo } from "../_entities/FollowFromTo";
+import { FollowFromTo } from "../common/entities/FollowFromTo";
 
 @Injectable()
 export class FollowingRepository{

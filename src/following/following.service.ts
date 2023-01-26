@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { FollowFromTo } from '../_entities/FollowFromTo';
-import baseResponse from '../_utilities/baseResponseStatus';
-import { sucResponse } from '../_utilities/response';
+import { FollowFromTo } from '../common/entities/FollowFromTo';
+import baseResponse from '../common/utils/baseResponseStatus';
+import { sucResponse } from '../common/utils/response';
 import { FollowingRepository } from './following.repository';
 
 @Injectable()

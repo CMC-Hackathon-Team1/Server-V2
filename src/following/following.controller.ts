@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
-import baseResponse from '../_utilities/baseResponseStatus';
-import { sucResponse } from '../_utilities/response';
+import baseResponse from '../common/utils/baseResponseStatus';
+import { sucResponse } from '../common/utils/response';
 import { PostFollowRequestDTO } from './dto/post-follow.dto';
 import { FollowingService } from './following.service';
 

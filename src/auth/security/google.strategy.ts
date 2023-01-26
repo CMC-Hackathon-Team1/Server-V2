@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, VerifyCallback } from 'passport-google-oauth20';
-import { errResponse } from "../../_utilities/response";
-import baseResponse from "../../_utilities/baseResponseStatus";
+import { errResponse } from "../../common/utils/response";
+import baseResponse from "../../common/utils/baseResponseStatus";
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {

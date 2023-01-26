@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { Likes } from '../_entities/Likes';
-import baseResponse from '../_utilities/baseResponseStatus';
-import { sucResponse } from '../_utilities/response';
+import { Likes } from '../common/entities/Likes';
+import baseResponse from '../common/utils/baseResponseStatus';
+import { sucResponse } from '../common/utils/response';
 import { PostLikeRequestDTO } from './dto/post-like.dto';
 import { LikesRepository } from './likes.repository';
 

@@ -40,7 +40,11 @@ export class ProfilesController {
   ) {}
 
   // API No. 1.1 프로필 생성
-  @ApiOperation({ summary: '프로필 생성', description: '프로필 생성' })
+  @ApiOperation({
+    summary: '프로필 생성',
+    description:
+      'profileName, personaName, statusMessage, image를 form-data 형식으로 전달해야 함 (파일을 전송해야 하므로 Swagger에서는 테스트 불가)\n\nprofileName, personaName: 필수\n\nstatusMessage, image: 필수 X\n\n※ 각 key의 이름은 바꾸면 안됨 (image -> profileImg X)\n\n※ image는 이미지 파일 자체가 value (별도의 작업 없이 파일 자체를 전송하면 됨)\n\n(자세한 예시는 Notion 참고)',
+  })
   @ApiBearerAuth('Authorization')
   @ApiResponse({
     status: 100,
@@ -83,8 +87,9 @@ export class ProfilesController {
   createProfile(
     @UploadedFile() image: Express.Multer.File,
     @Body() createProfileDto: CreateProfileDto,
-    @Request() req: any
+    @Request() req: any,
   ) {
+    console.log(createProfileDto)
     return this.profilesService.createProfile(image, req, createProfileDto);
   }
 
@@ -129,11 +134,11 @@ export class ProfilesController {
   @Post('/delete')
   deleteProfile(
     @Body('profileId', ParseIntPipe) profileId: number,
-    @Request() req: any
+    @Request() req: any,
   ) {
     return this.profilesService.deleteProfile(req, profileId);
   }
-  
+
   // API No. 3.1 프로필 수정
   @ApiOperation({
     summary: '프로필 수정',
@@ -185,13 +190,19 @@ export class ProfilesController {
   // 프로필 변경을 할 수 있도록 사용자의 모든 프로필을 제공
   @ApiOperation({
     summary: '사용자 프로필 목록 가져오기',
-    description: '멀티 페르소나를 위해 사용자의 모든 프로필 목록을 가져오는 API (Header의 JWT를 제외한 별도 데이터 필요 X)',
+    description:
+      '멀티 페르소나를 위해 사용자의 모든 프로필 목록을 가져오는 API (Header의 JWT를 제외한 별도 데이터 필요 X)',
   })
   @ApiBearerAuth('Authorization')
   @ApiResponse({
     status: 100,
     description: 'SUCCESS',
-    schema: { example: sucResponse(baseResponse.SUCCESS, [{ ProfileModelExample }, { ProfileModelExample }]) },
+    schema: {
+      example: sucResponse(baseResponse.SUCCESS, [
+        { ProfileModelExample },
+        { ProfileModelExample },
+      ]),
+    },
   })
   @ApiResponse({
     status: 400,
@@ -220,9 +231,7 @@ export class ProfilesController {
   })
   @UseGuards(JWTAuthGuard)
   @Get('/my-profiles')
-  getUserProfilesList(
-    @Request() req: any
-  ) {
+  getUserProfilesList(@Request() req: any) {
     return this.profilesService.getUserProfilesList(req);
   }
 
@@ -281,5 +290,4 @@ export class ProfilesController {
   async getProfileImageURLTest() {
     return await this.AwsService.getAwsS3FileUrl('tempUserUUID');
   } */
-
 }

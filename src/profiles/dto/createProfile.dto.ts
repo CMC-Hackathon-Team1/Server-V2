@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class CreateProfileDto {
   @ApiProperty({ description: '프로필 이름', example: '작가 야옹이' })
@@ -23,4 +23,11 @@ export class CreateProfileDto {
   @MaxLength(100)
   @IsString()
   statusMessage: string;
+
+  @ApiProperty({
+    description: '프로필 이미지 파일',
+    example: 'profileImg.png',
+    required: false,
+  })
+  image: object;
 }

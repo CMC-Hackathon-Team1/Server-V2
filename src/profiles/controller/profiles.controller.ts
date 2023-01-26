@@ -1,5 +1,5 @@
-import { AwsService } from './../aws/aws.service';
-import { multerOptions } from '../common/utils/multer.option';
+import { AwsService } from '../../aws/aws.service';
+import { multerOptions } from '../../common/utils/multer.option';
 import {
   Body,
   Controller,
@@ -23,13 +23,13 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { JWTAuthGuard } from '../auth/security/auth.guard.jwt';
-import baseResponse from '../common/utils/baseResponseStatus';
-import { errResponse, sucResponse } from '../common/utils/response';
-import { CreateProfileDto } from './dto/createProfile.dto';
-import { EditProfileDto } from './dto/editProfile.dto';
-import { ProfileModelExample } from './dto/profile.model';
-import { ProfilesService } from './profiles.service';
+import { JWTAuthGuard } from '../../auth/security/auth.guard.jwt';
+import baseResponse from '../../common/utils/baseResponseStatus';
+import { errResponse, sucResponse } from '../../common/utils/response';
+import { CreateProfileDto } from '../dto/createProfile.dto';
+import { EditProfileDto } from '../dto/editProfile.dto';
+import { ProfileModelExample } from '../dto/profile.model';
+import { ProfilesService } from '../service/profiles.service';
 
 @ApiTags('Profiles')
 @Controller('profiles')

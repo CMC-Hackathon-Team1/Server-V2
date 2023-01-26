@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { CreatePersonaDto } from './createPersona.dto';
-import { PersonaModel } from './persona.model';
-import { PersonaRepository } from './persona.repository';
+import { CreatePersonaDto } from '../dto/createPersona.dto';
+import { PersonaModel } from '../persona.model';
+import { PersonaRepository } from '../persona.repository';
 
 @Injectable()
 export class PersonaService {

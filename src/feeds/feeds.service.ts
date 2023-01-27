@@ -50,8 +50,8 @@ export class FeedsService {
         return foundDTO;
     }
 
-    async RetreiveMyFeedByMonth(profileId: number, year: number, month: number,pageNumber:number) :Promise<RetreiveMyFeedByMonthReturnDTO>{
-        const feedEntity:Feeds[]=await this.feedRepsitory.retrieveMyFeedByMonth(profileId,year,month,pageNumber);
+    async RetreiveMyFeedByMonth(profileId: number, year: number, month: number,day:number,pageNumber:number) :Promise<RetreiveMyFeedByMonthReturnDTO>{
+        const feedEntity:Feeds[]=await this.feedRepsitory.retrieveMyFeedByMonth(profileId,year,month,day,pageNumber);
 
         console.log(feedEntity);
         const foundDTO:RetreiveMyFeedByMonthReturnDTO=new RetreiveMyFeedByMonthReturnDTO(feedEntity);

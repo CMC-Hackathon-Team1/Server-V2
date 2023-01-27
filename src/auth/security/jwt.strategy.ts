@@ -3,9 +3,9 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy, VerifiedCallback } from 'passport-jwt';
 import { AuthService } from '../auth.service';
 import { Payload } from './jwt.payload.interface';
-import { errResponse, sucResponse } from '../../_utilities/response';
-import baseResponse from '../../_utilities/baseResponseStatus';
-import { jwtConfig } from '../../_config/jwt.config';
+import { errResponse, sucResponse } from '../../common/utils/response';
+import baseResponse from '../../common/utils/baseResponseStatus';
+import { jwtConfig } from '../../../config/jwt.config';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {

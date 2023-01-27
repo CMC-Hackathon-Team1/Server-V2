@@ -1,8 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { Persona } from "../_entities/Persona";
-import { CreatePersonaDto } from "./createPersona.dto";
+import { Persona } from "../common/entities/Persona";
+import { CreatePersonaDto } from "./dto/createPersona.dto";
 import { PersonaModel } from "./persona.model";
 
 @Injectable()

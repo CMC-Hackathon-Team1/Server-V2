@@ -3,9 +3,9 @@ import { AuthService } from '../auth.service';
 import { UserService } from '../user.service';
 import axios from 'axios';
 import * as qs from 'qs';
-import { errResponse, sucResponse } from '../../_utilities/response';
-import baseResponse from '../../_utilities/baseResponseStatus';
-import { googleConfig } from '../../_config/google.config';
+import { errResponse, sucResponse } from '../../common/utils/response';
+import baseResponse from '../../common/utils/baseResponseStatus';
+import { googleConfig } from '../../../config/google.config';
 
 @Injectable()
 export class GoogleService {

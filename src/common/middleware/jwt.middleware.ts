@@ -1,7 +1,7 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
-import { errResponse } from '../_utilities/response';
-import baseResponse from '../_utilities/baseResponseStatus';
+import { errResponse } from '../utils/response';
+import baseResponse from '../utils/baseResponseStatus';
 
 // TODO: jwt 미들웨어를 자체적으로 처리할 거면 사용해도 되지만,현재 authguard 로 사용 중이므로 불필요. 추후 사용 여부 결정.
 @Injectable()

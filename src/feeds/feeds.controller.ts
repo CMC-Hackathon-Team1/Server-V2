@@ -1,11 +1,11 @@
 import { Controller, Get, Query } from '@nestjs/common';
-import { Feeds } from '../_entities/Feeds';
+import { Feeds } from '../common/entities/Feeds';
 import { Feed, retrieveFeedsReturnDto } from './dto/retreive-feeds-return.dto';
 import { feedExploreValidationPipe } from './validation/feeds.explore-validation-pipe';
 import { FeedsService } from './feeds.service';
 import { ApiCreatedResponse, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { sucResponse } from '../_utilities/response';
-import baseResponse from '../_utilities/baseResponseStatus';
+import { sucResponse } from '../common/utils/response';
+import baseResponse from '../common/utils/baseResponseStatus';
 import { MyFeed } from './dto/retreive-my-feed-bymonth.dto';
 
 @Controller('feeds')
@@ -101,5 +101,33 @@ export class FeedsController {
         @Query('page') pageNumber: number
     ){
         return this.feedsService.RetreiveMyFeedByMonth(profileId,year,month,pageNumber);
+    }
+
+    @Get('/my-feeds/in-calender')
+    @ApiOperation({
+        summary: '홈화면(캘런더) 1.4.1',
+        description: '홈화면에서 캘런더를 통해 내가 게시글을 쓴 날이 표시되는 API이다.' ,
+    })
+    @ApiQuery({
+        name: 'profileId',
+        required:true,
+        description:'현재 유저의 profileId ex)29'
+    })
+    @ApiQuery({
+        name: 'year',
+        required:true,
+        description:'검색하고싶은 년도 "yyyy"형식으로 제공되어야한다.(4자리 수) ex) 2023'
+    })
+    @ApiQuery({
+        name: 'month',
+        required:true,
+        description:'검색하고싶은 달 "mm"형식으로 제공되어야한다.(2자리수) ex) 01'
+    })
+    RetriveMyFeedInCalender(
+        @Query('profileId') profileId:number,
+        @Query('year') year:number,
+        @Query('month') month:number
+    ){
+        return this.feedsService.RetriveMyFeedInCalender(profileId,year,month);
     }
 }

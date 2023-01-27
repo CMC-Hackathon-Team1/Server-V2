@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SaveProfileDto } from './dto/saveProfile.dto';
-import { Profiles } from '../_entities/Profiles';
+import { Profiles } from '../common/entities/Profiles';
 import { ProfileModel } from './dto/profile.model';
 import { EditProfileDto } from './dto/editProfile.dto';
 

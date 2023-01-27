@@ -2,9 +2,9 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { profile } from "console";
 import { Repository } from "typeorm";
-import { FeedImgs } from "../_entities/FeedImgs";
-import { Feeds } from "../_entities/Feeds";
-import { Likes } from "../_entities/Likes";
+import { FeedImgs } from "../common/entities/FeedImgs";
+import { Feeds } from "../common/entities/Feeds";
+import { Likes } from "../common/entities/Likes";
 
 @Injectable()
 export class FeedRepository{
@@ -46,6 +46,27 @@ export class FeedRepository{
             .skip(10*(pageNumber-1))
             .take(10)
             .getMany();
+        return found;
+    }
+
+    RetriveMyFeedInCalender(profileId: number, year: number, month: number) {
+        
+        const this_month=year+"-"+month;
+        console.log(this_month);
+
+        const found=this.feedTable
+            .createQueryBuilder('Feeds')
+            .leftJoin('Feeds.feedImgs','feedImg')
+            .select([
+                'Feeds.feedId as feedId' ,
+                `DATE_FORMAT(Feeds.createdAt,'%d') as day`,
+                `feedImg.feedImgUrl as feedImgUrl`,
+            ])
+            .where("Feeds.profileId=:profileId",{profileId:profileId})
+            .andWhere('DATE_FORMAT(`Feeds`.`createdAt`, "%Y-%m")=:target',{target:this_month})
+            .groupBy('day')
+            .orderBy('day')
+            .getRawMany();
         return found;
     }
 }

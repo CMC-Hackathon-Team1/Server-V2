@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Persona } from '../_entities/Persona';
-import { PersonaController } from './persona.controller';
+import { Persona } from '../common/entities/Persona';
+import { PersonaController } from './controller/persona.controller';
 import { PersonaRepository } from './persona.repository';
-import { PersonaService } from './persona.service';
+import { PersonaService } from './service/persona.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Persona])],

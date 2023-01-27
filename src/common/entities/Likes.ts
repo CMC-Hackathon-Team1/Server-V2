@@ -1,5 +1,5 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { PostLikeRequestDTO } from "../likes/dto/post-like.dto";
+import { PostLikeRequestDTO } from "../../likes/dto/post-like.dto";
 import { Feeds } from "./Feeds";
 import { Profiles } from "./Profiles";
 

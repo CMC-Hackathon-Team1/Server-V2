@@ -1,9 +1,9 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import baseResponse from '../_utilities/baseResponseStatus';
-import { sucResponse } from '../_utilities/response';
-import { PostLikeRequestDTO } from './dto/post-like.dto';
-import { LikesService } from './likes.service';
+import baseResponse from '../../common/utils/baseResponseStatus';
+import { sucResponse } from '../../common/utils/response';
+import { PostLikeRequestDTO } from '../dto/post-like.dto';
+import { LikesService } from '../service/likes.service';
 
 @Controller('likes')
 @ApiTags('Feed API')

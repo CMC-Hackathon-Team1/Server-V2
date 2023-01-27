@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { FollowFromTo } from '../_entities/FollowFromTo';
-import { FollowingController } from './following.controller';
+import { FollowFromTo } from '../common/entities/FollowFromTo';
+import { FollowingController } from './controller/following.controller';
 import { FollowingRepository } from './following.repository';
-import { FollowingService } from './following.service';
+import { FollowingService } from './service/following.service';
 
 @Module({
   imports: [

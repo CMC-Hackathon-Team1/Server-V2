@@ -1,7 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { FeedImgs } from "../../_entities/FeedImgs";
-import { Feeds } from "../../_entities/Feeds";
-import { Likes } from "../../_entities/Likes";
+import { FeedImgs } from "../../common/entities/FeedImgs";
+import { Feeds } from "../../common/entities/Feeds";
+import { Likes } from "../../common/entities/Likes";
 
 export class RetreiveMyFeedByMonthReturnDTO {
     @ApiProperty({description:"feedArray"})

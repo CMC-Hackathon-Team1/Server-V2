@@ -1,5 +1,5 @@
 import { Controller, Get } from '@nestjs/common';
-import { PersonaService } from './persona.service';
+import { PersonaService } from '../service/persona.service';
 
 @Controller('persona')
 export class PersonaController {

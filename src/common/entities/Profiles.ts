@@ -68,7 +68,7 @@ export class Profiles {
   persona: Persona;
 
   @ManyToOne(() => Users, (users) => users.profiles, {
-    onDelete: "RESTRICT",
+    onDelete: "CASCADE",
     onUpdate: "RESTRICT",
   })
   @JoinColumn([{ name: "userId", referencedColumnName: "userId" }])

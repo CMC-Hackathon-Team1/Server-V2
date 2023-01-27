@@ -7,15 +7,7 @@ export class EditProfileDto {
   @MaxLength(20)
   @IsString()
   profileName: string;
-
-  @ApiProperty({
-    description: '프로필 이미지 URL',
-    example: 'https://imgURL.com',
-  })
-  @IsNotEmpty()
-  @IsString()
-  profileImgUrl: string;
-
+  
   @ApiProperty({
     description: '상태 메시지',
     example: '작가가 되고싶은 야옹이',
@@ -24,4 +16,11 @@ export class EditProfileDto {
   @IsOptional()
   @MaxLength(100)
   statusMessage: string;
+
+  @ApiProperty({
+    description: '프로필 이미지 파일',
+    example: 'profileImg.png',
+    required: false,
+  })
+  image: object;
 }

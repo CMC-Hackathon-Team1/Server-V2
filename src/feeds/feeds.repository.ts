@@ -48,4 +48,25 @@ export class FeedRepository{
             .getMany();
         return found;
     }
+
+    RetriveMyFeedInCalender(profileId: number, year: number, month: number) {
+        
+        const this_month=year+"-"+month;
+        console.log(this_month);
+
+        const found=this.feedTable
+            .createQueryBuilder('Feeds')
+            .leftJoin('Feeds.feedImgs','feedImg')
+            .select([
+                'Feeds.feedId as feedId' ,
+                `DATE_FORMAT(Feeds.createdAt,'%d') as day`,
+                `feedImg.feedImgUrl as feedImgUrl`,
+            ])
+            .where("Feeds.profileId=:profileId",{profileId:profileId})
+            .andWhere('DATE_FORMAT(`Feeds`.`createdAt`, "%Y-%m")=:target',{target:this_month})
+            .groupBy('day')
+            .orderBy('day')
+            .getRawMany();
+        return found;
+    }
 }

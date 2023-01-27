@@ -103,7 +103,7 @@ export class ProfilesService {
   }
 
   // 프로필 수정
-  async editProfile(req: any, profileId: number, editProfileDto: EditProfileDto) {
+  async editProfile(profileId: number, image: Express.Multer.File, req: any, editProfileDto: EditProfileDto) {
     try {
       const requestUserId = req.user.userId;
       const targetProfile = await this.profileRepository.findProfileByProfileId(profileId);
@@ -117,7 +117,31 @@ export class ProfilesService {
         return errResponse(baseResponse.PROFILE_NOT_EXIST);
       }
 
-      const editedProfile = await this.profileRepository.editProfile(profileId, editProfileDto);
+      let imgDir = '';
+      // 사용자가 이미지를 전달한 경우
+      if (image) {
+        const imageUploadResult = await this.AwsService.uploadFileToS3('imageTest', image);
+        imgDir = imageUploadResult.key;
+
+        // 기존 이미지는 삭제
+        const prevImgKey = targetProfile.profileImgUrl.slice(`https://${process.env.AWS_S3_BUCKET_NAME}.s3.amazonaws.com/`.length);
+        if (prevImgKey !== process.env.DEFAULT_PROFILE_IMAGE_DIR) {
+          const prevImageDeleteResult = await this.AwsService.deleteS3Object(prevImgKey);
+        }
+      }
+      else {
+        imgDir = process.env.DEFAULT_PROFILE_IMAGE_DIR;
+        const prevImgKey = targetProfile.profileImgUrl.slice(`https://${process.env.AWS_S3_BUCKET_NAME}.s3.amazonaws.com/`.length);
+        const prevImageDeleteResult = await this.AwsService.deleteS3Object(prevImgKey);
+      }
+
+      const newContent = {
+        profileName: editProfileDto.profileName,
+        profileImgUrl: `https://${process.env.AWS_S3_BUCKET_NAME}.s3.amazonaws.com/${imgDir}`,
+        statusMessage: editProfileDto.statusMessage ? editProfileDto.statusMessage : ''
+      }
+
+      const editedProfile = await this.profileRepository.editProfile(profileId, newContent);
       delete editedProfile.userId;
 
       return sucResponse(baseResponse.SUCCESS, editedProfile);

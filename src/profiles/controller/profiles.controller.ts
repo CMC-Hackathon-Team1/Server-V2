@@ -142,7 +142,7 @@ export class ProfilesController {
   @ApiOperation({
     summary: '프로필 수정',
     description:
-      '프로필을 생성하는 경우와 Body가 유사하지만, 페르소나는 변경이 불가능하므로 프로필 수정 Body에서는 제외된다.',
+      '프로필을 생성하는 경우와 Body가 유사하지만, 페르소나는 변경이 불가능하므로 프로필 수정 Body에서는 제외됩니다.\n\nprofileName, statusMessage, image를 받아야 하며 statusMessage와 image는 생략이 가능합니다.\n\nimage를 보내지 않는 경우는 기본 프로필 이미지로 수정됩니다.\n\n자세한 내용은 노션을 참고해주세요.',
   })
   @ApiBearerAuth('Authorization')
   @ApiResponse({
@@ -177,12 +177,14 @@ export class ProfilesController {
   })
   @UseGuards(JWTAuthGuard)
   @Post('/edit/:profileId')
+  @UseInterceptors(FileInterceptor('image'))
   editProfile(
     @Param('profileId', ParseIntPipe) profileId: number,
+    @UploadedFile() image: Express.Multer.File,
     @Request() req: any,
     @Body() editProfileDto: EditProfileDto,
   ) {
-    return this.profilesService.editProfile(req, profileId, editProfileDto);
+    return this.profilesService.editProfile(profileId, image, req, editProfileDto);
   }
 
   // API No. 1.2 프로필 변경

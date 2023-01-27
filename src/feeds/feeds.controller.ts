@@ -63,9 +63,10 @@ export class FeedsController {
 
     @Get('/my-feeds/by-month')
     @ApiOperation({
-        summary: '프로필 (게시글모아보기) API 3.1.2',
-        description: '마이페이지에서 월별 게시글 모아보기 기능이다. year과 month를 통해 그달에 포스팅한 게시글들을 모아볼 수 있다.\n\
-                      pagination으로 동작한다.' ,
+        summary: '프로필 (게시글모아보기) API 3.1.2/기능명세서 1.4(1).1 해당일 게시글 모아보기',
+        description: 'A: 프로필 (게시글모아보기) API 3.1.2: 마이페이지에서 월별 게시글 모아보기 기능이다. year과 month를 통해 그달에 포스팅한 게시글들을 모아볼 수 있다.\n\
+                      pagination으로 동작한다.\
+                      B: 기능명세서 1.4(1).1 해당일 게시글 모아보기 기능이다. 홈화면 달력에서 날짜를 클릭시 동작한다. year,month,day를 통해 해당일에 등록된 게시글을 조회한다.' ,
     })
     @ApiQuery({
         name: 'profileId',
@@ -83,6 +84,11 @@ export class FeedsController {
         description:'검색하고싶은 달 "mm"형식으로 제공되어야한다.(2자리수) ex) 01'
     })
     @ApiQuery({
+        name: 'day',
+        required:false,
+        description:'프로필 (게시글모아보기) API 3.1.2 에선 사용되지 않는다. 기능명세서 1.4(1).1 해당일 게시글 모아보기에서만 사용된다.'
+    })
+    @ApiQuery({
         name: 'page',
         required:true,
         description:'pagination을 통해 scroll하면서 10개씩 정보를 받아온다. 현재 몇번째 정보를 받아와야하는지를 넘겨주시면 됩니다.\n\
@@ -98,12 +104,13 @@ export class FeedsController {
         @Query('profileId') profileId:number,
         @Query('year') year:number,
         @Query('month') month:number,
+        @Query('day') day:number,
         @Query('page') pageNumber: number
     ){
-        return this.feedsService.RetreiveMyFeedByMonth(profileId,year,month,pageNumber);
+        return this.feedsService.RetreiveMyFeedByMonth(profileId,year,month,day,pageNumber);
     }
 
-    @Get('/my-feeds/in-calender')
+    @Get('/my-feeds/in-calendar')
     @ApiOperation({
         summary: '홈화면(캘런더) 1.4.1',
         description: '홈화면에서 캘런더를 통해 내가 게시글을 쓴 날이 표시되는 API이다.' ,

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import baseResponse from '../_utilities/baseResponseStatus';
-import { errResponse, sucResponse } from '../_utilities/response';
-import { UsersRepository } from './users.repository';
+import baseResponse from '../../common/utils/baseResponseStatus';
+import { errResponse, sucResponse } from '../../common/utils/response';
+import { UsersRepository } from '../users.repository';
 
 @Injectable()
 export class UsersService {

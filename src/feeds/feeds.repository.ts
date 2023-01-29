@@ -27,13 +27,13 @@ export class FeedRepository{
             .leftJoinAndSelect('categorymap.category','category')
             
         
-        if(categoryId!=0){ //0일때는 category필터링 안함.
+        if(categoryId!=0){ //0이 아닐때는 categoryId를 통한 필터링
+            foundQuery.where('category.categoryId=:category',{category:categoryId})
+                      .skip(10*(pageNumber-1))
+                      .take(10)
+        }else{//0일때는 categoryId를 통한 필터링 적용 x
             foundQuery.skip(10*(pageNumber-1))
                       .take(10)
-        }else{//카테고리 필터링적용
-            foundQuery.where('category.categoryId=:category',{category:categoryId})
-            .skip(10*(pageNumber-1))
-            .take(10)
         }
             
         return foundQuery.getMany();

@@ -37,9 +37,12 @@ export class FeedsService {
         console.log("retrieve Feed API end");
         const feedIdList=[];
 
+        console.log(feedEntity);
         for(let i=0; i<feedEntity.length; i++){
             feedIdList.push(feedEntity[i].feedId);
         }
+        console.log("feedIdList 확인");
+        console.log(feedIdList);
         const isLikeEntity=await this.likeRepository.isLike(feedIdList,profileId);
         console.log(isLikeEntity);
 

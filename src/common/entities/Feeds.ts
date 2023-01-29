@@ -12,6 +12,7 @@ import { FeedHashTagMapping } from "./FeedHashTagMapping";
 import { FeedImgs } from "./FeedImgs";
 import { Profiles } from "./Profiles";
 import { Likes } from "./Likes";
+import { PostFeedRequestDTO } from "../../feeds/dto/post-feed-request.dto";
 
 @Index("FK_Feeds_profileId_Profiles_profileId", ["profileId"], {})
 @Entity("Feeds", { schema: "devDB" })
@@ -42,9 +43,9 @@ export class Feeds {
 
   @Column("varchar", {
     name: "status",
-    comment: "PRIVATE,ACTIVE",
+    comment: "PRIVATE,PUBLIC,INACTIVE",
     length: 45,
-    default: () => "'ACTIVE'",
+    default: () => "PUBLIC",
   })
   status: string;
 
@@ -72,4 +73,6 @@ export class Feeds {
 
   @OneToMany(() => Likes, (likes) => likes.feed)
   likes: Likes[];
+
+
 }

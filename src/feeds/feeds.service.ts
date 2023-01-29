@@ -6,13 +6,16 @@ import { Feed, retrieveFeedsReturnDto } from './dto/retreive-feeds-return.dto';
 import { RetreiveMyFeedByMonthReturnDTO } from './dto/retreive-my-feed-bymonth.dto';
 import { FeedRepository } from './feeds.repository';
 import { RetreiveMyFeedInCalendarReturnDTO } from './dto/retrive-my-feed-in-calendar.dto';
+import { ProfilesRepository } from '../profiles/profiles.repository';
+import { Profiles } from '../common/entities/Profiles';
 const util = require('util');
 
 @Injectable()
 export class FeedsService {
     constructor(
         private feedRepsitory:FeedRepository,
-        private likeRepository:LikesRepository
+        private likeRepository:LikesRepository,
+        private profileRepository:ProfilesRepository
     ){};
 
     async RetreiveFeeds(profileId : number,pageNumber: number,categoryId : number): Promise<retrieveFeedsReturnDto> {
@@ -81,4 +84,42 @@ export class FeedsService {
 
         return foundDTOList;
     }
+
+
+    async postFeed(postFeedRequestDTO){//반환형 써야지 ㅎㅎ
+        // DTO -> FeedEntity;
+        /*
+            feedId: number;                                 AUTO_INCREMENT로 진행
+            profileId: number;                              O
+            content: string;                                O
+            likeNum: number;                                0(숫자)DEFAULT
+            createdAt: Date;                                DEFAULT
+            updatedAt: Date;                                DEFAULT
+            status: string;                                 'PUBLIC_ACTIVE'
+            feedCategoryMappings: FeedCategoryMapping[];    CategoryIdList
+            feedHashTagMappings: FeedHashTagMapping[];      HashTagNameList
+            feedImgs: FeedImgs[];                           나중에
+            profile: Profiles;                              profileId로 받아온 DTO확인.
+            likes: Likes[];                                 null
+        */
+
+        const feedEntity:Feeds=postFeedRequestDTO.toEntity();
+
+        const profileEntity=await this.profileRepository.findProfileByProfileId(postFeedRequestDTO.profileId);
+        // 해시 태그 부터
+        /*
+            for(postFeedRequestDTO.feedHashTagMappings.length){
+                if(isExist){
+
+                }else{
+
+                }
+            }
+            
+        
+        */
+
+        console.log(profileEntity);
+        // console.log(feedEntity);
+    };
 }

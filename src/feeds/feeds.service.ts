@@ -32,7 +32,9 @@ export class FeedsService {
         */
 
         //isLike field가 Feeds entity에 없어 우선 raw한 object로 받아온다. 이부분을 refactoring하고싶다.
+        console.log("retrieve Feed API start");
         const feedEntity=await this.feedRepsitory.retrieveFeeds(profileId,pageNumber,categoryId);
+        console.log("retrieve Feed API end");
         const feedIdList=[];
 
         for(let i=0; i<feedEntity.length; i++){

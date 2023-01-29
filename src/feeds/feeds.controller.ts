@@ -40,7 +40,7 @@ export class FeedsController {
         required:true,
         description:'둘러보기할때 categoryId를 함께 보내주셔야합니다. 보내지 않으면 카테고리 전체 탐색이며 특정 카테고리만 원하는 경우 카테고리 id를 보내주셔야합니다.\n\
                      카테고리 id는 다음과 같습니다.\n\
-                     1. 문화/예술 ,2. 스포츠, 3. 자기계발, 4. 기타'
+                     0. 전체 ,1. 문화/예술 ,2. 스포츠, 3. 자기계발, 4. 기타'
     })
     RetreiveFeeds(
         @Query('profileId') profileId:number,

@@ -18,19 +18,25 @@ export class FeedRepository{
 
         console.log(profileId,categoryId);
 
-        const found=this.feedTable
+        const foundQuery=this.feedTable
             .createQueryBuilder('Feeds')
             .leftJoinAndSelect('Feeds.profile','profiles')
             .leftJoinAndSelect('profiles.persona','persona')
             .leftJoinAndSelect('Feeds.feedImgs','feedImg')
             .leftJoin('Feeds.feedCategoryMappings','categorymap')
             .leftJoinAndSelect('categorymap.category','category')
-            .where('category.categoryId=:category',{category:categoryId})
+            
+        
+        if(categoryId!=0){ //0일때는 category필터링 안함.
+            foundQuery.skip(10*(pageNumber-1))
+                      .take(10)
+        }else{//카테고리 필터링적용
+            foundQuery.where('category.categoryId=:category',{category:categoryId})
             .skip(10*(pageNumber-1))
             .take(10)
-            .getMany();
+        }
             
-        return found;
+        return foundQuery.getMany();
     }
 
     retrieveMyFeedByMonth(profileId: number, year: number, month: number,day:number,pageNumber:number) {

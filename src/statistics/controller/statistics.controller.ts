@@ -17,7 +17,7 @@ export class StatisticsController {
   // API No. 1.5.1. 수치화 - 공감 수
   @ApiOperation({
     summary: '1.5.1. 수치화 - 공감 수',
-    description: '사용자가 받은 월별 공감수를 받는다.',
+    description: '사용자가 받은 월별 공감 수를 받는다.',
   })
   // @UsePipes(ValidationPipe)
   @UseGuards(JWTAuthGuard)
@@ -48,6 +48,64 @@ export class StatisticsController {
   }
 
   // API No. 1.5.2. 수치화 - 게시글 수
+  @ApiOperation({
+    summary: '1.5.2. 수치화 - 게시글 수',
+    description: '사용자가 작성한 월별 게시글 수를 받는다.',
+  })
+  // @UsePipes(ValidationPipe)
+  @UseGuards(JWTAuthGuard)
+  @Get('/:id/my-feeds/monthly')
+  async getMonthlyFeeds(
+    @Req() req: Request,
+    @Param('id', ParseIntPipe) profileId: number,
+  ): Promise<any> {
+    const user: any = req.user;
+
+    // [Validation 처리]
+    // jwt 토큰 유저 정보와 profileId 가 맞게 매칭되어 있는가
+    const checkProfileMatch = await this.statisticsService.checkProfile(user.userId, profileId);
+    // console.log(checkProfileMatch);
+
+    if (!checkProfileMatch) {
+      return errResponse(baseResponse.PROFILE_NOT_MATCH);
+    }
+    // ---
+
+    const statsResult = await this.statisticsService.getMonthlyFeeds(profileId);
+
+    return sucResponse(baseResponse.SUCCESS, {
+      monthly_myFeeds_count: statsResult,
+    });
+  }
 
   // API No. 1.5.3. 수치화 - 팔로우 수
+  @ApiOperation({
+    summary: '1.5.3. 수치화 - 팔로우 수',
+    description: '사용자를 팔로우한 월별 팔로우 수를 받는다.',
+  })
+  // @UsePipes(ValidationPipe)
+  @UseGuards(JWTAuthGuard)
+  @Get('/:id/followers/monthly')
+  async getMonthlyFollowers(
+    @Req() req: Request,
+    @Param('id', ParseIntPipe) profileId: number,
+  ): Promise<any> {
+    const user: any = req.user;
+
+    // [Validation 처리]
+    // jwt 토큰 유저 정보와 profileId 가 맞게 매칭되어 있는가
+    const checkProfileMatch = await this.statisticsService.checkProfile(user.userId, profileId);
+    // console.log(checkProfileMatch);
+
+    if (!checkProfileMatch) {
+      return errResponse(baseResponse.PROFILE_NOT_MATCH);
+    }
+    // ---
+
+    const statsResult = await this.statisticsService.getMonthlyFollowers(profileId);
+
+    return sucResponse(baseResponse.SUCCESS, {
+      monthly_myFollowers_count: statsResult,
+    });
+  }
 }

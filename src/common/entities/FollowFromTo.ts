@@ -11,6 +11,12 @@ export class FollowFromTo {
   @Column("int", { name: "toUserId", unsigned: true })
   toUserId: number;
 
+  @Column("timestamp", {
+    name: "createdAt",
+    default: () => "CURRENT_TIMESTAMP",
+  })
+  createdAt: Date;
+
   @PrimaryGeneratedColumn({ type: "int", name: "id", unsigned: true })
   id: number;
 

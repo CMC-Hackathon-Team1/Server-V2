@@ -1,12 +1,13 @@
-import { Controller, Get, Query } from '@nestjs/common';
-import { Feeds } from '../common/entities/Feeds';
-import { Feed, retrieveFeedsReturnDto } from './dto/retreive-feeds-return.dto';
-import { feedExploreValidationPipe } from './validation/feeds.explore-validation-pipe';
-import { FeedsService } from './feeds.service';
-import { ApiCreatedResponse, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { sucResponse } from '../common/utils/response';
-import baseResponse from '../common/utils/baseResponseStatus';
-import { MyFeed } from './dto/retreive-my-feed-bymonth.dto';
+import { Body, Controller, Get, Param, ParseIntPipe, Post, Query, UseGuards } from '@nestjs/common';
+import { Feeds } from '../../common/entities/Feeds';
+import { Feed, retrieveFeedsReturnDto } from '../dto/retreive-feeds-return.dto';
+import { feedExploreValidationPipe } from '../validation/feeds.explore-validation-pipe';
+import { FeedsService } from '../service/feeds.service';
+import { ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { sucResponse } from '../../common/utils/response';
+import baseResponse from '../../common/utils/baseResponseStatus';
+import { MyFeed } from '../dto/retreive-my-feed-bymonth.dto';
+import { JWTAuthGuard } from '../../auth/security/auth.guard.jwt';
 
 @Controller('feeds')
 @ApiTags('Feed API')
@@ -137,5 +138,44 @@ export class FeedsController {
     ){
         console.log("아 쫌!!");
         return this.feedsService.RetriveMyFeedInCalender(profileId,year,month);
+    }
+
+    // API No. 2.5 게시글 신고하기
+    @ApiOperation({
+        summary: '게시글 신고하기',
+        description:
+            'API No. 2.5 게시글 신고하기에 해당하는 API이며 요청 Body에 있는 feedId를 이용해 해당 게시글의 status를 REPORTED 상태로 변경한다.',
+    })
+    @ApiBearerAuth('Authorization')
+    @ApiBody({ schema: { example: { feedId: 1 } } })
+    @ApiResponse({
+        status: 100,
+        description: 'SUCCESS',
+        schema: { example: baseResponse.SUCCESS },
+    })
+    @ApiResponse({
+        status: 400,
+        description: 'Parameter 오류',
+        schema: { example: baseResponse.PIPE_ERROR_EXAMPLE },
+    })
+    @ApiResponse({
+        status: 401,
+        description: 'JWT 오류',
+        schema: { example: baseResponse.JWT_UNAUTHORIZED },
+    })
+    @ApiResponse({
+        status: 501,
+        description: 'DB 오류',
+        schema: { example: baseResponse.DB_ERROR },
+    })
+    @ApiResponse({
+        status: 2200,
+        description: '해당 Feed가 존재하지 않는 경우',
+        schema: { example: baseResponse.FEED_NOT_FOUND },
+    })
+    @UseGuards(JWTAuthGuard)
+    @Post('/report')
+    reportFeeds(@Body('feedId', ParseIntPipe) feedId: number) {
+        return this.feedsService.reportFeeds(feedId);
     }
 }

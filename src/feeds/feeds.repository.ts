@@ -107,4 +107,8 @@ export class FeedRepository {
     );
     return found;
   }
+
+  async reportFeeds(feedId: number) {
+    return await this.feedTable.update(feedId, { status: 'REPORTED' });
+  }
 }

@@ -13,4 +13,8 @@ export class RetreiveMyFeedInCalendarReturnDTO {
         this.imgUrl=feedEntity.feedImgUrl;
         this.day=feedEntity.day;
     }
+
+    public toString = () : string => {
+        return `RetreiveMyFeedInCalendarReturnDTO (feedId: ${this.feedId},\nimgUrl:"imgUrl",\nday:${this.day})`;
+    }
 }

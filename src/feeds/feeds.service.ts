@@ -66,24 +66,23 @@ export class FeedsService {
     }
 
     async RetriveMyFeedInCalender(profileId,year,month) :Promise<RetreiveMyFeedInCalendarReturnDTO[]>{
-        const feedEntities:any=await this.feedRepsitory.RetriveMyFeedInCalender(profileId,year,month);
+        const feedEntities:RetreiveMyFeedInCalendarReturnDTO[]=await this.feedRepsitory.RetriveMyFeedInCalender(profileId,year,month);
         // RetriveMyFeedByMonth와는 다르게 GROUP BY 를 통해 일자별로 정리되어야하며 일자에 따라 ORDER BY 되어야한다.
+        console.log("return object");
+        // const foundDTOList:RetreiveMyFeedInCalendarReturnDTO[]=[];
 
-        
-        const foundDTOList:RetreiveMyFeedInCalendarReturnDTO[]=[];
-
-        for(let i =0; i<feedEntities.length; i++){
+        // for(let i =0; i<feedEntities.length; i++){
             
-            console.log(feedEntities[i].feedId);
-            console.log(feedEntities[i].day);
-            console.log(feedEntities[i].feedImgUrl);
-            foundDTOList.push(new RetreiveMyFeedInCalendarReturnDTO(feedEntities[0]));
-        }
+        //     console.log(feedEntities[i].feedId);
+        //     console.log(feedEntities[i].day);
+        //     console.log(feedEntities[i].feedImgUrl);
+        //     foundDTOList.push(new RetreiveMyFeedInCalendarReturnDTO(feedEntities[0]));
+        // }
 
-        console.log(foundDTOList);
+        // console.log(foundDTOList);
         // const foundDTO:RetreiveMyFeedByMonthReturnDTO=new RetreiveMyFeedByMonthReturnDTO(feedEntity);
         // console.log(foundDTO);
 
-        return foundDTOList;
+        return feedEntities;
     }
 }

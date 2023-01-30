@@ -1,3 +1,4 @@
+import { AwsService } from './aws/aws.service';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -6,36 +7,44 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProfilesModule } from './profiles/profiles.module';
 import { PersonaModule } from './persona/persona.module';
 import { AuthModule } from './auth/auth.module';
-import { JwtMiddleware } from './_middleware/jwt.middleware';
-import { Categories } from './_entities/Categories';
-import { FeedCategoryMapping } from './_entities/FeedCategoryMapping';
-import { FeedHashTagMapping } from './_entities/FeedHashTagMapping';
-import { FeedImgs } from './_entities/FeedImgs';
-import { Feeds } from './_entities/Feeds';
-import { FollowFromTo } from './_entities/FollowFromTo';
-import { HashTags } from './_entities/HashTags';
-import { Likes } from './_entities/Likes';
-import { Notice } from './_entities/Notice';
-import { Persona } from './_entities/Persona';
-import { ProfileHashTagMapping } from './_entities/ProfileHashTagMapping';
-import { Profiles } from './_entities/Profiles';
-import { QuestionContent } from './_entities/QuestionContent';
-import { Questions } from './_entities/Questions';
-import { Users } from './_entities/Users';
+import { JwtMiddleware } from './common/middleware/jwt.middleware';
+import { Categories } from './common/entities/Categories';
+import { FeedCategoryMapping } from './common/entities/FeedCategoryMapping';
+import { FeedHashTagMapping } from './common/entities/FeedHashTagMapping';
+import { FeedImgs } from './common/entities/FeedImgs';
+import { Feeds } from './common/entities/Feeds';
+import { FollowFromTo } from './common/entities/FollowFromTo';
+import { HashTags } from './common/entities/HashTags';
+import { Likes } from './common/entities/Likes';
+import { Notice } from './common/entities/Notice';
+import { Persona } from './common/entities/Persona';
+import { ProfileHashTagMapping } from './common/entities/ProfileHashTagMapping';
+import { Profiles } from './common/entities/Profiles';
+import { QuestionContent } from './common/entities/QuestionContent';
+import { Questions } from './common/entities/Questions';
+import { Users } from './common/entities/Users';
+import { Environment } from './common/utils/constants';
+import { LikesModule } from './likes/likes.module';
+import { FollowingModule } from './following/following.module';
+import { FeedsModule } from './feeds/feeds.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: '.env',
+      envFilePath:
+        process.env.NODE_ENV === Environment.Development
+          ? '.env.dev'
+          : '.env.prod',
       isGlobal: true,
     }),
     TypeOrmModule.forRoot({
       type: 'mysql',
-      host: String(process.env.DEVELOPMENT_DB_HOST),
-      port: Number(process.env.DEVELOPMENT_DB_PORT),
-      username: String(process.env.DEVELOPMENT_DB_USER),
-      password: String(process.env.DEVELOPMENT_DB_PASS),
-      database: String(process.env.DEVELOPMENT_DB_NAME),
+      host: String(process.env.DB_HOST),
+      port: Number(process.env.DB_PORT),
+      username: String(process.env.DB_USER),
+      password: String(process.env.DB_PASS),
+      database: String(process.env.DB_NAME),
       entities: [
         Categories,
         FeedCategoryMapping,
@@ -54,13 +63,18 @@ import { Users } from './_entities/Users';
         Users,
       ],
       synchronize: false,
+      logging: true,
     }),
     ProfilesModule,
     PersonaModule,
     AuthModule,
+    LikesModule,
+    FollowingModule,
+    FeedsModule,
+    UsersModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, AwsService],
 })
 export class AppModule {}
 

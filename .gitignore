@@ -13,6 +13,8 @@ lerna-debug.log*
 
 # secrets
 .env
+.env.dev
+.env.prod
 /src/_secret/*
 
 # OS

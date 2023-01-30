@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOneOptions, Repository } from 'typeorm';
 import { UserDTO } from './dto/user.dto';
-import { Users } from '../_entities/Users';
+import { Users } from '../common/entities/Users';
 import { UserInfoDTO } from './dto/user-info.dto';
 import * as bcrypt from 'bcrypt';
 
@@ -27,7 +27,7 @@ export class UserService {
     return userInfo;
   }
 
-  // 이메일+비밀번호 로 회원 1명 검색하기
+  // 조건으로 회원 1명 검색하기 (ex. 이메일+비밀번호)
   async findByFields(
     options: FindOneOptions<UserDTO>,
   ): Promise<Users | undefined> {
@@ -36,8 +36,10 @@ export class UserService {
 
   // 이메일+비밀번호 로 회원을 DB에 저장하기
   async save(userDTO: UserDTO): Promise<Users | undefined> {
-    // 비밀번호 암호화
-    await this.transformPassword(userDTO);
+    if (userDTO.password !== null) {
+      // 비밀번호 암호화
+      await this.transformPassword(userDTO);
+    }
     // console.log(userDTO);
 
     return await this.userRepository.save(userDTO);

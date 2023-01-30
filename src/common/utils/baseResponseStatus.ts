@@ -48,7 +48,10 @@ const baseResponse = {
 
   //팔로우 관련
   POST_FOLLOW:{statusCode:2101,message:'Follow'},
-  DELETE_FOLLOW:{statusCode:2102,message:'Unfollow'}
+  DELETE_FOLLOW:{statusCode:2102,message:'Unfollow'},
+
+  // 게시글 관련
+  FEED_NOT_FOUND: { statusCode: 2200, message: '해당 게시물이 존재하지 않습니다.' }
 };
 
 export default baseResponse;

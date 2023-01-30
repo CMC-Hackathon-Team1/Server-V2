@@ -3,9 +3,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { LikesRepository } from '../likes/likes.repository';
 import { Feeds } from '../common/entities/Feeds';
 import { Likes } from '../common/entities/Likes';
-import { FeedsController } from './feeds.controller';
+import { FeedsController } from './controller/feeds.controller';
 import { FeedRepository } from './feeds.repository';
-import { FeedsService } from './feeds.service';
+import { FeedsService } from './service/feeds.service';
 
 @Module({
   imports: [

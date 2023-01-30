@@ -1,11 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { LikesRepository } from '../likes/likes.repository';
-import { Feeds } from '../common/entities/Feeds';
-import { Feed, retrieveFeedsReturnDto } from './dto/retreive-feeds-return.dto';
-import { RetreiveMyFeedByMonthReturnDTO } from './dto/retreive-my-feed-bymonth.dto';
-import { FeedRepository } from './feeds.repository';
-import { RetreiveMyFeedInCalendarReturnDTO } from './dto/retrive-my-feed-in-calendar.dto';
+import { LikesRepository } from '../../likes/likes.repository';
+import { Feeds } from '../../common/entities/Feeds';
+import { Feed, retrieveFeedsReturnDto } from '../dto/retreive-feeds-return.dto';
+import { RetreiveMyFeedByMonthReturnDTO } from '../dto/retreive-my-feed-bymonth.dto';
+import { FeedRepository } from '../feeds.repository';
+import { RetreiveMyFeedInCalendarReturnDTO } from '../dto/retrive-my-feed-in-calendar.dto';
+import { errResponse, sucResponse } from '../../common/utils/response';
+import baseResponse from '../../common/utils/baseResponseStatus';
 const util = require('util');
 
 @Injectable()
@@ -84,5 +86,17 @@ export class FeedsService {
         // console.log(foundDTO);
 
         return feedEntities;
+    }
+
+    async reportFeeds(feedId: number) {
+        try {
+            const reportResult = await this.feedRepsitory.reportFeeds(feedId);
+
+            console.log(reportResult);
+        
+            return sucResponse(baseResponse.SUCCESS);
+        } catch (error) {
+            return errResponse(baseResponse.DB_ERROR);
+        }
     }
 }

@@ -28,6 +28,7 @@ import { LikesModule } from './likes/likes.module';
 import { FollowingModule } from './following/following.module';
 import { FeedsModule } from './feeds/feeds.module';
 import { UsersModule } from './users/users.module';
+import { StatisticsModule } from './statistics/statistics.module';
 
 @Module({
   imports: [
@@ -72,6 +73,7 @@ import { UsersModule } from './users/users.module';
     FollowingModule,
     FeedsModule,
     UsersModule,
+    StatisticsModule,
   ],
   controllers: [AppController],
   providers: [AppService, AwsService],

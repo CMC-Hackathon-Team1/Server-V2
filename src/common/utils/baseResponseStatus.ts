@@ -39,6 +39,7 @@ const baseResponse = {
   PROFILE_NOT_EXIST: { statusCode: 1502, message: '해당 프로필은 존재하지 않습니다.' },
   USER_NO_PROFILE: { statusCode: 1503, message: '해당 사용자는 프로필이 존재하지 않습니다.' },
   PROFILE_NO_AUTHENTICATION: { statusCode: 1504, message: '해당 프로필에 대한 권한이 없습니다.' },
+  PROFILE_NOT_MATCH: { statusCode: 1505, message: '사용자 계정과 프로필이 일치하지 않습니다.' },
 
 
   // 좋아요 관련
@@ -49,6 +50,8 @@ const baseResponse = {
   //팔로우 관련
   POST_FOLLOW:{statusCode:2101,message:'Follow'},
   DELETE_FOLLOW:{statusCode:2102,message:'Unfollow'}
+
+  // 수치화 관련
 };
 
 export default baseResponse;

@@ -43,19 +43,17 @@ const baseResponse = {
   PROFILE_ID_NOT_FOUND: { statusCode: 1505, message: '프로필 ID를 입력해주세요.' },
   PROFILE_NOT_MATCH: { statusCode: 1506, message: '사용자 계정과 프로필이 일치하지 않습니다.' },
 
-
   // 좋아요 관련
   POST_LIKE:{statusCode:2000,message:'Like'},
   DELETE_LIKE:{statusCode:2001,message:"didn't Like"},
 
-
   //팔로우 관련
   POST_FOLLOW:{statusCode:2101,message:'Follow'},
-  DELETE_FOLLOW:{statusCode:2102,message:'Unfollow'}
+  DELETE_FOLLOW:{statusCode:2102,message:'Unfollow'},
 
   // 게시글 관련
-  FEED_NOT_FOUND: { statusCode: 2200, message: '해당 게시물이 존재하지 않습니다.' }
-  
+  FEED_NOT_FOUND: { statusCode: 2200, message: '해당 게시물이 존재하지 않습니다.' },
+
   // 수치화 관련
 };
 

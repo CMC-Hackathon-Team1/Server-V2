@@ -79,9 +79,14 @@ export class StatisticsController {
     }
     // ---
 
-    const likeCount = await this.statisticsService.getMonthlyLikes(profileId);
-    const feedCount = await this.statisticsService.getMonthlyFeeds(profileId);
-    const followerCount = await this.statisticsService.getMonthlyFollowers(profileId);
+    const monthBeforeNowDate = new Date();
+    monthBeforeNowDate.setDate(monthBeforeNowDate.getMonth() - 1);
+    // console.log(monthBeforeNowDate);
+    const nowDate = new Date();
+
+    const likeCount = await this.statisticsService.getMonthlyLikes(profileId, monthBeforeNowDate, nowDate);
+    const feedCount = await this.statisticsService.getMonthlyFeeds(profileId, monthBeforeNowDate, nowDate);
+    const followerCount = await this.statisticsService.getMonthlyFollowers(profileId, monthBeforeNowDate, nowDate);
 
     return sucResponse(baseResponse.SUCCESS, {
       monthly_likes_count: likeCount,
@@ -153,7 +158,12 @@ export class StatisticsController {
     }
     // ---
 
-    const statsResult = await this.statisticsService.getMonthlyLikes(profileId);
+    const monthBeforeNowDate = new Date();
+    monthBeforeNowDate.setDate(monthBeforeNowDate.getMonth() - 1);
+    // console.log(monthBeforeNowDate);
+    const nowDate = new Date();
+
+    const statsResult = await this.statisticsService.getMonthlyLikes(profileId, monthBeforeNowDate, nowDate);
 
     return sucResponse(baseResponse.SUCCESS, {
       monthly_likes_count: statsResult,
@@ -223,7 +233,12 @@ export class StatisticsController {
     }
     // ---
 
-    const statsResult = await this.statisticsService.getMonthlyFeeds(profileId);
+    const monthBeforeNowDate = new Date();
+    monthBeforeNowDate.setDate(monthBeforeNowDate.getMonth() - 1);
+    // console.log(monthBeforeNowDate);
+    const nowDate = new Date();
+
+    const statsResult = await this.statisticsService.getMonthlyFeeds(profileId, monthBeforeNowDate, nowDate);
 
     return sucResponse(baseResponse.SUCCESS, {
       monthly_myFeeds_count: statsResult,
@@ -293,7 +308,12 @@ export class StatisticsController {
     }
     // ---
 
-    const statsResult = await this.statisticsService.getMonthlyFollowers(profileId);
+    const monthBeforeNowDate = new Date();
+    monthBeforeNowDate.setDate(monthBeforeNowDate.getMonth() - 1);
+    // console.log(monthBeforeNowDate);
+    const nowDate = new Date();
+
+    const statsResult = await this.statisticsService.getMonthlyFollowers(profileId, monthBeforeNowDate, nowDate);
 
     return sucResponse(baseResponse.SUCCESS, {
       monthly_myFollowers_count: statsResult,

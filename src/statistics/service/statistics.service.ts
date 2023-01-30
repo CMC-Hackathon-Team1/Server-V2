@@ -19,14 +19,11 @@ export class StatisticsService {
     private followRepository: Repository<FollowFromTo>,
   ) {}
 
-  async getMonthlyLikes(profileId: number) {
-    const monthBeforeNowDate = new Date();
-    monthBeforeNowDate.setDate(monthBeforeNowDate.getMonth() - 1);
-    // console.log(monthBeforeNowDate);
+  async getMonthlyLikes(profileId: number, monthBeforeNow: Date, now: Date) {
     const likesCount = await this.likesRepository.count({
       where: {
         profileId: profileId,
-        createdAt: Between(monthBeforeNowDate, new Date()),
+        createdAt: Between(monthBeforeNow, now),
       },
     });
     // console.log(likesCount);
@@ -40,14 +37,11 @@ export class StatisticsService {
     return likesCount;
   }
 
-  async getMonthlyFeeds(profileId: number) {
-    const monthBeforeNowDate = new Date();
-    monthBeforeNowDate.setDate(monthBeforeNowDate.getMonth() - 1);
-    // console.log(monthBeforeNowDate);
+  async getMonthlyFeeds(profileId: number, monthBeforeNow: Date, now: Date) {
     const myFeedsCount = await this.feedsRepository.count({
       where: {
         profileId: profileId,
-        createdAt: Between(monthBeforeNowDate, new Date()),
+        createdAt: Between(monthBeforeNow, now),
       },
     });
     // console.log(likesCount);
@@ -61,14 +55,11 @@ export class StatisticsService {
     return myFeedsCount;
   }
 
-  async getMonthlyFollowers(profileId: number) {
-    const monthBeforeNowDate = new Date();
-    monthBeforeNowDate.setDate(monthBeforeNowDate.getMonth() - 1);
-    // console.log(monthBeforeNowDate);
+  async getMonthlyFollowers(profileId: number, monthBeforeNow: Date, now: Date) {
     const myFollowersCount = await this.followRepository.count({
       where: {
         toUserId: profileId,
-        createdAt: Between(monthBeforeNowDate, new Date()),
+        createdAt: Between(monthBeforeNow, now),
       },
     });
     // console.log(likesCount);

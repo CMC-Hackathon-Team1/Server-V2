@@ -6,13 +6,15 @@ import { Likes } from '../common/entities/Likes';
 import { FeedsController } from './controller/feeds.controller';
 import { FeedRepository } from './feeds.repository';
 import { FeedsService } from './service/feeds.service';
+import { ProfilesRepository } from '../profiles/profiles.repository';
+import { Profiles } from '../common/entities/Profiles';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Feeds,Likes])
+    TypeOrmModule.forFeature([Feeds,Likes,Profiles])
   ],
   controllers: [FeedsController],
-  providers: [FeedsService,FeedRepository,LikesRepository],
-  exports: [FeedRepository,LikesRepository]
+  providers: [FeedsService,FeedRepository,LikesRepository,ProfilesRepository],
+  exports: [FeedRepository,LikesRepository,ProfilesRepository]
 })
 export class FeedsModule {}

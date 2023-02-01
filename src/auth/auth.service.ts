@@ -58,14 +58,14 @@ export class AuthService {
     // ---
 
     const payload: Payload = { userId: userFind.userId, email: userFind.email };
-    const jwtToken = this.jwtService.sign(payload);
+    const jwt = this.jwtService.sign(payload);
     // console.log(jwtToken);
 
     // return response(baseResponse.SUCCESS, {
     //   userId: userFind.userId,
     //   accessToken: jwtToken,
     // });
-    return { userId: userFind.userId, accessToken: jwtToken };
+    return { userId: userFind.userId, jwt: jwt };
   }
 
   async userValidateToken(payload: Payload): Promise<Users | undefined> {

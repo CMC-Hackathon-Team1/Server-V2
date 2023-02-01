@@ -84,7 +84,7 @@ export class AuthController {
     status: 100,
     description: 'SUCCESS',
     headers: {},
-    schema: { example: sucResponse(baseResponse.SUCCESS, { userId: 5 }) },
+    schema: { example: sucResponse(baseResponse.SUCCESS, { jwt: 'eyJhbGciOiJI...' }) },
   })
   @ApiResponse({
     status: 400,
@@ -110,33 +110,34 @@ export class AuthController {
 
     // [Validation 처리]
     // jwt 토큰이 없으면 에러메시지 반환
-    if (!jwtResult.accessToken) {
+    if (!jwtResult.jwt) {
       return res.send(jwtResult);
     }
     // ---
 
-    // 쿠키 설정 (jwt 담기)
-    // res.setHeader('Authorization', 'Bearer ' + jwtResult.accessToken);
-    res.cookie('jwt', jwtResult.accessToken, {
-      // domain: 'OnAndOff Login',
-      httpOnly: true, // 브라우저에서의 쿠키 사용 막기 (XSS등의 보안강화용)
-      // maxAge: 24 * 60 * 60 * 1000, // 1day
-    });
+    // 쿠키 설정 (jwt 담기) - DEPRECATED
+    // // res.setHeader('Authorization', 'Bearer ' + jwtResult.accessToken);
+    // res.cookie('jwt', jwtResult.accessToken, {
+    //   // domain: 'OnAndOff Login',
+    //   // httpOnly: true, // 브라우저에서의 쿠키 사용 막기 (XSS등의 보안강화용)
+    //   // maxAge: 24 * 60 * 60 * 1000, // 1day
+    // });
+    // ---
 
     return res.send(
-      sucResponse(baseResponse.SUCCESS, { userId: jwtResult.userId }),
+      sucResponse(baseResponse.SUCCESS, { jwt: jwtResult.jwt }),
+      // userId는 굳이 노출시킬 필요 없음
+      // sucResponse(baseResponse.SUCCESS, { userId: jwtResult.userId, jwt: jwtResult.jwt }),
     );
-
-    // [쿠키로 jwt를 보낼거면, response에서 jwt 노출시키면 안됨] -> 아래 주석처리하고 위 주석해제하기
-    // return res.send(
-    //   response(baseResponse.SUCCESS, {
-    //     jwtAccessToken: jwtResult.accessToken,
-    //   }),
-    // );
   }
 
+  @ApiOperation({
+    summary: '※ 자체 로그인 - 유저 정보 확인',
+    description: '(사용할 일 없음)',
+  })
+  @ApiBearerAuth('Authorization')
   @UseGuards(JWTAuthGuard)
-  @Get('/authenticate')
+  @Get('/user-info')
   async isAuthenticated(@Req() req: Request): Promise<any> {
     const user: any = req.user;
     // console.log(user);
@@ -149,31 +150,33 @@ export class AuthController {
     return userInfo;
   }
 
-  // 쿠키 가져오기
-  @Get('/cookies')
-  getCookies(@Req() req: Request, @Res() res: Response): any {
-    const jwt = req.cookies['jwt'];
-
-    // [Validation 처리]
-    // 쿠키가 비어있으면 알려주기
-    if (!jwt) {
-      return res.send(errResponse(baseResponse.AUTH_COOKIE_JWT_EMPTY));
-    }
-    // ---
-
-    return res.send({ jwt: jwt });
-  }
+  // 쿠키 가져오기 - DEPRECATED
+  // @Get('/cookies')
+  // getCookies(@Req() req: Request, @Res() res: Response): any {
+  //   const jwt = req.cookies['jwt'];
+  //
+  //   // [Validation 처리]
+  //   // 쿠키가 비어있으면 알려주기
+  //   if (!jwt) {
+  //     return res.send(errResponse(baseResponse.AUTH_COOKIE_JWT_EMPTY));
+  //   }
+  //   // ---
+  //
+  //   return res.send({ jwt: jwt });
+  // }
+  // ---
 
   // API No. 4.1.4.3. 자체로그인 - 로그아웃 (쿠키의 jwt 값 삭제, 유효기간: 0 으로 변경)
   @ApiOperation({
     summary: '4.1.4.3. 자체 로그인 - 로그아웃',
-    description: '로그아웃 한다. (헤더에 jwt 정보를 함께 보내세요)',
+    description: `헤더에 jwt 정보를 함께 보내 로그아웃 한다. \n
+      로그아웃 성공 이후, 헤더에 보내던 jwt 정보를 클라이언트에서 지워주세요`,
   })
   @ApiBearerAuth('Authorization')
   @ApiResponse({
     status: 100,
     description: 'SUCCESS',
-    schema: { example: sucResponse(baseResponse.SUCCESS) },
+    schema: { example: sucResponse(baseResponse.SUCCESS, { TODO: '클라이언트에서 jwt를 지워주세요'}) },
   })
   @ApiResponse({
     status: 400,
@@ -193,21 +196,26 @@ export class AuthController {
   @UseGuards(JWTAuthGuard)
   @Post('/logout')
   logout(@Res() res: Response): any {
-    // [쿠키를 지우는 방법]
-    res.cookie('jwt', '', {
-      maxAge: 0,
-    });
+    // [쿠키를 지우는 방법] - DEPRECATED
+    // res.cookie('jwt', '', {
+    //   maxAge: 0,
+    // });
+    // ---
 
-    return res.send(sucResponse(baseResponse.SUCCESS));
+    return res.send(
+      sucResponse(baseResponse.SUCCESS, {
+        TODO: '클라이언트에서 jwt를 지워주세요',
+      }),
+    );
   }
 
   // API No. 4.1.1.1. 카카오 로그인 - 회원가입/로그인
   @ApiOperation({
     summary: '4.1.1.1. 카카오 로그인 - 회원가입/로그인',
     description: `카카오 계정을 통해 로그인/회원가입 한다. (이때, 카카오 계정과 연동된 이메일로 가입되도록 한다.) \n
-        [Response Header, Cookie] - response에서 다음 2개 값이 넘어옵니다.\n
+        [Response Header, Body] - response에서 다음 2개 값이 넘어옵니다.\n
         1. response header - 'kakao-access-token' : '{카카오 액세스 토큰}',
-        2. cookie - 'jwt={서비스 jwt값}' (또는 response header - 'set-cookie' : 'jwt={서비스 jwt값}'`,
+        2. response body - 'state' : '회원가입인지, 로그인인지', 'jwt'='{서비스 jwt값}'`,
   })
   @ApiQuery({
     name: 'code',
@@ -220,8 +228,9 @@ export class AuthController {
     description: 'SUCCESS',
     schema: {
       example: sucResponse(baseResponse.SUCCESS, {
-        state: '로그인/회원가입 완료',
-        userId: 555,
+        state: '로그인 완료 or 회원가입 완료',
+        // userId: 555,
+        jwt: 'eyJhbGciOiJI...',
       }),
     },
   })
@@ -267,20 +276,23 @@ export class AuthController {
     }
     // ---
 
-    // 최종. 서비스 로그인 토큰 반환(발급)
-    // 쿠키 설정 (jwt 담기)
+    // 카카오 accessToken 헤더로 보내기
     res.setHeader('Kakao-Access-Token', kakaoResult.kakaoAccessToken);
-    res.cookie('jwt', kakaoResult.serviceJwt, {
-      // domain: 'OnAndOff Login',
-      httpOnly: true, // 브라우저에서의 쿠키 사용 막기 (XSS등의 보안강화용)
-      // maxAge: 24 * 60 * 60 * 1000, // 1day
-    });
 
+    // 쿠키 설정 (jwt 담기) - DEPRECATED
+    // res.cookie('jwt', kakaoResult.serviceJwt, {
+    //   // domain: 'OnAndOff Login',
+    //   httpOnly: true, // 브라우저에서의 쿠키 사용 막기 (XSS등의 보안강화용)
+    //   // maxAge: 24 * 60 * 60 * 1000, // 1day
+    // });
+    // ---
+
+    // 최종. 서비스 로그인 토큰 반환(발급)
     return res.send(
       sucResponse(baseResponse.SUCCESS, {
         state: kakaoResult.message,
-        userId: kakaoResult.socialUserId,
-        // kakaoAccessToken: kakaoResult.kakaoAccessToken,
+        // userId: kakaoResult.socialUserId,
+        jwt: kakaoResult.serviceJwt,
       }),
     );
 
@@ -292,7 +304,7 @@ export class AuthController {
     description: `카카오 로그인을 통해 카카오 계정 정보를 볼 수 있습니다. (추후 이용 여부 결정)`,
   })
   @ApiHeader({
-    name: 'kakao_token',
+    name: 'kakao-access-token',
     required: true,
     description: `'카카오 액세스 토큰'을 함께 보내야합니다. (서비스 jwt 값 아님!)`,
     example: 'oDb1L9pz6qK3hdOMcop...',
@@ -329,13 +341,13 @@ export class AuthController {
   @Get('/kakao/user')
   async kakaoUserInfo(@Req() req: Request): Promise<any> {
     // 카카오 유저 정보 불러오기
-    const kakao_token = req.headers['kakao_token'];
+    const kakao_accessToken = req.headers['kakao-access-token'];
     // console.log(kakao_token);
-    if (!kakao_token) {
+    if (!kakao_accessToken) {
       return errResponse(baseResponse.KAKAO_ACCESS_TOKEN_EMPTY);
     }
 
-    const getKakaoUser = this.kakaoService.getKakaoUserInfoByToken(kakao_token);
+    const getKakaoUser = this.kakaoService.getKakaoUserInfoByToken(kakao_accessToken);
 
     return getKakaoUser;
   }
@@ -344,13 +356,13 @@ export class AuthController {
   @ApiOperation({
     summary: '4.1.1.2. 카카오 로그인 - 로그아웃',
     description: `카카오 계정을 통해 로그아웃 한다. (추후 테스트와 보완이 필요함) \n
-        [Response Header, Cookie] - 로그아웃 시, 다음 2가지를 처리합니다.\n
-        1. kakao access token 말소 - 이후에 카카오 액세스 토큰을 다시 발급 받아야 로그인 가능합니다.
-        2. cookie 정보 제거 - 서비스 jwt를 담았던 cookie (또는 response header['set-cookie']) 를 지워서 반환합니다.`,
+        [Request Header, Body] - 로그아웃 시, 다음 2가지를 처리합니다.\n
+        1. request header - kakao access token 말소 (이후에 카카오 액세스 토큰을 다시 발급 받아야 로그인 가능합니다.)
+        2. request body - 서비스 jwt 제거 (헤더에 담아 보내던 서비스 jwt를 클라이언트에서 지우기/초기화 해야 합니다.)`,
   })
   @ApiBearerAuth('Authorization')
   @ApiHeader({
-    name: 'kakao_token',
+    name: 'kakao-access-token',
     required: true,
     description: `'카카오 액세스 토큰' + '서비스 jwt'를 함께 보내야합니다. (서비스 jwt는 자체로그인에서 사용하던 방식과 같음)`,
     example: 'oDb1L9pz6qK3hdOMcop...',
@@ -358,7 +370,7 @@ export class AuthController {
   @ApiResponse({
     status: 100,
     description: 'SUCCESS',
-    schema: { example: baseResponse.SUCCESS },
+    schema: { example: sucResponse(baseResponse.SUCCESS, { TODO: '클라이언트에서 jwt를 지워주세요'}) },
   })
   @ApiResponse({
     status: 400,
@@ -393,15 +405,19 @@ export class AuthController {
   @Post('/kakao-logout')
   @UseGuards(JWTAuthGuard)
   async kakaoLogout(@Req() req: Request, @Res() res: Response): Promise<any> {
-    const kakao_token = req.headers['kakao_token'];
+    const kakao_accessToken = req.headers['kakao-access-token'];
+    if (!kakao_accessToken) {
+      return res.send(errResponse(baseResponse.KAKAO_ACCESS_TOKEN_EMPTY));
+    }
 
     // 카카오 액세스 토큰으로 카카오 로그아웃 호출하기
-    const kakaoResult = await this.kakaoService.kakaoLogout(kakao_token);
+    const kakaoResult = await this.kakaoService.kakaoLogout(kakao_accessToken);
 
-    // 쿠키 지우기
-    res.cookie('jwt', '', {
-      maxAge: 0,
-    });
+    // 쿠키 지우기 - DEPRECATED
+    // res.cookie('jwt', '', {
+    //   maxAge: 0,
+    // });
+    // ---
 
     return res.send(kakaoResult);
   }
@@ -439,25 +455,28 @@ export class AuthController {
       }
       // ---
 
-      // 쿠키 설정 (jwt 담기)
-      // res.setHeader('Google-Access-Token', googleAccessToken);
+      // 구글 accessToken 헤더로 보내기
+      res.setHeader('Google-Access-Token', googleAccessToken);
+
+      // 쿠키 설정 (jwt 담기) - DEPRECATED
       // res.cookie('jwt', googleResult.serviceJwt, {
       //   // domain: 'OnAndOff Login',
       //   httpOnly: true, // 브라우저에서의 쿠키 사용 막기 (XSS등의 보안강화용)
       //   // maxAge: 24 * 60 * 60 * 1000, // 1day
       // });
+      // ---
 
       return res.send(
         sucResponse(baseResponse.SUCCESS, {
-          state: googleAccessToken.message,
-          userId: googleAccessToken.socialUserId,
-          // googleAccessToken: googleAccessToken,
+          state: googleResult.message,
+          // userId: googleResult.socialUserId,
+          jwt: googleResult.jwt,
         }),
       );
     }
   }
 
-  // [구글 로그인 안되는 버전?]
+  // [구글 로그인 다른 버전?]
   // @Post('/google-login')
   // async googleLogin(@Query('code') code: any, @Res() res: Response): Promise<any> {
   //   // 1. 클라이언트로부터 인가 코드 전달 받기 (query string)
@@ -475,15 +494,16 @@ export class AuthController {
   //   }
   //   // ---
   //
-  //   // 최종. 서비스 로그인 토큰 반환(발급)
-  //   // 쿠키 설정 (jwt 담기)
+  //   // 쿠키 설정 (jwt 담기) - DEPRECATED
   //   res.setHeader('Google-Access-Token', googleResult.googleAccessToken);
   //   res.cookie('jwt', googleResult.serviceJwt, {
   //     // domain: 'OnAndOff Login',
   //     httpOnly: true, // 브라우저에서의 쿠키 사용 막기 (XSS등의 보안강화용)
   //     // maxAge: 24 * 60 * 60 * 1000, // 1day
   //   });
+  //   // ---
   //
+  //   // 최종. 서비스 로그인 토큰 반환(발급)
   //   return res.send(
   //     sucResponse(baseResponse.SUCCESS, {
   //       state: googleResult.message,

@@ -152,7 +152,9 @@ export class KakaoService {
       // (로컬에서) 저장해둔 토큰 해제하기
       // this.setToken('');
 
-      return sucResponse(baseResponse.SUCCESS);
+      return sucResponse(baseResponse.SUCCESS, {
+        TODO: '클라이언트에서 jwt를 지워주세요',
+      });
     } catch (e) {
       console.log(`kakaoLogoutResponse Error: ${e}`);
       return errResponse(baseResponse.KAKAO_LOGOUT_FAILED);

@@ -117,9 +117,43 @@ export class ProfilesService {
         return errResponse(baseResponse.PROFILE_NOT_EXIST);
       }
 
+      /**
+       * 프로필 이미지 변경
+       * 1. defaultImage: true && image: false -> 기본 이미지로 변경 (기존 이미지 삭제)
+       * 2. defaultImage: false && image: true -> 해당 이미지로 변경 (기존 이미지 삭제)
+       * 3. defaultImage: false && image: false -> 기존에 사용하던 이미지 유지 (기존 이미지 유지)
+       */
       let imgDir = '';
-      // 사용자가 이미지를 전달한 경우
-      if (image) {
+      // 1. defaultImage: true -> 기본 이미지로 변경 (기존 이미지 삭제)
+      if (editProfileDto.defaultImage === true) {
+        // 기존 이미지는 삭제
+        const prevImgKey = targetProfile.profileImgUrl.slice(`https://${process.env.AWS_S3_BUCKET_NAME}.s3.amazonaws.com/`.length);
+        if (prevImgKey !== process.env.DEFAULT_PROFILE_IMAGE_DIR) {
+          const prevImageDeleteResult = await this.AwsService.deleteS3Object(prevImgKey);
+        }
+
+        imgDir = process.env.DEFAULT_PROFILE_IMAGE_DIR;
+      }
+      else {
+        // 2. defaultImage: false && image: true -> 해당 이미지로 변경 (기존 이미지 삭제)
+        if (image) {
+          const imageUploadResult = await this.AwsService.uploadFileToS3('imageTest', image);
+          imgDir = imageUploadResult.key;
+
+          // 기존 이미지는 삭제
+          const prevImgKey = targetProfile.profileImgUrl.slice(`https://${process.env.AWS_S3_BUCKET_NAME}.s3.amazonaws.com/`.length);
+          if (prevImgKey !== process.env.DEFAULT_PROFILE_IMAGE_DIR) {
+            const prevImageDeleteResult = await this.AwsService.deleteS3Object(prevImgKey);
+          }
+        }
+        else {
+          const prevImgKey = targetProfile.profileImgUrl.slice(`https://${process.env.AWS_S3_BUCKET_NAME}.s3.amazonaws.com/`.length);
+
+          imgDir = prevImgKey;
+        }
+      }
+
+      /* if (image) {
         const imageUploadResult = await this.AwsService.uploadFileToS3('imageTest', image);
         imgDir = imageUploadResult.key;
 
@@ -133,12 +167,12 @@ export class ProfilesService {
         imgDir = process.env.DEFAULT_PROFILE_IMAGE_DIR;
         const prevImgKey = targetProfile.profileImgUrl.slice(`https://${process.env.AWS_S3_BUCKET_NAME}.s3.amazonaws.com/`.length);
         const prevImageDeleteResult = await this.AwsService.deleteS3Object(prevImgKey);
-      }
+      } */
 
       const newContent = {
         profileName: editProfileDto.profileName,
         profileImgUrl: `https://${process.env.AWS_S3_BUCKET_NAME}.s3.amazonaws.com/${imgDir}`,
-        statusMessage: editProfileDto.statusMessage ? editProfileDto.statusMessage : ''
+        statusMessage: editProfileDto.statusMessage
       }
 
       const editedProfile = await this.profileRepository.editProfile(profileId, newContent);

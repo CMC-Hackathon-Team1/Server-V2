@@ -64,7 +64,8 @@ export class FeedsController {
     name: 'categoryId',
     required: true,
     description:
-      '둘러보기할때 categoryId를 함께 보내주셔야합니다. 보내지 않으면 카테고리 전체 탐색이며 특정 카테고리만 원하는 경우 카테고리 id를 보내주셔야합니다.\n\
+      'categoryId를 받아내기 위해서는 Category API의 카테고리 목록 가져오기 API를 사용하시면 됩니다.\
+      둘러보기할때 categoryId를 함께 보내주셔야합니다. 보내지 않으면 카테고리 전체 탐색이며 특정 카테고리만 원하는 경우 카테고리 id를 보내주셔야합니다.\n\
                      카테고리 id는 다음과 같습니다.\n\
                      0. 전체 ,1. 문화/예술 ,2. 스포츠, 3. 자기계발, 4. 기타',
   })

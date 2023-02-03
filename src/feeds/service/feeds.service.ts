@@ -297,7 +297,6 @@ export class FeedsService {
       return errResponse(baseResponse.DB_ERROR);
     }
 
-    console.log(feedEntity);
     if(!feedEntity){
       return errResponse(baseResponse.FEED_NOT_FOUND);
     }

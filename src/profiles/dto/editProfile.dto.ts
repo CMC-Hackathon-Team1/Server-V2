@@ -1,19 +1,22 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class EditProfileDto {
-  @ApiProperty({ description: '프로필 이름', example: '작가 야옹이' })
+  @ApiProperty({
+    description: '프로필 이름',
+    example: '작가 야옹이',
+    required: true
+  })
   @IsNotEmpty()
   @MaxLength(20)
   @IsString()
   profileName: string;
-  
+
   @ApiProperty({
-    description: '상태 메시지',
+    description: '상태 메시지 (상태 메시지가 비어있다면 비어있는 문자열을 보내시면 됩니다)',
     example: '작가가 되고싶은 야옹이',
-    required: false,
+    required: true,
   })
-  @IsOptional()
   @MaxLength(100)
   statusMessage: string;
 
@@ -23,4 +26,11 @@ export class EditProfileDto {
     required: false,
   })
   image: object;
+
+  @ApiProperty({
+    description: '기본 프로필 이미지로 변경 여부 (true로 들어오는 경우 이미지의 유무와 상관없이 기본 프로필 이미지로 변경됩니다)',
+    example: true,
+    required: true,
+  })
+  defaultImage: boolean;
 }

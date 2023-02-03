@@ -142,7 +142,7 @@ export class ProfilesController {
   @ApiOperation({
     summary: '프로필 수정',
     description:
-      '프로필을 생성하는 경우와 Body가 유사하지만, 페르소나는 변경이 불가능하므로 프로필 수정 Body에서는 제외됩니다.\n\nprofileName, statusMessage, image를 받아야 하며 statusMessage와 image는 생략이 가능합니다.\n\nimage를 보내지 않는 경우는 기본 프로필 이미지로 수정됩니다.\n\n자세한 내용은 노션을 참고해주세요.',
+      '프로필을 생성하는 경우와 Body가 유사하지만, 페르소나는 변경이 불가능하므로 프로필 수정 Body에서는 제외됩니다.\n\nprofileName, statusMessage, image, defaultImage를 받아야 하며 image는 생략이 가능합니다.\n\nstatusMessage가 비어있는 경우는 빈 문자열을 보내주시면 됩니다\n\ndefaultImage와 image의 작동은 아래와 같습니다\n\n1. defaultImage: true && image: 있음/없음 -> 기본 이미지로 변경\n\n2. defaultImage: false && image: 있음 -> 새로운 이미지로 변경\n\n3. defaultImage: false && image: 없음 -> 기존 이미지\n\n자세한 내용은 노션을 참고해주세요.',
   })
   @ApiBearerAuth('Authorization')
   @ApiResponse({

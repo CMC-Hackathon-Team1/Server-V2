@@ -9,7 +9,6 @@ import { PersonaModule } from './persona/persona.module';
 import { AuthModule } from './auth/auth.module';
 import { JwtMiddleware } from './common/middleware/jwt.middleware';
 import { Categories } from './common/entities/Categories';
-import { FeedCategoryMapping } from './common/entities/FeedCategoryMapping';
 import { FeedHashTagMapping } from './common/entities/FeedHashTagMapping';
 import { FeedImgs } from './common/entities/FeedImgs';
 import { Feeds } from './common/entities/Feeds';
@@ -29,6 +28,9 @@ import { FollowingModule } from './following/following.module';
 import { FeedsModule } from './feeds/feeds.module';
 import { UsersModule } from './users/users.module';
 import { StatisticsModule } from './statistics/statistics.module';
+import { HashTagModule } from './hash-tag/hash-tag.module';
+import { HashTagFeedMappingModule } from './hash-tag-feed-mapping/hash-tag-feed-mapping.module';
+import { CategoriesModule } from './categories/categories.module';
 
 @Module({
   imports: [
@@ -48,7 +50,6 @@ import { StatisticsModule } from './statistics/statistics.module';
       database: String(process.env.DB_NAME),
       entities: [
         Categories,
-        FeedCategoryMapping,
         FeedHashTagMapping,
         FeedImgs,
         Feeds,
@@ -74,6 +75,9 @@ import { StatisticsModule } from './statistics/statistics.module';
     FeedsModule,
     UsersModule,
     StatisticsModule,
+    HashTagModule,
+    HashTagFeedMappingModule,
+    CategoriesModule,
   ],
   controllers: [AppController],
   providers: [AppService, AwsService],

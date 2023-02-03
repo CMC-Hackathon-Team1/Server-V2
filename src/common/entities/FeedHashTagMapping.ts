@@ -6,13 +6,13 @@ import { HashTags } from "./HashTags";
 @Index("FK_FeedHashTagMapping_hashTagId_HashTags_hashTagId", ["hashTagId"], {})
 @Entity("FeedHashTagMapping", { schema: "devDB" })
 export class FeedHashTagMapping {
-  @PrimaryGeneratedColumn({ type: "int", name: "feedId", unsigned: true })
+  @Column({ type: "int", name: "feedId", unsigned: true })
   feedId: number;
 
   @Column("int", { name: "hashTagId", unsigned: true })
   hashTagId: number;
 
-  @Column("int", { primary: true, name: "id", unsigned: true })
+  @PrimaryGeneratedColumn({ type: "int", name: "id", unsigned: true })
   id: number;
 
   @ManyToOne(() => Feeds, (feeds) => feeds.feedHashTagMappings, {

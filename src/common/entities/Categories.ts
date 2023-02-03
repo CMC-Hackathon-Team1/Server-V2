@@ -1,5 +1,5 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { FeedCategoryMapping } from "./FeedCategoryMapping";
+import { Feeds } from "./Feeds";
 
 @Entity("Categories", { schema: "devDB" })
 export class Categories {
@@ -10,8 +10,8 @@ export class Categories {
   categoryName: string;
 
   @OneToMany(
-    () => FeedCategoryMapping,
-    (feedCategoryMapping) => feedCategoryMapping.category
+    () => Feeds,
+    (feeds) => feeds.categories
   )
-  feedCategoryMappings: FeedCategoryMapping[];
+  feeds: Feeds[];
 }

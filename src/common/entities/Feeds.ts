@@ -7,12 +7,12 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
-import { FeedCategoryMapping } from "./FeedCategoryMapping";
 import { FeedHashTagMapping } from "./FeedHashTagMapping";
 import { FeedImgs } from "./FeedImgs";
 import { Profiles } from "./Profiles";
 import { Likes } from "./Likes";
 import { PostFeedRequestDTO } from "../../feeds/dto/post-feed-request.dto";
+import { Categories } from "./Categories";
 
 @Index("FK_Feeds_profileId_Profiles_profileId", ["profileId"], {})
 @Entity("Feeds", { schema: "devDB" })
@@ -28,6 +28,12 @@ export class Feeds {
 
   @Column("int", { name: "likeNum", unsigned: true, default: () => "'0'" })
   likeNum: number;
+
+  @Column("int", {name: "categoryId", unsigned:true})
+  categoryId: number;
+  
+  @Column("varchar",{name:"isSecret"})
+  isSecret:string;
 
   @Column("timestamp", {
     name: "createdAt",
@@ -49,12 +55,7 @@ export class Feeds {
   })
   status: string;
 
-  @OneToMany(
-    () => FeedCategoryMapping,
-    (feedCategoryMapping) => feedCategoryMapping.feed
-  )
-  feedCategoryMappings: FeedCategoryMapping[];
-
+  
   @OneToMany(
     () => FeedHashTagMapping,
     (feedHashTagMapping) => feedHashTagMapping.feed
@@ -70,6 +71,13 @@ export class Feeds {
   })
   @JoinColumn([{ name: "profileId", referencedColumnName: "profileId" }])
   profile: Profiles;
+
+  @ManyToOne(
+    () => Categories,
+    (categories) => categories.feeds
+  )
+  @JoinColumn([{name: "categoryId",referencedColumnName:"categoryId"}])
+  categories: Categories;
 
   @OneToMany(() => Likes, (likes) => likes.feed)
   likes: Likes[];

@@ -1,18 +1,45 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { getDataSourceName, InjectRepository } from '@nestjs/typeorm';
 import { profile } from 'console';
 import { Repository } from 'typeorm';
+import { FeedHashTagMapping } from '../common/entities/FeedHashTagMapping';
 import { FeedImgs } from '../common/entities/FeedImgs';
 import { Feeds } from '../common/entities/Feeds';
 import { Likes } from '../common/entities/Likes';
+import { PatchFeedRequestDTO } from './dto/patch-feed-request.dto';
 
 @Injectable()
 export class FeedRepository {
+  
   constructor(
     @InjectRepository(Feeds)
     private feedTable: Repository<Feeds>,
   ) {}
 
+  async update(patchFeedRequestDTO:PatchFeedRequestDTO) {
+    
+    const result=this.feedTable.update(
+      {feedId:patchFeedRequestDTO.feedId},
+      {
+        categoryId:patchFeedRequestDTO.categoryId,
+        content:patchFeedRequestDTO.content,
+        isSecret:patchFeedRequestDTO.isSecret
+      }
+    )
+    return result;
+  }
+  async findOne(id: number) {
+    const feedEntity = this.feedTable.findOne({
+      where :{ feedId: id },
+      relations: ['feedHashTagMappings'],
+    });
+
+    return feedEntity;
+  }
+
+  // updateFeed(patchFeedRequestDTO: PatchFeedRequestDTO) {
+  //   this.feedTable.update(patchFeedRequestDTO.feedId, entity); //두번째 인자로 entity가 들어가야함.
+  // }
   async retrieveFeeds(
     profileId: number,
     pageNumber: number,
@@ -25,13 +52,12 @@ export class FeedRepository {
       .leftJoinAndSelect('Feeds.profile', 'profiles')
       .leftJoinAndSelect('profiles.persona', 'persona')
       .leftJoinAndSelect('Feeds.feedImgs', 'feedImg')
-      .leftJoin('Feeds.feedCategoryMappings', 'categorymap')
-      .leftJoinAndSelect('categorymap.category', 'category');
+      .leftJoinAndSelect('Feeds.categories', 'category');
 
     if (categoryId != 0) {
       //0이 아닐때는 categoryId를 통한 필터링
       foundQuery
-        .where('category.categoryId=:category', { category: categoryId })
+        .where('Feeds.categoryId=:category', { category: categoryId })
         .skip(10 * (pageNumber - 1))
         .take(10);
     } else {
@@ -103,7 +129,8 @@ export class FeedRepository {
               LEFT JOIN (select feedId, max(feedImgUrl) as feedImgUrl from FeedImgs group by feedId) as imgSub
                         on sub.feedId = imgSub.feedId
      where ranking = 1
-     order by day asc;`,[this_month,profileId]
+     order by day asc;`,
+      [this_month, profileId],
     );
     return found;
   }

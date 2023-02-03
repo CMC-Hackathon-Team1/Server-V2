@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   Query,
   UseGuards,
@@ -21,17 +22,20 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { sucResponse } from '../../common/utils/response';
+import { errResponse, sucResponse } from '../../common/utils/response';
 import baseResponse from '../../common/utils/baseResponseStatus';
 import { MyFeed } from '../dto/retreive-my-feed-bymonth.dto';
 import { JWTAuthGuard } from '../../auth/security/auth.guard.jwt';
 import { PostFeedRequestDTO } from '../dto/post-feed-request.dto';
+import { PatchFeedRequestDTO } from '../dto/patch-feed-request.dto';
+import { FeedSecret } from '../enum/feed-secret-enum';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('feeds')
 @ApiTags('Feed API')
 export class FeedsController {
   constructor(private feedsService: FeedsService) {}
-  @Get('/feedlist')
+  
   @ApiCreatedResponse({
     status: 100,
     type: Feed,
@@ -64,6 +68,13 @@ export class FeedsController {
                      카테고리 id는 다음과 같습니다.\n\
                      0. 전체 ,1. 문화/예술 ,2. 스포츠, 3. 자기계발, 4. 기타',
   })
+  @ApiResponse({
+    status: baseResponse.FEED_NOT_FOUND.statusCode,
+    description: baseResponse.FEED_NOT_FOUND.message,
+  })
+  @ApiBearerAuth('Authorization')
+  @Get('/feedlist')
+  @UseGuards(JWTAuthGuard)
   RetreiveFeeds(
     @Query('profileId') profileId: number,
     @Query('page') pageNumber: number,
@@ -86,7 +97,7 @@ export class FeedsController {
     return this.feedsService.RetreiveFeeds(profileId, pageNumber, categoryId);
   }
 
-  @Get('/my-feeds/by-month')
+  
   @ApiOperation({
     summary:
       '프로필 (게시글모아보기) API 3.1.2/기능명세서 1.4(1).1 해당일 게시글 모아보기',
@@ -130,6 +141,9 @@ export class FeedsController {
     isArray: true,
     description: '성공했을때 response',
   })
+  @ApiBearerAuth('Authorization')
+  @Get('/my-feeds/by-month')
+  @UseGuards(JWTAuthGuard)
   RetreiveMyFeedByMonth(
     @Query('profileId') profileId: number,
     @Query('year') year: number,
@@ -151,12 +165,62 @@ export class FeedsController {
     description:
       '구현중 사용금지.',
   })
-  @Post('/')
+  @ApiBearerAuth('Authorization')
+  @Post('/') 
+  @UseGuards(JWTAuthGuard)
   PostFeed(@Body() postFeedRequestDTO: PostFeedRequestDTO) {
     return this.feedsService.postFeed(postFeedRequestDTO);
   }
 
-  @Get('/my-feeds/in-calendar')
+  @ApiOperation({
+    summary: '게시글 수정 API 1.4.2',
+    description:
+      '게시글 수정에 사용되는 API이다. 수정한 자료만 서버로 전달하는것이 아닌 모든 정보를 서버로 전달해줘야한다.',
+  })
+  @ApiResponse({
+    status: baseResponse.SUCCESS.statusCode,
+    description: baseResponse.SUCCESS.message,
+  })
+  @ApiResponse({
+    status: baseResponse.JWT_UNAUTHORIZED.statusCode,
+    description: baseResponse.JWT_UNAUTHORIZED.message,
+  })
+  @ApiResponse({
+    status: baseResponse.FEED_CONTENT_TO_MANY_CHARACTERS.statusCode,
+    description: baseResponse.FEED_CONTENT_TO_MANY_CHARACTERS.message,
+  })
+  @ApiResponse({
+    status: baseResponse.FEED_IS_SECRET_CAN_HAVE_PUBLIC_OR_PRIVATE.statusCode,
+    description: baseResponse.FEED_IS_SECRET_CAN_HAVE_PUBLIC_OR_PRIVATE.message,
+  })
+  @ApiResponse({
+    status: baseResponse.FEED_NOT_FOUND.statusCode,
+    description: baseResponse.FEED_NOT_FOUND.message,
+  })
+  @ApiResponse({
+    status: baseResponse.FEED_NO_AUTHENTICATION.statusCode,
+    description: baseResponse.FEED_NO_AUTHENTICATION.message,
+  })
+  @ApiResponse({
+    status: baseResponse.DB_ERROR.statusCode,
+    description: baseResponse.DB_ERROR.message,
+  })
+  @ApiBearerAuth('Authorization')
+  @UseGuards(JWTAuthGuard)
+  @Patch('/') 
+  PatchFeed(@Body() patchFeedRequestDTO:PatchFeedRequestDTO){
+    console.log("patch 실행");
+    console.log(Request.arguments);
+    if(patchFeedRequestDTO.content.length>2000){
+      return errResponse(baseResponse.FEED_CONTENT_TO_MANY_CHARACTERS);
+    }
+    if(patchFeedRequestDTO.isSecret!=FeedSecret.PUBLIC && patchFeedRequestDTO.isSecret!=FeedSecret.PRIVATE){
+      return errResponse(baseResponse.FEED_IS_SECRET_CAN_HAVE_PUBLIC_OR_PRIVATE)
+    }
+    return this.feedsService.patchFeed(patchFeedRequestDTO);
+  }
+
+  
   @ApiOperation({
     summary: '홈화면(캘런더) 1.4.1',
     description:
@@ -178,6 +242,9 @@ export class FeedsController {
     required: true,
     description: '검색하고싶은 달 "mm"형식으로 제공되어야한다.(2자리수) ex) 01',
   })
+  @ApiBearerAuth('Authorization')
+  @UseGuards(JWTAuthGuard)
+  @Get('/my-feeds/in-calendar')
   RetriveMyFeedInCalender(
     @Query('profileId') profileId: number,
     @Query('year') year: number,

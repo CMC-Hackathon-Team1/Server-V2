@@ -53,7 +53,9 @@ const baseResponse = {
 
   // 게시글 관련
   FEED_NOT_FOUND: { statusCode: 2200, message: '해당 게시물이 존재하지 않습니다.' },
-
+  FEED_NO_AUTHENTICATION:{statusCode:2201,message:'해당 게시물에 대한 권한이 없습니다.'},
+  FEED_CONTENT_TO_MANY_CHARACTERS:{statusCode:2202,message:'게시글은 2000글자 이하까지만 허용됩니다.'},
+  FEED_IS_SECRET_CAN_HAVE_PUBLIC_OR_PRIVATE:{statusCode:2203,message:'게시글의 isSecret으로는 PUBLIC OR PRIVATE만 가능합니다..'},
   // 수치화 관련
 };
 

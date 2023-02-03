@@ -11,11 +11,15 @@ import { PatchFeedRequestDTO } from './dto/patch-feed-request.dto';
 @Injectable()
 export class FeedRepository {
   
+  
   constructor(
     @InjectRepository(Feeds)
     private feedTable: Repository<Feeds>,
   ) {}
 
+  async deleteFeed(feedId: number) {
+    this.feedTable.update({ feedId:feedId },{status:"INACTIVE"});
+  }
   async update(patchFeedRequestDTO:PatchFeedRequestDTO) {
     
     const result=this.feedTable.update(

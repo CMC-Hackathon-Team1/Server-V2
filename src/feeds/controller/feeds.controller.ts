@@ -30,6 +30,7 @@ import { PostFeedRequestDTO } from '../dto/post-feed-request.dto';
 import { PatchFeedRequestDTO } from '../dto/patch-feed-request.dto';
 import { FeedSecret } from '../enum/feed-secret-enum';
 import { AuthGuard } from '@nestjs/passport';
+import { DeleteFeedDTO } from '../dto/delete-feed-request.dto';
 
 @Controller('feeds')
 @ApiTags('Feed API')
@@ -218,7 +219,39 @@ export class FeedsController {
     return this.feedsService.patchFeed(patchFeedRequestDTO);
   }
 
-  
+  @ApiOperation({
+    summary: '게시글 삭제하기 API 1.4(1).2',
+    description:
+      '게시글 삭제하기 API.',
+  })
+  @ApiResponse({
+    status: baseResponse.SUCCESS.statusCode,
+    description: baseResponse.SUCCESS.message,
+  })
+  @ApiResponse({
+    status: baseResponse.PROFILE_NOT_EXIST.statusCode,
+    description: baseResponse.PROFILE_NOT_EXIST.message,
+  })
+  @ApiResponse({
+    status: baseResponse.FEED_NOT_FOUND.statusCode,
+    description: baseResponse.FEED_NOT_FOUND.message,
+  })
+  @ApiResponse({
+    status: baseResponse.FEED_NO_AUTHENTICATION.statusCode,
+    description: baseResponse.FEED_NO_AUTHENTICATION.message,
+  })
+  @ApiResponse({
+    status: baseResponse.DB_ERROR.statusCode,
+    description: baseResponse.DB_ERROR.message,
+  })
+  @ApiBearerAuth('Authorization')
+  @UseGuards(JWTAuthGuard)
+  @Patch('/status')
+  deleteFeed(@Body() deleteFeedDTO:DeleteFeedDTO){
+    return this.feedsService.deleteFeed(deleteFeedDTO);
+  }
+
+
   @ApiOperation({
     summary: '홈화면(캘런더) 1.4.1',
     description:

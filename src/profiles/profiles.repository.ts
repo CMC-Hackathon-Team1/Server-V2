@@ -8,11 +8,16 @@ import { EditProfileDto } from './dto/editProfile.dto';
 
 @Injectable()
 export class ProfilesRepository {
+  
   constructor(
     @InjectRepository(Profiles)
     private profilesTable: Repository<Profiles>,
   ) {}
-
+  async getOne(profileId:number) {
+    return await this.profilesTable.findBy({
+      profileId:profileId
+    });
+  }
   // 사용자 모든 프로필 리스트 받아오기
   async getUserProfilesList(userId: number): Promise<ProfileModel[]> {
     return await this.profilesTable.find({ where: { userId: userId } });

@@ -16,10 +16,12 @@ import { HashTagRepository } from '../../hash-tag/hashTag.repository';
 import { HashTags } from '../../common/entities/HashTags';
 import { hashTagFeedMappingRepository } from '../../hash-tag-feed-mapping/hash-tag-feed-mapping.repository';
 import {DataSource} from 'typeorm'
+import { DeleteFeedDTO } from '../dto/delete-feed-request.dto';
 const util = require('util');
 
 @Injectable()
 export class FeedsService {
+  
   constructor(
     private feedRepsitory: FeedRepository,
     private likeRepository: LikesRepository,
@@ -283,5 +285,37 @@ export class FeedsService {
 
     console.log(profileEntity);
     // console.log(feedEntity);
+  }
+
+  async deleteFeed(deleteFeedDTO: DeleteFeedDTO) {
+    let feedEntity:Feeds;
+    let profileEntity:Profiles[];
+    try{
+      feedEntity=await this.feedRepsitory.findOne(deleteFeedDTO.feedId);
+
+    }catch(err){
+      return errResponse(baseResponse.DB_ERROR);
+    }
+
+    console.log(feedEntity);
+    if(!feedEntity){
+      return errResponse(baseResponse.FEED_NOT_FOUND);
+    }
+    profileEntity=await this.profileRepository.getOne(deleteFeedDTO.profileId);
+    if(profileEntity.length==0){
+      return errResponse(baseResponse.PROFILE_NOT_EXIST);
+    }
+
+    if(feedEntity.profileId!=deleteFeedDTO.profileId){
+      return errResponse(baseResponse.FEED_NO_AUTHENTICATION);
+    }
+
+    try{
+       await this.feedRepsitory.deleteFeed(deleteFeedDTO.feedId);
+    }catch(err){
+      return errResponse(baseResponse.DB_ERROR);
+    }
+    
+    return sucResponse(baseResponse.SUCCESS);
   }
 }

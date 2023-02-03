@@ -17,7 +17,7 @@ export class PatchFeedRequestDTO{
     feedId:number;
 
     @ApiProperty({
-        description:"이전 api를 통해 받은 categoryId를 사용한다."
+        description:"Category API의 카테고리 목록 가져오기 API를 사용하여 받은 categoryId를 사용한다."
     })
     @IsInt()
     categoryId:number;    // 긁어와서 확인.

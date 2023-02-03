@@ -210,7 +210,6 @@ export class FeedsController {
   @Patch('/') 
   PatchFeed(@Body() patchFeedRequestDTO:PatchFeedRequestDTO){
     console.log("patch 실행");
-    console.log(Request.arguments);
     if(patchFeedRequestDTO.content.length>2000){
       return errResponse(baseResponse.FEED_CONTENT_TO_MANY_CHARACTERS);
     }

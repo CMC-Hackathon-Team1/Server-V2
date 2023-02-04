@@ -1,5 +1,6 @@
-import { Body, Controller, Post } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { JWTAuthGuard } from '../../auth/security/auth.guard.jwt';
 import baseResponse from '../../common/utils/baseResponseStatus';
 import { sucResponse } from '../../common/utils/response';
 import { PostLikeRequestDTO } from '../dto/post-like.dto';
@@ -26,6 +27,8 @@ export class LikesController {
         description: '좋아요 해제',
         schema: { example: sucResponse(baseResponse.DELETE_LIKE) },
     })
+    @ApiBearerAuth('Authorization')
+    @UseGuards(JWTAuthGuard)
     postLikes(
         @Body() postLikeRequestDTO: PostLikeRequestDTO
     ){

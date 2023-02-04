@@ -15,7 +15,7 @@ export class FeedRepository {
     private feedTable: Repository<Feeds>,
   ) {}
   save(feedEntity: Feeds) {
-    this.feedTable.save(feedEntity);
+    return this.feedTable.save(feedEntity);
   }
   async deleteFeed(feedId: number) {
     this.feedTable.update({ feedId: feedId }, { status: 'INACTIVE' });

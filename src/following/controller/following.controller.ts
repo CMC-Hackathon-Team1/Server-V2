@@ -26,14 +26,28 @@ export class FollowingController {
                       팔로우상태에서는 팔로우가 해제 되고 팔로우를 안한상태에서는 팔로우상태가 된다.',
   })
   @ApiResponse({
-    status: 2101,
-    description: '팔로우 설정',
+    status: baseResponse.POST_FOLLOW.statusCode,
+    description: baseResponse.POST_FOLLOW.message,
     schema: { example: sucResponse(baseResponse.POST_FOLLOW) },
   })
   @ApiResponse({
-    status: 2102,
-    description: '팔로우 해제',
+    status: baseResponse.DELETE_FOLLOW.statusCode,
+    description: baseResponse.DELETE_FOLLOW.message,
     schema: { example: sucResponse(baseResponse.DELETE_FOLLOW) },
+  })
+  @ApiResponse({
+    status: baseResponse.FROM_PROFILE_ID_NOT_FOUND.statusCode,
+    description: baseResponse.FROM_PROFILE_ID_NOT_FOUND.message,
+    schema: { example: sucResponse(baseResponse.POST_FOLLOW) },
+  })
+  @ApiResponse({
+    status: baseResponse.TO_PROFILE_ID_NOT_FOUND.statusCode,
+    description: baseResponse.TO_PROFILE_ID_NOT_FOUND.message,
+    schema: { example: sucResponse(baseResponse.POST_FOLLOW) },
+  })
+  @ApiResponse({
+    status: baseResponse.DB_ERROR.statusCode,
+    description: baseResponse.DB_ERROR.message,
   })
   @ApiBearerAuth('Authorization')
   @UseGuards(JWTAuthGuard)

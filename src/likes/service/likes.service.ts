@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { Likes } from '../../common/entities/Likes';
 import baseResponse from '../../common/utils/baseResponseStatus';
-import { sucResponse } from '../../common/utils/response';
+import { errResponse, sucResponse } from '../../common/utils/response';
+import { FeedRepository } from '../../feeds/feeds.repository';
+import { ProfilesRepository } from '../../profiles/profiles.repository';
 import { PostLikeRequestDTO } from '../dto/post-like.dto';
 import { LikesRepository } from '../likes.repository';
 
@@ -9,29 +11,42 @@ import { LikesRepository } from '../likes.repository';
 export class LikesService {
     constructor(
         private likeRepository:LikesRepository,
+        private profilesRepository:ProfilesRepository,
+        private feedRepository:FeedRepository
     ){};
 
     async postLikes(feedId: number,profileId:number): Promise<any> {//고쳐야함.
-
-        //팔로윙이 안되어있는 상태라면 팔로우 팔로우된 상태라면 언팔로우
+        //유효한 profile인지 CHECK해야함.
+        //유효한 Feed인지 check해야함.
         const likesEntity=new Likes(profileId,feedId);
         console.log(likesEntity);
-        const isExist=await this.likeRepository.isExist(likesEntity);
-
-        let likeOrHate;
-        let foundEntity;
-
-        if(isExist.length==0){
-            console.log("like");
-            likeOrHate="like";
-            foundEntity=await this.likeRepository.postLike(likesEntity);
-            return sucResponse(baseResponse.POST_LIKE);
-        }else{
-            console.log("didn't like");
-            likeOrHate="didn't like";
-
-            await this.likeRepository.deleteLike(likesEntity);
-            return sucResponse(baseResponse.DELETE_LIKE);
+        try{
+            const isExistProfile=await this.profilesRepository.findProfileByProfileId(profileId);
+            if(!isExistProfile){
+                console.log(isExistProfile);
+                return errResponse(baseResponse.PROFILE_ID_NOT_FOUND);
+            }
+            const isExistFeed=await this.feedRepository.findByFeedId(feedId);
+            if(!isExistFeed){
+                console.log(isExistFeed);
+                return errResponse(baseResponse.FEED_NOT_FOUND);
+            }
+            
+            const isExist=await this.likeRepository.isExist(likesEntity);
+            if(isExist.length==0){
+                console.log("like");
+                await this.likeRepository.postLike(likesEntity);
+                return sucResponse(baseResponse.POST_LIKE);
+            }else{
+                console.log("didn't like");
+    
+                await this.likeRepository.deleteLike(likesEntity);
+                return sucResponse(baseResponse.DELETE_LIKE);
+            }
+        }catch(err){
+            console.log(err);
+            return errResponse(baseResponse.DB_ERROR);
         }
+        
     } 
 }

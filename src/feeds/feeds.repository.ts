@@ -41,6 +41,12 @@ export class FeedRepository {
     return feedEntity;
   }
 
+  async findByFeedId(id:number){
+    const feedEntity=this.feedTable.findOne({
+      where:{feedId:id}
+    });
+    return feedEntity;
+  }
   // updateFeed(patchFeedRequestDTO: PatchFeedRequestDTO) {
   //   this.feedTable.update(patchFeedRequestDTO.feedId, entity); //두번째 인자로 entity가 들어가야함.
   // }

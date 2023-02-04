@@ -11,29 +11,44 @@ import { LikesService } from '../service/likes.service';
 export class LikesController {
     constructor(private likesService:LikesService){};
 
-    @Post()
     @ApiOperation({
         summary: '둘러보기 API 2.1.4 좋아요 설정/해제 기능',
         description: '둘러보기 탐색에서 화면에서 사용되는 API이다. 둘러보기 탐색중에 마음에드는 피드에 좋아요 버튼을 눌러 좋아요를 설정/해제 할 수 있다.\n\
                       좋아요상태에서는 좋아요 해제 되고 좋아요를 안한상태에서는 좋아요가 된다.'
     })
     @ApiResponse({
-        status: 2000,
-        description: '좋아요 설정',
+        status:baseResponse.JWT_UNAUTHORIZED.statusCode,
+        description:baseResponse.JWT_UNAUTHORIZED.message
+    })
+    @ApiResponse({
+        status: baseResponse.POST_LIKE.statusCode,
+        description: baseResponse.POST_LIKE.message,
         schema: { example: sucResponse(baseResponse.POST_LIKE) },
     })
     @ApiResponse({
-        status: 2001,
-        description: '좋아요 해제',
+        status: baseResponse.DELETE_LIKE.statusCode,
+        description: baseResponse.DELETE_LIKE.message,
         schema: { example: sucResponse(baseResponse.DELETE_LIKE) },
+    })
+    @ApiResponse({
+        status: baseResponse.PROFILE_ID_NOT_FOUND.statusCode,
+        description: baseResponse.PROFILE_ID_NOT_FOUND.message,
+    })
+    @ApiResponse({
+        status: baseResponse.FEED_NOT_FOUND.statusCode,
+        description: baseResponse.FEED_NOT_FOUND.message,
+    })
+    @ApiResponse({
+        status: baseResponse.DB_ERROR.statusCode,
+        description: baseResponse.DB_ERROR.message,
     })
     @ApiBearerAuth('Authorization')
     @UseGuards(JWTAuthGuard)
+    @Post()
     postLikes(
         @Body() postLikeRequestDTO: PostLikeRequestDTO
     ){
-        //유효한 profile인지 CHECK해야함.
-        //유효한 Feed인지 check해야함.
+        
         return this.likesService.postLikes(postLikeRequestDTO.feedId,postLikeRequestDTO.profileId);
 
     }

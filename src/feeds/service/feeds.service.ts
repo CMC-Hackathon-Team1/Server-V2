@@ -149,14 +149,12 @@ export class FeedsService {
     categoryId: number,
   ): Promise<any> {
     // return this.feeds;
-    console.log('retrieve Feed API start');
     let foundDTO: retrieveFeedsReturnDto;
     const feedEntity = await this.feedRepsitory.retrieveFeeds(
       profileId,
       pageNumber,
       categoryId,
     );
-    console.log('retrieve Feed API end');
     const feedIdList = [];
 
     console.log(feedEntity);
@@ -166,14 +164,10 @@ export class FeedsService {
     for (let i = 0; i < feedEntity.length; i++) {
       feedIdList.push(feedEntity[i].feedId);
     }
-    console.log('feedIdList 확인');
-    console.log(feedIdList);
     const isLikeEntity = await this.likeRepository.isLike(
       feedIdList,
       profileId,
     );
-    console.log(isLikeEntity);
-
     console.log(feedEntity);
 
     foundDTO = new retrieveFeedsReturnDto(

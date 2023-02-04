@@ -1,4 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { create } from "domain";
 import { FeedImgs } from "../../common/entities/FeedImgs";
 import { Feeds } from "../../common/entities/Feeds";
 import { Likes } from "../../common/entities/Likes";
@@ -17,8 +18,6 @@ export class retrieveFeedsReturnDto {
             }
             else
                 tmp_feed=new Feed(FeedEntityList.at(i),false);
-            console.log("생성 완료");
-            // console.log(tmp_feed);
             this.feedArray.push(tmp_feed);
         }
 	}
@@ -53,14 +52,38 @@ export class Feed{
         this.personaName=feedEnitty.profile.profileName;
         this.profileName=feedEnitty.profile.persona.personaName;
         this.feedContent=feedEnitty.content;
-        this.createdAt=feedEnitty.createdAt;
+        this.createdAt=this.transformFromDateToFormat(feedEnitty.createdAt);
         for(let i =0; i<feedEnitty.feedImgs.length; i++){
             this.feedImgList.push(feedEnitty.feedImgs.at(i).feedImgUrl);
         }
         this.isLike=isLike;
 	}
 
-	
-    
-    
+    transformFromDateToFormat(createdAt:Date){
+        const currentTime = new Date();
+        const diffTime=currentTime.getTime()-createdAt.getTime()
+        const currentDate=currentTime.getDate();
+        const createdDate=currentTime.getDate();
+        const beforeDay=currentDate-createdDate;
+
+        if(beforeDay>=7){
+            const year=createdAt.getFullYear();
+            const month=createdAt.getMonth()+1;
+            const day=createdAt.getDate();
+            return year+"년 "+month+"월 "+day+"일";
+        }else if(diffTime/(1000*60*60*24)>1){
+            const currentDate=currentTime.getDate();
+            const createdDate=currentTime.getDate();
+            const beforeDay=currentDate-createdDate;
+            return beforeDay+"일 전";
+        }else if(diffTime/(1000*60*60)>1){
+            const beforeHour=diffTime/(1000*60*60);
+            return Math.round(beforeHour)+"시간 전";
+        }else if(diffTime/(1000*60)>1){
+            const beforeMinute=diffTime/(1000*60);
+            return Math.floor(beforeMinute)+"분 전";
+        }else{
+            return "방금";
+        }
+    }
 }

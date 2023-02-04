@@ -62,12 +62,13 @@ export class FeedRepository {
       .leftJoinAndSelect('Feeds.profile', 'profiles')
       .leftJoinAndSelect('profiles.persona', 'persona')
       .leftJoinAndSelect('Feeds.feedImgs', 'feedImg')
-      .leftJoinAndSelect('Feeds.categories', 'category');
+      .leftJoinAndSelect('Feeds.categories', 'category')
+      .where('Feeds.isSecret=:isSecret',{isSecret: "PUBLIC"});
 
     if (categoryId != 0) {
       //0이 아닐때는 categoryId를 통한 필터링
       foundQuery
-        .where('Feeds.categoryId=:category', { category: categoryId })
+        .andWhere('Feeds.categoryId=:category', { category: categoryId })
         .skip(10 * (pageNumber - 1))
         .take(10);
     } else {

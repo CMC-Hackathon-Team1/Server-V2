@@ -62,14 +62,15 @@ export class Feed{
     transformFromDateToFormat(createdAt:Date){
         const currentTime = new Date();
         const diffTime=currentTime.getTime()-createdAt.getTime()
-        const currentDate=currentTime.getDate();
-        const createdDate=currentTime.getDate();
-        const beforeDay=currentDate-createdDate;
-
-        if(beforeDay>=7){
+        console.log(currentTime);
+        console.log(currentTime.getFullYear()+"년 "+(currentTime.getMonth()+1)+"월 "+currentTime.getDate()+"일 "+currentTime.getHours()+":"+currentTime.getMinutes()+":"+currentTime.getSeconds());
+        console.log(createdAt);
+        console.log(createdAt.getFullYear()+"년 "+(createdAt.getMonth()+1)+"월 "+createdAt.getDate()+"일 "+createdAt.getHours()+":"+createdAt.getMinutes()+":"+createdAt.getSeconds());
+        if(diffTime/(1000*60*60*24)>=7){
             const year=createdAt.getFullYear();
             const month=createdAt.getMonth()+1;
             const day=createdAt.getDate();
+            // console.log(year+"년 "+month+"월 "+day+"일")
             return year+"년 "+month+"월 "+day+"일";
         }else if(diffTime/(1000*60*60*24)>1){
             const currentDate=currentTime.getDate();
@@ -78,11 +79,14 @@ export class Feed{
             return beforeDay+"일 전";
         }else if(diffTime/(1000*60*60)>1){
             const beforeHour=diffTime/(1000*60*60);
+            // console.log(Math.floor(beforeHour)+"시간 전");
             return Math.round(beforeHour)+"시간 전";
         }else if(diffTime/(1000*60)>1){
             const beforeMinute=diffTime/(1000*60);
+            // console.log(Math.floor(beforeMinute)+"분 전");
             return Math.floor(beforeMinute)+"분 전";
         }else{
+            // console.log("방금");
             return "방금";
         }
     }

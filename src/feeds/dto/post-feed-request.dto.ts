@@ -5,38 +5,26 @@ import { ExploreOptions } from "../enum/expore-options-enum";
 
 export class PostFeedRequestDTO{
     @ApiProperty()
-    private _profileId:number;
+    private profileId:number;
 
     @ApiProperty()
-    private categoryIdList:number[];
+    private categoryId:number;
     
     @ApiProperty()
     private hashTagList:String[];
     
     @ApiProperty()
-    private _content:string;
+    private content:string;
     
     @ApiProperty()
-    private _isSecret:ExploreOptions;
-
-    get content(){
-        return this._content;
-    }
-
-    get profileId(){
-        return this._profileId;
-    }
-
-    get isSecret(){
-        return this._isSecret;
-    }
-
+    private isSecret:ExploreOptions;
 
     toEntity():Feeds{
         let feedEntity:Feeds=new Feeds();
-        feedEntity.profileId=this._profileId;
-        feedEntity.content=this._content;
-        feedEntity.status=this._isSecret;
+        feedEntity.profileId=this.profileId;
+        feedEntity.content=this.content;
+        feedEntity.isSecret=this.isSecret;
+        feedEntity.categoryId=this.categoryId;
         
         return feedEntity;
     }

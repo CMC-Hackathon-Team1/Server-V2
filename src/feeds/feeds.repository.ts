@@ -10,40 +10,39 @@ import { PatchFeedRequestDTO } from './dto/patch-feed-request.dto';
 
 @Injectable()
 export class FeedRepository {
-  
-  
   constructor(
     @InjectRepository(Feeds)
     private feedTable: Repository<Feeds>,
   ) {}
-
-  async deleteFeed(feedId: number) {
-    this.feedTable.update({ feedId:feedId },{status:"INACTIVE"});
+  save(feedEntity: Feeds) {
+    this.feedTable.save(feedEntity);
   }
-  async update(patchFeedRequestDTO:PatchFeedRequestDTO) {
-    
-    const result=this.feedTable.update(
-      {feedId:patchFeedRequestDTO.feedId},
+  async deleteFeed(feedId: number) {
+    this.feedTable.update({ feedId: feedId }, { status: 'INACTIVE' });
+  }
+  async update(patchFeedRequestDTO: PatchFeedRequestDTO) {
+    const result = this.feedTable.update(
+      { feedId: patchFeedRequestDTO.feedId },
       {
-        categoryId:patchFeedRequestDTO.categoryId,
-        content:patchFeedRequestDTO.content,
-        isSecret:patchFeedRequestDTO.isSecret
-      }
-    )
+        categoryId: patchFeedRequestDTO.categoryId,
+        content: patchFeedRequestDTO.content,
+        isSecret: patchFeedRequestDTO.isSecret,
+      },
+    );
     return result;
   }
   async findOne(id: number) {
     const feedEntity = this.feedTable.findOne({
-      where :{ feedId: id },
+      where: { feedId: id },
       relations: ['feedHashTagMappings'],
     });
 
     return feedEntity;
   }
 
-  async findByFeedId(id:number){
-    const feedEntity=this.feedTable.findOne({
-      where:{feedId:id}
+  async findByFeedId(id: number) {
+    const feedEntity = this.feedTable.findOne({
+      where: { feedId: id },
     });
     return feedEntity;
   }
@@ -63,7 +62,7 @@ export class FeedRepository {
       .leftJoinAndSelect('profiles.persona', 'persona')
       .leftJoinAndSelect('Feeds.feedImgs', 'feedImg')
       .leftJoinAndSelect('Feeds.categories', 'category')
-      .where('Feeds.isSecret=:isSecret',{isSecret: "PUBLIC"});
+      .where('Feeds.isSecret=:isSecret', { isSecret: 'PUBLIC' });
 
     if (categoryId != 0) {
       //0이 아닐때는 categoryId를 통한 필터링

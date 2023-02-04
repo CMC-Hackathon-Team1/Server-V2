@@ -17,6 +17,7 @@ import { HashTags } from '../../common/entities/HashTags';
 import { hashTagFeedMappingRepository } from '../../hash-tag-feed-mapping/hash-tag-feed-mapping.repository';
 import {DataSource} from 'typeorm'
 import { DeleteFeedDTO } from '../dto/delete-feed-request.dto';
+import { PostFeedRequestDTO } from '../dto/post-feed-request.dto';
 const util = require('util');
 
 @Injectable()
@@ -241,7 +242,7 @@ export class FeedsService {
     }
   }
 
-  async postFeed(postFeedRequestDTO) {
+  async postFeed(postFeedRequestDTO:PostFeedRequestDTO) {
     //반환형 써야지 ㅎㅎ
     // DTO -> FeedEntity;
     /*
@@ -251,34 +252,26 @@ export class FeedsService {
             likeNum: number;                                0(숫자)DEFAULT
             createdAt: Date;                                DEFAULT
             updatedAt: Date;                                DEFAULT
-            status: string;                                 'PUBLIC_ACTIVE'
-            feedCategoryMappings: FeedCategoryMapping[];    CategoryIdList
+            status: string;                                 'ACTIVE'
+            categoryId: number;                             O
             feedHashTagMappings: FeedHashTagMapping[];      HashTagNameList
             feedImgs: FeedImgs[];                           나중에
             profile: Profiles;                              profileId로 받아온 DTO확인.
             likes: Likes[];                                 null
         */
-
+    const queryRunner =this.dataSource.createQueryRunner();
+    await queryRunner.connect()
     const feedEntity: Feeds = postFeedRequestDTO.toEntity();
-
-    const profileEntity = await this.profileRepository.findProfileByProfileId(
-      postFeedRequestDTO.profileId,
-    );
-    // 해시 태그 부터
-    /*
-            for(postFeedRequestDTO.feedHashTagMappings.length){
-                if(isExist){
-
-                }else{
-
-                }
-            }
-            
-        
-        */
-
-    console.log(profileEntity);
-    // console.log(feedEntity);
+    try{
+      await this.feedRepsitory.save(feedEntity);
+    }catch(err){
+      console.log(err);
+      return errResponse(baseResponse.DB_ERROR);
+    }finally{
+      await queryRunner.release();
+    }
+    
+    return sucResponse(baseResponse.SUCCESS,feedEntity);
   }
 
   async deleteFeed(deleteFeedDTO: DeleteFeedDTO) {

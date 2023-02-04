@@ -50,7 +50,8 @@ const baseResponse = {
   //팔로우 관련
   POST_FOLLOW:{statusCode:2101,message:'Follow'},
   DELETE_FOLLOW:{statusCode:2102,message:'Unfollow'},
-
+  FROM_PROFILE_ID_NOT_FOUND:{statusCode:2103,message:'From Profile Id가 존재하지 않는 id입니다.'},
+  TO_PROFILE_ID_NOT_FOUND:{statusCode:2104,message:'To Profile Id가 존재하지 않는 id입니다.'},
   // 게시글 관련
   FEED_NOT_FOUND: { statusCode: 2200, message: '해당 게시물이 존재하지 않습니다.' },
   FEED_NO_AUTHENTICATION:{statusCode:2201,message:'해당 게시물에 대한 권한이 없습니다.'},

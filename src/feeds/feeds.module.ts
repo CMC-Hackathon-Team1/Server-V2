@@ -12,13 +12,39 @@ import { HashTagRepository } from '../hash-tag/hashTag.repository';
 import { HashTags } from '../common/entities/HashTags';
 import { FeedHashTagMapping } from '../common/entities/FeedHashTagMapping';
 import { hashTagFeedMappingRepository } from '../hash-tag-feed-mapping/hash-tag-feed-mapping.repository';
+import { AwsService } from '../aws/aws.service';
+import { FeedImgsRepository } from './feedImgs.repository';
+import { FeedImgs } from '../common/entities/FeedImgs';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Feeds,Likes,Profiles,HashTags,FeedHashTagMapping])
+    TypeOrmModule.forFeature([
+      Feeds,
+      Likes,
+      Profiles,
+      HashTags,
+      FeedHashTagMapping,
+      FeedImgs
+    ]),
   ],
   controllers: [FeedsController],
-  providers: [FeedsService,FeedRepository,LikesRepository,ProfilesRepository,HashTagRepository,hashTagFeedMappingRepository],
-  exports: [FeedRepository,LikesRepository,ProfilesRepository,HashTagRepository,hashTagFeedMappingRepository]
+  providers: [
+    FeedsService,
+    FeedRepository,
+    LikesRepository,
+    ProfilesRepository,
+    HashTagRepository,
+    hashTagFeedMappingRepository,
+    FeedImgsRepository,
+    AwsService,
+  ],
+  exports: [
+    FeedRepository,
+    LikesRepository,
+    ProfilesRepository,
+    HashTagRepository,
+    hashTagFeedMappingRepository,
+    FeedImgsRepository
+  ],
 })
 export class FeedsModule {}

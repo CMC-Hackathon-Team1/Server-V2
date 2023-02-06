@@ -57,6 +57,9 @@ const baseResponse = {
   FEED_NO_AUTHENTICATION:{statusCode:2201,message:'해당 게시물에 대한 권한이 없습니다.'},
   FEED_CONTENT_TO_MANY_CHARACTERS:{statusCode:2202,message:'게시글은 2000글자 이하까지만 허용됩니다.'},
   FEED_IS_SECRET_CAN_HAVE_PUBLIC_OR_PRIVATE:{statusCode:2203,message:'게시글의 isSecret으로는 PUBLIC OR PRIVATE만 가능합니다..'},
+  FEED_CAN_HAVE_20_HASHTAGS:{statusCode:2204,message:'게시글은 최대 20개까지 해시태그를 가질 수 있습니다.'},
+  FEED_IMG_COUNT_OVER:{statusCode:2205,message:'게시글이미지는 최대 5개로 제한됩니다.'},
+  FEED_HAVE_CONTENT_OR_IMAGE:{statusCode:2206,message:'게시글은 내용 OR 이미지 중 적어도 하나는 가져야 합니다.'}
   // 수치화 관련
 };
 

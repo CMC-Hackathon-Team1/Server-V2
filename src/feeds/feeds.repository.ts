@@ -14,7 +14,7 @@ export class FeedRepository {
     @InjectRepository(Feeds)
     private feedTable: Repository<Feeds>,
   ) {}
-  save(feedEntity: Feeds) {
+  async save(feedEntity: Feeds) {
     return this.feedTable.save(feedEntity);
   }
   async deleteFeed(feedId: number) {

@@ -18,6 +18,10 @@ import { hashTagFeedMappingRepository } from '../../hash-tag-feed-mapping/hash-t
 import { DataSource } from 'typeorm';
 import { DeleteFeedDTO } from '../dto/delete-feed-request.dto';
 import { PostFeedRequestDTO } from '../dto/post-feed-request.dto';
+import { AwsService } from '../../aws/aws.service';
+import { FeedImgs } from '../../common/entities/FeedImgs';
+import { FeedImgsRepository } from '../feedImgs.repository';
+
 const util = require('util');
 
 @Injectable()
@@ -28,7 +32,9 @@ export class FeedsService {
     private profileRepository: ProfilesRepository,
     private hashTagRepository: HashTagRepository,
     private hashTagFeedMappingRepository: hashTagFeedMappingRepository,
+    private feedImgRepository:FeedImgsRepository,
     private dataSource: DataSource,
+    private readonly AwsService: AwsService,
   ) {}
 
   async patchFeed(patchFeedRequestDTO: PatchFeedRequestDTO) {
@@ -267,35 +273,39 @@ export class FeedsService {
     }
   }
 
-  async postFeed(postFeedRequestDTO: PostFeedRequestDTO) {
-    //반환형 써야지 ㅎㅎ
-    // DTO -> FeedEntity;
-    /*
-            feedId: number;                                 AUTO_INCREMENT로 진행
-            profileId: number;                              O
-            content: string;                                O
-            likeNum: number;                                0(숫자)DEFAULT
-            createdAt: Date;                                DEFAULT
-            updatedAt: Date;                                DEFAULT
-            status: string;                                 'ACTIVE'
-            categoryId: number;                             O
-            feedHashTagMappings: FeedHashTagMapping[];      HashTagNameList
-            feedImgs: FeedImgs[];                           나중에
-            profile: Profiles;                              profileId로 받아온 DTO확인.
-            likes: Likes[];                                 null
-        */
-    const feedEntity = PostFeedRequestDTO.DTOtoEntity(postFeedRequestDTO);
+  async postFeed(
+    postFeedRequestDTO: PostFeedRequestDTO,
+    images: Array<Express.Multer.File>,
+  ) {
+    
     const newHashTagList: string[] = postFeedRequestDTO.hashTagList;
-    const newHashTagIdList = Array();
+    const saveHashTagIdList = Array();
 
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     try {
-      console.log(feedEntity);
-      const savedFeedEntity = await this.feedRepsitory.save(feedEntity);
-      console.log('savedFeedEntity');
-      console.log(savedFeedEntity);
+      
+      const feedEntity = PostFeedRequestDTO.DTOtoEntity(postFeedRequestDTO);
+      
 
+      const savedFeedEntity = await this.feedRepsitory.save(feedEntity);
+      
+      console.log("자 여기서 시작");
+      console.log(images);
+      if (images) { // 사용자가 이미지를 전달한 경우
+        console.log("들어와따!!!");
+        for (let i = 0; i < images.length; i++) {
+          const imageUploadResult = await this.AwsService.uploadFileToS3(
+            'FeedBucket',
+            images[i],
+          );
+          let feedImg=new FeedImgs();
+          feedImg.feedId=savedFeedEntity.feedId;
+          feedImg.feedImgUrl=imageUploadResult.key
+          await this.feedImgRepository.save(feedImg);
+        }
+      }
+      
       for (let i = 0; i < newHashTagList.length; i++) {
         const hashTagEntity = await this.hashTagRepository.findByName(
           newHashTagList.at(i),
@@ -303,7 +313,7 @@ export class FeedsService {
 
         if (hashTagEntity.length > 0) {
           // 있을경우
-          newHashTagIdList.push(hashTagEntity.at(0).hashTagId);
+          saveHashTagIdList.push(hashTagEntity.at(0).hashTagId);
         } else {
           // 없을경우
           const hashTagEntity: HashTags = new HashTags();
@@ -312,15 +322,18 @@ export class FeedsService {
           const returnValue = await this.hashTagRepository.saveHashTag(
             hashTagEntity,
           );
-          newHashTagIdList.push(returnValue.hashTagId);
+          saveHashTagIdList.push(returnValue.hashTagId);
         }
       }
-      for (let i = 0; i < newHashTagIdList.length; i++) {
+      
+      for (let i = 0; i < saveHashTagIdList.length; i++) {
         const feedHashTagMapping = new FeedHashTagMapping();
         feedHashTagMapping.feedId = savedFeedEntity.feedId;
-        feedHashTagMapping.hashTagId = newHashTagIdList.at(i);
+        feedHashTagMapping.hashTagId = saveHashTagIdList.at(i);
         await this.hashTagFeedMappingRepository.save(feedHashTagMapping);
       }
+
+      
     } catch (err) {
       console.log(err);
       return errResponse(baseResponse.DB_ERROR);

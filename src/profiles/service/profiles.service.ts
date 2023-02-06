@@ -219,4 +219,15 @@ export class ProfilesService {
       return errResponse(baseResponse.DB_ERROR);
     }
   }
+
+  async checkProfile(userId, profileId: number) {
+    const profileInfo = await this.profileRepository.checkUserProfileMatch(userId, profileId);
+    // console.log(profileInfo);
+
+    if (profileInfo.length > 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 }

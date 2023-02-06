@@ -1,4 +1,5 @@
 import {
+  Bind,
   Body,
   Controller,
   Get,
@@ -7,7 +8,12 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFile,
+  UploadedFiles,
   UseGuards,
+  UseInterceptors,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { Feeds } from '../../common/entities/Feeds';
 import { Feed, retrieveFeedsReturnDto } from '../dto/retreive-feeds-return.dto';
@@ -31,11 +37,17 @@ import { PatchFeedRequestDTO } from '../dto/patch-feed-request.dto';
 import { FeedSecret } from '../enum/feed-secret-enum';
 import { AuthGuard } from '@nestjs/passport';
 import { DeleteFeedDTO } from '../dto/delete-feed-request.dto';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { AwsService } from '../../aws/aws.service';
 
 @Controller('feeds')
 @ApiTags('Feed API')
 export class FeedsController {
-  constructor(private feedsService: FeedsService) {}
+  constructor(
+    private feedsService: FeedsService,
+    private readonly AwsService: AwsService
+    ) {}
+
   
   @ApiCreatedResponse({
     status: 100,
@@ -161,15 +173,63 @@ export class FeedsController {
   }
 
   @ApiOperation({
-    summary: '구현중 사용금지',
+    summary:
+      '게시글 생성 API 기능명세서 1.3',
     description:
-      '구현중 사용금지.',
+      '게시글 생성 API 이다. 해시태그는 최대 20개 img는 최대 5개까지 가능하다.(디스코드 질문!? 채널 참고)\
+      모든 데이터는 from-data형태로 전달해야하며 images는 File, 나머지 데이터는 TEXT로 전달하면 된다.\
+      categoryId의 경우 GET Category API를 통해 받아와서 사용해야한다.. hashTagList는 배열형태로 전달한다. 다만 해시태그가 하나일경우 string형태로 전달하더라도\
+      내부에서 배열로 바꿔 처리될 수 있도록 구현되어있다. 편한 방법대로 구현하시면 됩니다. content의 최대길이는 2000자로 2000자가 넘으면 errResponse가 발생합니다.\
+      isSecret의 경우 PUBLIC(공개),PRIVATE(비공개)중 하나를 전송해야하며 대문자로 전송해야 합니다.\
+      피드 이미지의 경우 "images" 키 이름으로 전송해야 한다.\
+      form-data형태로 보내야 하기 때문에 POST MAN에서 테스트하셔야합니다.'
+  })
+  @ApiResponse({
+    status: baseResponse.SUCCESS.statusCode,
+    description: baseResponse.SUCCESS.message,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'ooo should not be empty',
+  })
+  @ApiResponse({
+    status: baseResponse.FEED_CAN_HAVE_20_HASHTAGS.statusCode,
+    description: baseResponse.FEED_CAN_HAVE_20_HASHTAGS.message,
+  })
+  @ApiResponse({
+    status: baseResponse.FEED_IMG_COUNT_OVER.statusCode,
+    description: baseResponse.FEED_IMG_COUNT_OVER.message,
+  })
+  @ApiResponse({
+    status: baseResponse.DB_ERROR.statusCode,
+    description: baseResponse.DB_ERROR.message,
+  })
+  @ApiResponse({
+    status:baseResponse.FEED_HAVE_CONTENT_OR_IMAGE.statusCode,
+    description:baseResponse.FEED_HAVE_CONTENT_OR_IMAGE.message
   })
   @ApiBearerAuth('Authorization')
-  @Post('/') 
   @UseGuards(JWTAuthGuard)
-  PostFeed(@Body() postFeedRequestDTO: PostFeedRequestDTO) {
-    return this.feedsService.postFeed(postFeedRequestDTO);
+  @Post('/') 
+  @UseInterceptors(FilesInterceptor('images'))
+  @UsePipes(ValidationPipe)
+  PostFeed(
+    @Body() postFeedRequestDTO: PostFeedRequestDTO,
+    @UploadedFiles() images: Array<Express.Multer.File>
+    ) {
+    if(typeof postFeedRequestDTO.hashTagList=='string'){
+      postFeedRequestDTO.hashTagList=[postFeedRequestDTO.hashTagList]
+    }
+    if(postFeedRequestDTO.hashTagList.length>20){
+      return errResponse(baseResponse.FEED_CAN_HAVE_20_HASHTAGS);
+    }
+    if(!postFeedRequestDTO.content && !images){
+      return errResponse(baseResponse.FEED_HAVE_CONTENT_OR_IMAGE)
+    }
+    if(images.length>5){
+      return errResponse(baseResponse.FEED_IMG_COUNT_OVER);
+    }
+    return this.feedsService.postFeed(postFeedRequestDTO,images);
   }
 
   @ApiOperation({

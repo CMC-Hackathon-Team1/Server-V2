@@ -15,133 +15,169 @@ import { FeedHashTagMapping } from '../../common/entities/FeedHashTagMapping';
 import { HashTagRepository } from '../../hash-tag/hashTag.repository';
 import { HashTags } from '../../common/entities/HashTags';
 import { hashTagFeedMappingRepository } from '../../hash-tag-feed-mapping/hash-tag-feed-mapping.repository';
-import {DataSource} from 'typeorm'
+import { DataSource } from 'typeorm';
 import { DeleteFeedDTO } from '../dto/delete-feed-request.dto';
+import { PostFeedRequestDTO } from '../dto/post-feed-request.dto';
+import { AwsService } from '../../aws/aws.service';
+import { FeedImgs } from '../../common/entities/FeedImgs';
+import { FeedImgsRepository } from '../feedImgs.repository';
+
 const util = require('util');
 
 @Injectable()
 export class FeedsService {
-  
   constructor(
     private feedRepsitory: FeedRepository,
     private likeRepository: LikesRepository,
     private profileRepository: ProfilesRepository,
     private hashTagRepository: HashTagRepository,
-    private hashTagFeedMappingRepository:hashTagFeedMappingRepository,
-    private dataSource:DataSource
+    private hashTagFeedMappingRepository: hashTagFeedMappingRepository,
+    private feedImgRepository:FeedImgsRepository,
+    private dataSource: DataSource,
+    private readonly AwsService: AwsService,
   ) {}
 
   async patchFeed(patchFeedRequestDTO: PatchFeedRequestDTO) {
     // feedId를 통해 feedEntity가져옴. + save로 수정함.
-    console.log("findOne");
-    const feedEntity:Feeds=await this.feedRepsitory.findOne(patchFeedRequestDTO.feedId);
-    if(!feedEntity){
+    console.log('findOne');
+    const feedEntity: Feeds = await this.feedRepsitory.findOne(
+      patchFeedRequestDTO.feedId,
+    );
+    if (!feedEntity) {
       console.log(feedEntity);
-      return errResponse(baseResponse.FEED_NOT_FOUND)
+      return errResponse(baseResponse.FEED_NOT_FOUND);
     }
-    if(feedEntity.profileId!=patchFeedRequestDTO.profileId){
+    if (feedEntity.profileId != patchFeedRequestDTO.profileId) {
       console.log(feedEntity.profileId);
-      return errResponse(baseResponse.FEED_NO_AUTHENTICATION)
+      return errResponse(baseResponse.FEED_NO_AUTHENTICATION);
     }
     //TODO 로그인된 userId가 profileId와 일치하는가.
-    const queryRunner =this.dataSource.createQueryRunner();
-    await queryRunner.connect()
-    try{
-        const result=await this.feedRepsitory.update(patchFeedRequestDTO)
-        
-        const originHashTagMappingEntityList=feedEntity.feedHashTagMappings;
-        const newHashTagList=patchFeedRequestDTO.hashTagList;
-        const newHashTagIdList=Array();
-        // 요청온 hashtagList의 HashTagId를 받아옴. 만약 없다면 만들어서 받아옴.
-        for(let i=0; i<newHashTagList.length;i++){
-            const hashTagEntity=await this.hashTagRepository.findByName(newHashTagList.at(i));
-            
-            if(hashTagEntity.length>0){// 있을경우
-                newHashTagIdList.push(hashTagEntity.at(0).hashTagId)
-            }else{// 없을경우
-                const hashTagEntity:HashTags=new HashTags();
-                hashTagEntity.hashTagName=newHashTagList.at(i);
-              
-                const returnValue=await this.hashTagRepository.saveHashTag(hashTagEntity);
-                newHashTagIdList.push(returnValue.hashTagId);
-            }
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    try {
+      const result = await this.feedRepsitory.update(patchFeedRequestDTO);
+
+      const originHashTagMappingEntityList = feedEntity.feedHashTagMappings;
+      const newHashTagList = patchFeedRequestDTO.hashTagList;
+      const newHashTagIdList = Array();
+      // 요청온 hashtagList의 HashTagId를 받아옴. 만약 없다면 만들어서 받아옴.
+      for (let i = 0; i < newHashTagList.length; i++) {
+        const hashTagEntity = await this.hashTagRepository.findByName(
+          newHashTagList.at(i),
+        );
+
+        if (hashTagEntity.length > 0) {
+          // 있을경우
+          newHashTagIdList.push(hashTagEntity.at(0).hashTagId);
+        } else {
+          // 없을경우
+          const hashTagEntity: HashTags = new HashTags();
+          hashTagEntity.hashTagName = newHashTagList.at(i);
+
+          const returnValue = await this.hashTagRepository.saveHashTag(
+            hashTagEntity,
+          );
+          newHashTagIdList.push(returnValue.hashTagId);
         }
-        if(originHashTagMappingEntityList.length!=0){
-            const originHashTagMappingIdList:number[]=new Array();
-            
-            // hashTagMappingEntityList를 정렬할 필요. (오름차순 정렬.)
-            originHashTagMappingEntityList.sort(
-                (firstHashTag:FeedHashTagMapping, secondHashTag:FeedHashTagMapping)=>
-                    (firstHashTag.hashTagId>secondHashTag.hashTagId)? 1:-1  // 1을 반환하면 secondHashTag가 더 높은 정렬 우선순위 가짐.
-            )
-            newHashTagIdList.sort();
-            await this.hashTagPatch(originHashTagMappingEntityList,newHashTagIdList,patchFeedRequestDTO.feedId);
-        }else{
-          //기존에 해시태그가 없는 게시물의 경우.
-          for(let i=0; i<newHashTagIdList.length; i++){
-            const feedHashTagMapping=new FeedHashTagMapping();
-            feedHashTagMapping.feedId=patchFeedRequestDTO.feedId;
-            feedHashTagMapping.hashTagId=newHashTagIdList.at(i);
-            await this.hashTagFeedMappingRepository.save(feedHashTagMapping);
-          }
+      }
+      if (originHashTagMappingEntityList.length != 0) {
+        const originHashTagMappingIdList: number[] = new Array();
+
+        // hashTagMappingEntityList를 정렬할 필요. (오름차순 정렬.)
+        originHashTagMappingEntityList.sort(
+          (
+            firstHashTag: FeedHashTagMapping,
+            secondHashTag: FeedHashTagMapping,
+          ) => (firstHashTag.hashTagId > secondHashTag.hashTagId ? 1 : -1), // 1을 반환하면 secondHashTag가 더 높은 정렬 우선순위 가짐.
+        );
+        newHashTagIdList.sort();
+        await this.hashTagPatch(
+          originHashTagMappingEntityList,
+          newHashTagIdList,
+          patchFeedRequestDTO.feedId,
+        );
+      } else {
+        //기존에 해시태그가 없는 게시물의 경우.
+        for (let i = 0; i < newHashTagIdList.length; i++) {
+          const feedHashTagMapping = new FeedHashTagMapping();
+          feedHashTagMapping.feedId = patchFeedRequestDTO.feedId;
+          feedHashTagMapping.hashTagId = newHashTagIdList.at(i);
+          await this.hashTagFeedMappingRepository.save(feedHashTagMapping);
         }
-    }catch(err){
-        console.log(err);
-        return errResponse(baseResponse.DB_ERROR);
-    }finally{
-        await queryRunner.release();
+      }
+    } catch (err) {
+      console.log(err);
+      return errResponse(baseResponse.DB_ERROR);
+    } finally {
+      await queryRunner.release();
     }
     return sucResponse(baseResponse.SUCCESS);
   }
-  async hashTagPatch(originHashTagMappingEntityList:FeedHashTagMapping[],newHashTagIdList:number[],feedId){
-        // 둘중 하나라도 빈배열이 생기면 끝.
-    while(originHashTagMappingEntityList.length!=0 && newHashTagIdList.length!=0) {
-        const originHashTag=originHashTagMappingEntityList.at(0);
-        const newHashTag=newHashTagIdList.at(0);
-        console.log("origin hashTag");
-        console.log(originHashTag);
-        console.log("new hashTag");
-        console.log(newHashTag);
-        let feedHashTagMapping:FeedHashTagMapping;
-        if(originHashTag.hashTagId>newHashTag){ //newHashTag저장  
-          console.log("originHashTag.hashTagId > newHashTag"); 
-            feedHashTagMapping=new FeedHashTagMapping();
-            feedHashTagMapping.feedId=feedId;
-            feedHashTagMapping.hashTagId=newHashTag;
-            await this.hashTagFeedMappingRepository.save(feedHashTagMapping);
-            newHashTagIdList.shift();
-        }else if(originHashTag.hashTagId<newHashTag){  //origin이 삭제되어야함.
-          console.log("originHashTag.hashTagId < newHashTag");
-          await this.hashTagFeedMappingRepository.removeById(originHashTag);
-          originHashTagMappingEntityList.shift();
-        }else{
-          originHashTagMappingEntityList.shift();
-          newHashTagIdList.shift();
-        }
+  async hashTagPatch(
+    originHashTagMappingEntityList: FeedHashTagMapping[],
+    newHashTagIdList: number[],
+    feedId,
+  ) {
+    // 둘중 하나라도 빈배열이 생기면 끝.
+    while (
+      originHashTagMappingEntityList.length != 0 &&
+      newHashTagIdList.length != 0
+    ) {
+      const originHashTag = originHashTagMappingEntityList.at(0);
+      const newHashTag = newHashTagIdList.at(0);
+      console.log('origin hashTag');
+      console.log(originHashTag);
+      console.log('new hashTag');
+      console.log(newHashTag);
+      let feedHashTagMapping: FeedHashTagMapping;
+      if (originHashTag.hashTagId > newHashTag) {
+        //newHashTag저장
+        console.log('originHashTag.hashTagId > newHashTag');
+        feedHashTagMapping = new FeedHashTagMapping();
+        feedHashTagMapping.feedId = feedId;
+        feedHashTagMapping.hashTagId = newHashTag;
+        await this.hashTagFeedMappingRepository.save(feedHashTagMapping);
+        newHashTagIdList.shift();
+      } else if (originHashTag.hashTagId < newHashTag) {
+        //origin이 삭제되어야함.
+        console.log('originHashTag.hashTagId < newHashTag');
+        await this.hashTagFeedMappingRepository.removeById(originHashTag);
+        originHashTagMappingEntityList.shift();
+      } else {
+        originHashTagMappingEntityList.shift();
+        newHashTagIdList.shift();
+      }
     }
-    console.log("while문 벗어남!!");
+    console.log('while문 벗어남!!');
     console.log(originHashTagMappingEntityList);
-    console.log(newHashTagIdList);  
-    if(originHashTagMappingEntityList.length==0 && newHashTagIdList.length!=0){    
-      console.log("here");
-        for(let i=0; i<newHashTagIdList.length; i++){
-            const feedHashTagMapping:FeedHashTagMapping=new FeedHashTagMapping();
-            feedHashTagMapping.feedId=feedId;
-            feedHashTagMapping.hashTagId=newHashTagIdList.at(i);
-            this.hashTagFeedMappingRepository.save(feedHashTagMapping);
-        }
-    }else if(originHashTagMappingEntityList.length!=0 && newHashTagIdList.length==0){
-      console.log("there");
-        // originCategoryMappingEntityList를 다 삭제.
-        const originHashTagMappingIdList:number[]=new Array();
-        for(let i =0; i<originHashTagMappingEntityList.length; i++){
-            originHashTagMappingIdList.push(originHashTagMappingEntityList.at(i).id);
-        }
-        console.log("there2");
-        console.log(originHashTagMappingIdList);
-        this.hashTagFeedMappingRepository.delete(originHashTagMappingIdList);
+    console.log(newHashTagIdList);
+    if (
+      originHashTagMappingEntityList.length == 0 &&
+      newHashTagIdList.length != 0
+    ) {
+      console.log('here');
+      for (let i = 0; i < newHashTagIdList.length; i++) {
+        const feedHashTagMapping: FeedHashTagMapping = new FeedHashTagMapping();
+        feedHashTagMapping.feedId = feedId;
+        feedHashTagMapping.hashTagId = newHashTagIdList.at(i);
+        this.hashTagFeedMappingRepository.save(feedHashTagMapping);
+      }
+    } else if (
+      originHashTagMappingEntityList.length != 0 &&
+      newHashTagIdList.length == 0
+    ) {
+      console.log('there');
+      // originCategoryMappingEntityList를 다 삭제.
+      const originHashTagMappingIdList: number[] = new Array();
+      for (let i = 0; i < originHashTagMappingEntityList.length; i++) {
+        originHashTagMappingIdList.push(
+          originHashTagMappingEntityList.at(i).id,
+        );
+      }
+      console.log('there2');
+      console.log(originHashTagMappingIdList);
+      this.hashTagFeedMappingRepository.delete(originHashTagMappingIdList);
     }
-
   }
   async RetreiveFeeds(
     profileId: number,
@@ -158,7 +194,7 @@ export class FeedsService {
     const feedIdList = [];
 
     console.log(feedEntity);
-    if(feedEntity.length==0){
+    if (feedEntity.length == 0) {
       return errResponse(baseResponse.FEED_NOT_FOUND);
     }
     for (let i = 0; i < feedEntity.length; i++) {
@@ -170,16 +206,12 @@ export class FeedsService {
     );
     console.log(feedEntity);
 
-    foundDTO = new retrieveFeedsReturnDto(
-      feedEntity,
-      isLikeEntity,
-    );
+    foundDTO = new retrieveFeedsReturnDto(feedEntity, isLikeEntity);
 
     // console.log(util.inspect(foundDTO, {showHidden: false, depth: null}));
     return foundDTO;
   }
 
-  
   async RetreiveMyFeedByMonth(
     profileId: number,
     year: number,
@@ -241,74 +273,107 @@ export class FeedsService {
     }
   }
 
-  async postFeed(postFeedRequestDTO) {
-    //반환형 써야지 ㅎㅎ
-    // DTO -> FeedEntity;
-    /*
-            feedId: number;                                 AUTO_INCREMENT로 진행
-            profileId: number;                              O
-            content: string;                                O
-            likeNum: number;                                0(숫자)DEFAULT
-            createdAt: Date;                                DEFAULT
-            updatedAt: Date;                                DEFAULT
-            status: string;                                 'PUBLIC_ACTIVE'
-            feedCategoryMappings: FeedCategoryMapping[];    CategoryIdList
-            feedHashTagMappings: FeedHashTagMapping[];      HashTagNameList
-            feedImgs: FeedImgs[];                           나중에
-            profile: Profiles;                              profileId로 받아온 DTO확인.
-            likes: Likes[];                                 null
-        */
+  async postFeed(
+    postFeedRequestDTO: PostFeedRequestDTO,
+    images: Array<Express.Multer.File>,
+  ) {
+    
+    const newHashTagList: string[] = postFeedRequestDTO.hashTagList;
+    const saveHashTagIdList = Array();
 
-    const feedEntity: Feeds = postFeedRequestDTO.toEntity();
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    try {
+      
+      const feedEntity = PostFeedRequestDTO.DTOtoEntity(postFeedRequestDTO);
+      
 
-    const profileEntity = await this.profileRepository.findProfileByProfileId(
-      postFeedRequestDTO.profileId,
-    );
-    // 해시 태그 부터
-    /*
-            for(postFeedRequestDTO.feedHashTagMappings.length){
-                if(isExist){
+      const savedFeedEntity = await this.feedRepsitory.save(feedEntity);
+      
+      console.log("자 여기서 시작");
+      console.log(images);
+      if (images) { // 사용자가 이미지를 전달한 경우
+        console.log("들어와따!!!");
+        for (let i = 0; i < images.length; i++) {
+          const imageUploadResult = await this.AwsService.uploadFileToS3(
+            'FeedBucket',
+            images[i],
+          );
+          const imgDir=imageUploadResult.key;
+          let feedImg=new FeedImgs();
+          feedImg.feedId=savedFeedEntity.feedId;
+          feedImg.feedImgUrl=`https://${process.env.AWS_S3_BUCKET_NAME}.s3.amazonaws.com/${imgDir}`
+          await this.feedImgRepository.save(feedImg);
+        }
+      }
+      
+      for (let i = 0; i < newHashTagList.length; i++) {
+        const hashTagEntity = await this.hashTagRepository.findByName(
+          newHashTagList.at(i),
+        );
 
-                }else{
+        if (hashTagEntity.length > 0) {
+          // 있을경우
+          saveHashTagIdList.push(hashTagEntity.at(0).hashTagId);
+        } else {
+          // 없을경우
+          const hashTagEntity: HashTags = new HashTags();
+          hashTagEntity.hashTagName = newHashTagList.at(i);
 
-                }
-            }
-            
-        
-        */
+          const returnValue = await this.hashTagRepository.saveHashTag(
+            hashTagEntity,
+          );
+          saveHashTagIdList.push(returnValue.hashTagId);
+        }
+      }
+      
+      for (let i = 0; i < saveHashTagIdList.length; i++) {
+        const feedHashTagMapping = new FeedHashTagMapping();
+        feedHashTagMapping.feedId = savedFeedEntity.feedId;
+        feedHashTagMapping.hashTagId = saveHashTagIdList.at(i);
+        await this.hashTagFeedMappingRepository.save(feedHashTagMapping);
+      }
 
-    console.log(profileEntity);
-    // console.log(feedEntity);
+      
+    } catch (err) {
+      console.log(err);
+      return errResponse(baseResponse.DB_ERROR);
+    } finally {
+      await queryRunner.release();
+    }
+
+    return sucResponse(baseResponse.SUCCESS);
   }
 
   async deleteFeed(deleteFeedDTO: DeleteFeedDTO) {
-    let feedEntity:Feeds;
-    let profileEntity:Profiles[];
-    try{
-      feedEntity=await this.feedRepsitory.findOne(deleteFeedDTO.feedId);
-
-    }catch(err){
+    let feedEntity: Feeds;
+    let profileEntity: Profiles[];
+    try {
+      feedEntity = await this.feedRepsitory.findOne(deleteFeedDTO.feedId);
+    } catch (err) {
       return errResponse(baseResponse.DB_ERROR);
     }
 
-    if(!feedEntity){
+    if (!feedEntity) {
       return errResponse(baseResponse.FEED_NOT_FOUND);
     }
-    profileEntity=await this.profileRepository.getOne(deleteFeedDTO.profileId);
-    if(profileEntity.length==0){
+    profileEntity = await this.profileRepository.getOne(
+      deleteFeedDTO.profileId,
+    );
+    if (profileEntity.length == 0) {
       return errResponse(baseResponse.PROFILE_NOT_EXIST);
     }
 
-    if(feedEntity.profileId!=deleteFeedDTO.profileId){
+    if (feedEntity.profileId != deleteFeedDTO.profileId) {
       return errResponse(baseResponse.FEED_NO_AUTHENTICATION);
     }
 
-    try{
-       await this.feedRepsitory.deleteFeed(deleteFeedDTO.feedId);
-    }catch(err){
+    try {
+      await this.feedRepsitory.deleteFeed(deleteFeedDTO.feedId);
+    } catch (err) {
       return errResponse(baseResponse.DB_ERROR);
     }
-    
+
     return sucResponse(baseResponse.SUCCESS);
   }
 }

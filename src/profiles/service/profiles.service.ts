@@ -19,6 +19,8 @@ export class ProfilesService {
   // 프로필 생성
   async createProfile(image: Express.Multer.File, req: any, createProfileDto: CreateProfileDto): Promise<any> {
     const requestUserId = req.user.userId;
+    console.log(req);
+    console.log(req.user);
     const userProfilesList = await this.profileRepository.getUserProfilesList(requestUserId);
     const newProfilePersonaName = createProfileDto.personaName;
     

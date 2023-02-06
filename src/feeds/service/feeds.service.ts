@@ -299,9 +299,10 @@ export class FeedsService {
             'FeedBucket',
             images[i],
           );
+          const imgDir=imageUploadResult.key;
           let feedImg=new FeedImgs();
           feedImg.feedId=savedFeedEntity.feedId;
-          feedImg.feedImgUrl=imageUploadResult.key
+          feedImg.feedImgUrl=`https://${process.env.AWS_S3_BUCKET_NAME}.s3.amazonaws.com/${imgDir}`
           await this.feedImgRepository.save(feedImg);
         }
       }

@@ -41,6 +41,9 @@ export class Users {
   })
   status: string | null;
 
+  @Column("varchar", { name: "follow_alarm_status", nullable: false })
+  followAlarmStatus: string;
+
   @OneToMany(() => Profiles, (profiles) => profiles.user)
   profiles: Profiles[];
 }

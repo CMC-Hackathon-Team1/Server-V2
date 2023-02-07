@@ -29,4 +29,21 @@ export class AlarmsService {
       console.log(`${fromProfileName}님이 ${targetProfile.profileName}님을 팔로우 하였습니다.`);
     }
   }
+
+  // 공지사항 알림 설정
+  async noticeAlarm() {
+    const targetUsers = await this.usersRepository.getUsersForNotice();
+
+    const targetAlarmTokens = []
+    targetUsers.forEach((item) => {targetAlarmTokens.push(item.alarmToken)});
+
+    /**
+     * TODO
+     * 위의 까지의 코드 = 토큰 리스트를 가져오는 작업
+     * 임시로 console.log를 통해 토큰 리스트 반환을 확인
+     * 
+     * 실제 토큰을 이용하는 방식으로 수정
+     */
+    console.log(targetAlarmTokens)
+  }
 }

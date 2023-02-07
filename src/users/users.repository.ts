@@ -14,4 +14,9 @@ export class UsersRepository {
   async deleteUserByUserId(userId: number) {
     return await this.usersTable.delete(userId);
   }
+
+  // 유저 정보 가져오기
+  async getUserByUserId(userId: number) {
+    return await this.usersTable.findOne({ where: { userId: userId } });
+  }
 }

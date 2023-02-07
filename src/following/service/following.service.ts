@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { AlarmsService } from '../../alarms/service/alarms.service';
 import { FollowFromTo } from '../../common/entities/FollowFromTo';
 import baseResponse from '../../common/utils/baseResponseStatus';
 import { errResponse, sucResponse } from '../../common/utils/response';
@@ -9,7 +10,8 @@ import { FollowingRepository } from '../following.repository';
 export class FollowingService {
     constructor(
         private followingRepository:FollowingRepository,
-        private profilesRepository:ProfilesRepository
+        private profilesRepository:ProfilesRepository,
+        private alarmsService: AlarmsService
     ){};
 
     async postFollow(fromProfileId: number,toProfileId: number): Promise<any> {//고쳐야함.
@@ -30,6 +32,10 @@ export class FollowingService {
             let foundEntity;
             if(isExist.length==0){
                 foundEntity=await this.followingRepository.postFollow(follow);
+
+                // 푸시 알림용
+                await this.alarmsService.followingAlarm(fromProfileId, toProfileId);
+
                 return sucResponse(baseResponse.POST_FOLLOW);
             }else{
                 await this.followingRepository.deleteFollow(follow);

@@ -31,6 +31,15 @@ async function bootstrap() {
     `OnandOff-Server is now listening to ${process.env.SERVER_HOST}:${PORT}`,
   );
 
+  // firebase 관련
+  const admin = require('firebase-admin');
+
+  let serviceAccount = require("./_secret/firebase-admin.json");
+
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+  });
+
   await app.listen(PORT);
 }
 

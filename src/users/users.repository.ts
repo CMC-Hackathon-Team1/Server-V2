@@ -24,4 +24,9 @@ export class UsersRepository {
   async getUsersForNotice() {
     return await this.usersTable.find({ select: [ 'alarmToken' ], where: { noticeAlarmStatus: 'ACTIVE' } });
   }
+
+  // 기기별 푸시 알림 토큰 저장
+  async setUsersAlarmToken(userId: number, alarmToken: string) {
+    return await this.usersTable.update(userId, { alarmToken: alarmToken });
+  }
 }

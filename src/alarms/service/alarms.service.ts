@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
+import baseResponse from '../../common/utils/baseResponseStatus';
+import { errResponse, sucResponse } from '../../common/utils/response';
 import { FollowingRepository } from '../../following/following.repository';
 import { ProfilesRepository } from '../../profiles/profiles.repository';
 import { UsersRepository } from '../../users/users.repository';
+import { AlarmTokenDto } from '../dto/alarmToken.dto';
 
 @Injectable()
 export class AlarmsService {
@@ -10,6 +13,20 @@ export class AlarmsService {
     private followingRepository: FollowingRepository,
     private usersRepository: UsersRepository,
   ) {}
+
+  // 푸시알림용 토큰 받기
+  async getPushAlarmToken(alarmTokenDto: AlarmTokenDto) {
+    try {
+        const userAlarmToken = alarmTokenDto.alarmToken;
+      const userId = alarmTokenDto.userId;
+
+      const result = await this.usersRepository.setUsersAlarmToken(userId, userAlarmToken);
+
+      return sucResponse(baseResponse.SUCCESS);
+    } catch(err) {
+      return errResponse(baseResponse.DB_ERROR);
+    }
+  }
 
   // 팔로잉 알림 설정
   async followingAlarm(fromProfileId: number, toProfileId: number) {

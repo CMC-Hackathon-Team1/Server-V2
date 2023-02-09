@@ -5,6 +5,7 @@ import { FollowingRepository } from '../../following/following.repository';
 import { ProfilesRepository } from '../../profiles/profiles.repository';
 import { UsersRepository } from '../../users/users.repository';
 import { AlarmTokenDto } from '../dto/alarmToken.dto';
+import AlarmContents from '../utils/alarm_contents';
 
 @Injectable()
 export class AlarmsService {
@@ -33,12 +34,14 @@ export class AlarmsService {
     let targetToken = 'test';
 
     const message = {
-      notification: {
-        title: '푸시 알림 제목 테스트',
-        body: '푸시 알림 내용 테스트'
-      },
+      // ...AlarmContents.FOLLOW('작가 야옹이', '개발자 강아지'),
+      // ...AlarmContents.NOTICE,
+      // ...AlarmContents.FOLLOWING_NEW_FEED('작가 야옹이'),
+      ...AlarmContents.LIKE('작가 야옹이', '개발자 강아지'),
       token: targetToken
     };
+
+    console.log(message)
 
     const admin = require('firebase-admin');
 

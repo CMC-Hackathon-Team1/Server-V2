@@ -48,4 +48,13 @@ export class ProfilesRepository {
 
     return editResult;
   }
+
+  async checkUserProfileMatch(userId, profileId: number) {
+    return await this.profilesTable.find({
+      where: {
+        profileId: profileId,
+        userId: userId,
+      },
+    });
+  }
 }

@@ -383,4 +383,33 @@ export class FeedsController {
   reportFeeds(@Body('feedId', ParseIntPipe) feedId: number) {
     return this.feedsService.reportFeeds(feedId);
   }
+
+  // API No. 2.3.1 해시태그 검색
+  // @UseGuards(JWTAuthGuard)
+  // @Get('/feedlist/:profileId/search')
+  // searchFeeds(
+  //   @Param('profileId', ParseIntPipe) profileId: number,
+  //   @Query('hashtag') hashtag: string,
+  //   @Query('page') pageNumber: number,
+  //   @Query('categoryId') categoryId: number,) {
+  //   // [Validation 처리]
+  //   // profileId 가 있는가
+  //   if (!profileId) {
+  //     return errResponse(baseResponse.PROFILE_ID_NOT_FOUND);
+  //   }
+  //   // jwt 토큰 유저 정보와 profileId 가 맞게 매칭되어 있는가
+  //   // const checkProfileMatch = await this.statisticsService.checkProfile(user.userId, profileId);
+  //   // console.log(checkProfileMatch);
+  //
+  //   // if (!checkProfileMatch) {
+  //   //   return errResponse(baseResponse.PROFILE_NOT_MATCH);
+  //   // }
+  //   // 해시태그가 있는가
+  //   if (!hashtag) {
+  //     return errResponse(baseResponse.HASHTAG_NOT_FOUND);
+  //   }
+  //   // ---
+  //
+  //   return this.feedsService.searchFeedsByHashtag(hashtag);
+  // }
 }

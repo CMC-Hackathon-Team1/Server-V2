@@ -5,11 +5,15 @@ import { JWTAuthGuard } from '../../auth/security/auth.guard.jwt';
 import { Request, Response } from 'express';
 import { errResponse, sucResponse } from '../../common/utils/response';
 import baseResponse from '../../common/utils/baseResponseStatus';
+import { ProfilesService } from '../../profiles/service/profiles.service';
 
 @ApiTags('수치화 API')
 @Controller('statistics')
 export class StatisticsController {
-  constructor(private statisticsService: StatisticsService) {}
+  constructor(
+    private statisticsService: StatisticsService,
+    private profilesService: ProfilesService,
+  ) {}
 
   // TODO: 1.5.1 ~ 1.5.3 을 한번에 불러올지, 각각 따로 불러올지?
   // API No. 1.5.0 수치화 - 전체
@@ -71,7 +75,7 @@ export class StatisticsController {
       return errResponse(baseResponse.PROFILE_ID_NOT_FOUND);
     }
     // jwt 토큰 유저 정보와 profileId 가 맞게 매칭되어 있는가
-    const checkProfileMatch = await this.statisticsService.checkProfile(user.userId, profileId);
+    const checkProfileMatch = await this.profilesService.checkProfile(user.userId, profileId);
     // console.log(checkProfileMatch);
 
     if (!checkProfileMatch) {
@@ -150,7 +154,7 @@ export class StatisticsController {
       return errResponse(baseResponse.PROFILE_ID_NOT_FOUND);
     }
     // jwt 토큰 유저 정보와 profileId 가 맞게 매칭되어 있는가
-    const checkProfileMatch = await this.statisticsService.checkProfile(user.userId, profileId);
+    const checkProfileMatch = await this.profilesService.checkProfile(user.userId, profileId);
     // console.log(checkProfileMatch);
 
     if (!checkProfileMatch) {
@@ -225,7 +229,7 @@ export class StatisticsController {
       return errResponse(baseResponse.PROFILE_ID_NOT_FOUND);
     }
     // jwt 토큰 유저 정보와 profileId 가 맞게 매칭되어 있는가
-    const checkProfileMatch = await this.statisticsService.checkProfile(user.userId, profileId);
+    const checkProfileMatch = await this.profilesService.checkProfile(user.userId, profileId);
     // console.log(checkProfileMatch);
 
     if (!checkProfileMatch) {
@@ -300,7 +304,7 @@ export class StatisticsController {
       return errResponse(baseResponse.PROFILE_ID_NOT_FOUND);
     }
     // jwt 토큰 유저 정보와 profileId 가 맞게 매칭되어 있는가
-    const checkProfileMatch = await this.statisticsService.checkProfile(user.userId, profileId);
+    const checkProfileMatch = await this.profilesService.checkProfile(user.userId, profileId);
     // console.log(checkProfileMatch);
 
     if (!checkProfileMatch) {

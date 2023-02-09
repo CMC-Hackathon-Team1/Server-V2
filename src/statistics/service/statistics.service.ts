@@ -72,20 +72,4 @@ export class StatisticsService {
 
     return myFollowersCount;
   }
-
-  async checkProfile(userId, profileId: number) {
-    const profileInfo = await this.profilesRepository.find({
-      where: {
-        profileId: profileId,
-        userId: userId,
-      },
-    });
-    // console.log(profileInfo);
-
-    if (profileInfo.length > 0) {
-      return true;
-    } else {
-      return false;
-    }
-  }
 }

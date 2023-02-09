@@ -28,6 +28,31 @@ export class AlarmsService {
     }
   }
 
+  // 푸시 알림 FCM으로 메시지 및 푸시 요청 보내기
+  async requestPushAlarmToFCM() {
+    let targetToken = 'test';
+
+    const message = {
+      notification: {
+        title: '푸시 알림 제목 테스트',
+        body: '푸시 알림 내용 테스트'
+      },
+      token: targetToken
+    };
+
+    const admin = require('firebase-admin');
+
+    admin
+      .messaging()
+      .send(message)
+      .then(function (response: any) {
+        console.log('test success: ', response);
+      })
+      .catch(function (err: any) {
+        console.log('test failed: ', err)
+      });
+  }
+
   // 팔로잉 알림 설정
   async followingAlarm(fromProfileId: number, toProfileId: number) {
     const targetProfile = await this.profilesRepository.findProfileByProfileId(toProfileId);

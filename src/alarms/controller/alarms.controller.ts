@@ -25,4 +25,18 @@ export class AlarmsController {
   noticeAlarm() {
     return this.alarmService.noticeAlarm();
   }
+
+  /**
+   * 푸시 알림 테스트용 경로
+   * FCM으로 메시지 보내는 기능
+   * 현재 임시 토큰을 사용하므로 유효하지 않은 토큰이라는 에러 메시지 출력
+   */
+  @ApiOperation({
+    summary: '(개발 중 사용 X)',
+    description: '(개발 중 사용 X) 백엔드 FCM으로 푸시 알림 요청 테스트용 경로'
+  })
+  @Get('/test')
+  pushAlarmTest() {
+    return this.alarmService.requestPushAlarmToFCM();
+  }
 }

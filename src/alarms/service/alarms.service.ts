@@ -30,24 +30,23 @@ export class AlarmsService {
   }
 
   // 푸시 알림 FCM으로 메시지 및 푸시 요청 보내기
-  async requestPushAlarmToFCM() {
-    let targetToken = 'test';
-
-    const message = {
+  async requestPushAlarmToFCM(message: object, targetToken: string) {
+    const FCMContent = {
       // ...AlarmContents.FOLLOW('작가 야옹이', '개발자 강아지'),
       // ...AlarmContents.NOTICE,
       // ...AlarmContents.FOLLOWING_NEW_FEED('작가 야옹이'),
-      ...AlarmContents.LIKE('작가 야옹이', '개발자 강아지'),
+      // ...AlarmContents.LIKE('작가 야옹이', '개발자 강아지'),
+      ...message,
       token: targetToken
     };
 
-    console.log(message)
+    console.log(FCMContent);
 
     const admin = require('firebase-admin');
 
     admin
       .messaging()
-      .send(message)
+      .send(FCMContent)
       .then(function (response: any) {
         console.log('test success: ', response);
       })
@@ -66,12 +65,15 @@ export class AlarmsService {
     if (targetUser.followAlarmStatus == 'ACTIVE') {
       const fromProfile = await this.profilesRepository.findProfileByProfileId(fromProfileId);
       const fromProfileName = fromProfile.profileName;
+      const toProfileName = targetProfile.profileName;
 
-      /**
-       * TODO
-       * 임시로 console.log를 했지만 실제 토큰을 이용하는 방식으로 수정
-       */
-      console.log(`${fromProfileName}님이 ${targetProfile.profileName}님을 팔로우 하였습니다.`);
+      const FCMToken = targetUser.alarmToken;
+
+      // console.log(`${fromProfileName}님이 ${targetProfile.profileName}님을 팔로우 하였습니다.`);
+
+      const message = AlarmContents.FOLLOW(fromProfileName, toProfileName);
+      
+      return this.requestPushAlarmToFCM(message, FCMToken);
     }
   }
 

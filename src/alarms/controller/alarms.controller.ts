@@ -37,6 +37,6 @@ export class AlarmsController {
   })
   @Get('/test')
   pushAlarmTest() {
-    return this.alarmService.requestPushAlarmToFCM();
+    // return this.alarmService.requestPushAlarmToFCM();
   }
 }

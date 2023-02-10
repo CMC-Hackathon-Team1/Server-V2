@@ -34,7 +34,7 @@ export class FollowingService {
                 foundEntity=await this.followingRepository.postFollow(follow);
 
                 // 푸시 알림용
-                await this.alarmsService.followingAlarm(fromProfileId, toProfileId);
+                this.alarmsService.followingAlarm(fromProfileId, toProfileId);
 
                 return sucResponse(baseResponse.POST_FOLLOW);
             }else{

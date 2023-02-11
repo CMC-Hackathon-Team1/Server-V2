@@ -29,8 +29,12 @@ export class AlarmsService {
     }
   }
 
-  // 푸시 알림 FCM으로 메시지 및 푸시 요청 보내기
-  async requestPushAlarmToFCM(message: object, targetToken: string) {
+  /**
+   * 푸시 알림 FCM으로 메시지 및 푸시 요청 보내기 (단일 기기)
+   * @param message 푸시 알림 메시지
+   * @param targetToken 단일 기기 토큰
+   */
+  async requestOnePushAlarmToFCM(message: object, targetToken: string) {
     const FCMContent = {
       // ...AlarmContents.FOLLOW('작가 야옹이', '개발자 강아지'),
       // ...AlarmContents.NOTICE,
@@ -45,8 +49,35 @@ export class AlarmsService {
     const admin = require('firebase-admin');
 
     admin
+    .messaging()
+    .send(FCMContent)
+    .then(function (response: any) {
+      console.log('test success: ', response);
+    })
+    .catch(function (err: any) {
+      console.log('test failed: ', err)
+    });
+  }
+  
+  /**
+   * 푸시 알림 FCM으로 메시지 및 푸시 요청 보내기 (다수 기기)
+   * Reference: https://firebase.google.com/docs/cloud-messaging/manage-topics?hl=ko#suscribe_and_unsubscribe_using_the
+   * @param message 푸시 알림 메시지
+   * @param targetTokenList 다수 기기 토큰
+   */
+  async requestManyPushAlarmToFCM(message: object, targetTokenList: string[]) {
+    const targetAlarmTokens = targetTokenList;
+
+    const FCMContent = {
+      ...message,
+      tokens: targetAlarmTokens
+    };
+
+    const admin = require('firebase-admin');
+
+    admin
       .messaging()
-      .send(FCMContent)
+      .sendMulticast(FCMContent)
       .then(function (response: any) {
         console.log('test success: ', response);
       })
@@ -73,7 +104,7 @@ export class AlarmsService {
 
       const message = AlarmContents.FOLLOW(fromProfileName, toProfileName);
       
-      return this.requestPushAlarmToFCM(message, FCMToken);
+      return this.requestOnePushAlarmToFCM(message, FCMToken);
     }
   }
 
@@ -84,13 +115,8 @@ export class AlarmsService {
     const targetAlarmTokens = []
     targetUsers.forEach((item) => {targetAlarmTokens.push(item.alarmToken)});
 
-    /**
-     * TODO
-     * 위의 까지의 코드 = 토큰 리스트를 가져오는 작업
-     * 임시로 console.log를 통해 토큰 리스트 반환을 확인
-     * 
-     * 실제 토큰을 이용하는 방식으로 수정
-     */
-    console.log(targetAlarmTokens)
+    const message = AlarmContents.NOTICE;
+
+    return this.requestManyPushAlarmToFCM(message, targetAlarmTokens);
   }
 }

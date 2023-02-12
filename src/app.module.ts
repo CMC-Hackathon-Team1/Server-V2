@@ -31,6 +31,7 @@ import { StatisticsModule } from './statistics/statistics.module';
 import { HashTagModule } from './hash-tag/hash-tag.module';
 import { HashTagFeedMappingModule } from './hash-tag-feed-mapping/hash-tag-feed-mapping.module';
 import { CategoriesModule } from './categories/categories.module';
+import { AlarmsModule } from './alarms/alarms.module';
 
 @Module({
   imports: [
@@ -78,6 +79,7 @@ import { CategoriesModule } from './categories/categories.module';
     HashTagModule,
     HashTagFeedMappingModule,
     CategoriesModule,
+    AlarmsModule,
   ],
   controllers: [AppController],
   providers: [AppService, AwsService],

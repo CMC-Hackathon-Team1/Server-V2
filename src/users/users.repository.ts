@@ -14,4 +14,19 @@ export class UsersRepository {
   async deleteUserByUserId(userId: number) {
     return await this.usersTable.delete(userId);
   }
+
+  // 유저 정보 가져오기
+  async getUserByUserId(userId: number) {
+    return await this.usersTable.findOne({ where: { userId: userId } });
+  }
+
+  // 공지사항 알림 설정 되어있는 모든 유저 정보 가져오기
+  async getUsersForNotice() {
+    return await this.usersTable.find({ select: [ 'alarmToken' ], where: { noticeAlarmStatus: 'ACTIVE' } });
+  }
+
+  // 기기별 푸시 알림 토큰 저장
+  async setUsersAlarmToken(userId: number, alarmToken: string) {
+    return await this.usersTable.update(userId, { alarmToken: alarmToken });
+  }
 }

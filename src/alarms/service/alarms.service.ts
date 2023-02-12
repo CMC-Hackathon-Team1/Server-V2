@@ -30,45 +30,24 @@ export class AlarmsService {
   }
 
   /**
-   * 푸시 알림 FCM으로 메시지 및 푸시 요청 보내기 (단일 기기)
+   * 푸시 알림 FCM으로 메시지 및 푸시 요청 보내기 (단일 및 다수 기기)
+   * 
+   * Reference: https://firebase.google.com/docs/cloud-messaging/manage-topics?hl=ko#suscribe_and_unsubscribe_using_the
    * @param message 푸시 알림 메시지
-   * @param targetToken 단일 기기 토큰
+   * @param targetTokenList 기기 토큰 (단일 토큰도 배열로 감싸서 전달)
    */
-  async requestOnePushAlarmToFCM(message: object, targetToken: string) {
+  async requestPushAlarmToFCM(message: object, targetTokenList: string[]) {
+    const targetAlarmTokens = [];
+    targetTokenList.forEach((item) => targetAlarmTokens.push(item));
+
+    console.log(message);
+    console.log(targetAlarmTokens);
+
     const FCMContent = {
       // ...AlarmContents.FOLLOW('작가 야옹이', '개발자 강아지'),
       // ...AlarmContents.NOTICE,
       // ...AlarmContents.FOLLOWING_NEW_FEED('작가 야옹이'),
       // ...AlarmContents.LIKE('작가 야옹이', '개발자 강아지'),
-      ...message,
-      token: targetToken
-    };
-
-    console.log(FCMContent);
-
-    const admin = require('firebase-admin');
-
-    admin
-    .messaging()
-    .send(FCMContent)
-    .then(function (response: any) {
-      console.log('test success: ', response);
-    })
-    .catch(function (err: any) {
-      console.log('test failed: ', err)
-    });
-  }
-  
-  /**
-   * 푸시 알림 FCM으로 메시지 및 푸시 요청 보내기 (다수 기기)
-   * Reference: https://firebase.google.com/docs/cloud-messaging/manage-topics?hl=ko#suscribe_and_unsubscribe_using_the
-   * @param message 푸시 알림 메시지
-   * @param targetTokenList 다수 기기 토큰
-   */
-  async requestManyPushAlarmToFCM(message: object, targetTokenList: string[]) {
-    const targetAlarmTokens = targetTokenList;
-
-    const FCMContent = {
       ...message,
       tokens: targetAlarmTokens
     };
@@ -98,13 +77,13 @@ export class AlarmsService {
       const fromProfileName = fromProfile.profileName;
       const toProfileName = targetProfile.profileName;
 
-      const FCMToken = targetUser.alarmToken;
+      const FCMToken = [targetUser.alarmToken];
 
       // console.log(`${fromProfileName}님이 ${targetProfile.profileName}님을 팔로우 하였습니다.`);
 
       const message = AlarmContents.FOLLOW(fromProfileName, toProfileName);
       
-      return this.requestOnePushAlarmToFCM(message, FCMToken);
+      return this.requestPushAlarmToFCM(message, FCMToken);
     }
   }
 
@@ -112,11 +91,11 @@ export class AlarmsService {
   async noticeAlarm() {
     const targetUsers = await this.usersRepository.getUsersForNotice();
 
-    const targetAlarmTokens = []
-    targetUsers.forEach((item) => {targetAlarmTokens.push(item.alarmToken)});
+    const targetTokenList = [];
+    targetUsers.forEach((item) => {targetTokenList.push(item.alarmToken)});
 
-    const message = AlarmContents.NOTICE;
+    const message = AlarmContents.NOTICE();
 
-    return this.requestManyPushAlarmToFCM(message, targetAlarmTokens);
+    return this.requestPushAlarmToFCM(message, targetTokenList);
   }
 }

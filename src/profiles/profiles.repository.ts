@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SaveProfileDto } from './dto/saveProfile.dto';
 import { Profiles } from '../common/entities/Profiles';
-import { ProfileModel } from './dto/profile.model';
+import { ProfileModel, ProfileResponseModel } from './dto/profile.model';
 
 @Injectable()
 export class ProfilesRepository {
@@ -19,7 +19,7 @@ export class ProfilesRepository {
   }
 
   // 사용자 모든 프로필 리스트 받아오기
-  async getUserProfilesList(userId: number): Promise<ProfileModel[]> {
+  async getUserProfilesList(userId: number): Promise<ProfileResponseModel[]> {
     try {
       return await this.profilesTable
         .createQueryBuilder('Profiles')
@@ -36,6 +36,17 @@ export class ProfilesRepository {
         .getRawMany();
     } catch (err) {
       console.log(err);
+      throw new Error('DB_Error');
+    }
+  }
+
+  // 사용자 프로필 페르소나 ID 목록 받아오기
+  async getUserProfilePersonaIdList(userId: number): Promise<any[]> {
+    try {
+      return await this.profilesTable.find({where: {userId: userId}, select: ['personaId']});
+    } catch(err) {
+      // console.log(err);
+      throw new Error('DB_Error');
     }
   }
 

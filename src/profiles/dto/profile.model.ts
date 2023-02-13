@@ -8,6 +8,16 @@ export interface ProfileModel {
   createdAt: Date;
 }
 
+export interface ProfileResponseModel {
+  profileId: number;
+  userId: number;
+  profileName: string;
+  personaName: string;
+  profileImgUrl: string;
+  statusMessage: string;
+  createdAt: Date;
+}
+
 export const ProfileModelExample = {
   profileId: 30,
   profileName: '(프로필 이름)',

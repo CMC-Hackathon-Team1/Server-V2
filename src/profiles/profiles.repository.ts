@@ -4,7 +4,6 @@ import { Repository } from 'typeorm';
 import { SaveProfileDto } from './dto/saveProfile.dto';
 import { Profiles } from '../common/entities/Profiles';
 import { ProfileModel } from './dto/profile.model';
-import { EditProfileDto } from './dto/editProfile.dto';
 
 @Injectable()
 export class ProfilesRepository {
@@ -22,7 +21,6 @@ export class ProfilesRepository {
   // 사용자 모든 프로필 리스트 받아오기
   async getUserProfilesList(userId: number): Promise<ProfileModel[]> {
     try {
-      // return await this.profilesTable.find({ where: { userId: userId } });
       return await this.profilesTable
         .createQueryBuilder('Profiles')
         .leftJoinAndSelect('Profiles.persona', 'Persona')

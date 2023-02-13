@@ -200,8 +200,14 @@ export class ProfilesController {
     description: 'SUCCESS',
     schema: {
       example: sucResponse(baseResponse.SUCCESS, [
-        { ProfileModelExample },
-        { ProfileModelExample },
+        {
+          "profileId": 29,
+          "personaName": "개발자",
+          "profileName": "야옹이",
+          "statusMessage": "나는 개발자다~!",
+          "profileImgUrl": "https://imag.url",
+          "createdAt": "2023-01-16T22:02:27.000Z"
+        },
       ]),
     },
   })

@@ -8,19 +8,37 @@ import { EditProfileDto } from './dto/editProfile.dto';
 
 @Injectable()
 export class ProfilesRepository {
-  
   constructor(
     @InjectRepository(Profiles)
     private profilesTable: Repository<Profiles>,
   ) {}
-  async getOne(profileId:number) {
+
+  async getOne(profileId: number) {
     return await this.profilesTable.findBy({
-      profileId:profileId
+      profileId: profileId,
     });
   }
+
   // 사용자 모든 프로필 리스트 받아오기
   async getUserProfilesList(userId: number): Promise<ProfileModel[]> {
-    return await this.profilesTable.find({ where: { userId: userId } });
+    try {
+      // return await this.profilesTable.find({ where: { userId: userId } });
+      return await this.profilesTable
+        .createQueryBuilder('Profiles')
+        .leftJoinAndSelect('Profiles.persona', 'Persona')
+        .select([
+          'Profiles.profileId AS profileId',
+          'Persona.personaName AS personaName',
+          'Profiles.profileName AS profileName',
+          'Profiles.statusMessage AS statusMessage',
+          'Profiles.profileImgUrl AS profileImgUrl',
+          'Profiles.createdAt AS createdAt'
+        ])
+        .where('Profiles.userId=:userId', { userId: userId })
+        .getRawMany();
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   // 새 프로필 저장하기
@@ -29,7 +47,7 @@ export class ProfilesRepository {
   }
 
   // 프로필 ID로 프로필 찾기
-  async findProfileByProfileId(profileId: number) : Promise<ProfileModel> {
+  async findProfileByProfileId(profileId: number): Promise<ProfileModel> {
     return await this.profilesTable.findOne({
       where: { profileId: profileId },
     });
@@ -41,7 +59,7 @@ export class ProfilesRepository {
   }
 
   // 프로필 업데이트 (업데이트를 수행한 후, 수정된 프로필을 return)
-  async editProfile(profileId: number, newContent: object ) {
+  async editProfile(profileId: number, newContent: object) {
     await this.profilesTable.update(profileId, newContent);
 
     const editResult = await this.findProfileByProfileId(profileId);

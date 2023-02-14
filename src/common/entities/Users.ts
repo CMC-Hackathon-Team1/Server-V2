@@ -20,6 +20,14 @@ export class Users {
   @Column("text", { name: "password", nullable: true })
   password: string | null;
 
+  @ApiProperty({ description: '로그인 종류 (자체, 카카오, 구글, 애플)' })
+  @Column("varchar", { name: "login_type", nullable: true })
+  login_type: string | null;
+
+  @ApiProperty({ description: '소셜로그인 토큰 (accessToken or idToken' })
+  @Column("text", { name: "provider_token", nullable: true })
+  provider_token: string | null;
+
   @ApiProperty({ description: '생성 날짜' })
   @Column("timestamp", {
     name: "createdAt",

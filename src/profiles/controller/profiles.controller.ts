@@ -28,7 +28,7 @@ import baseResponse from '../../common/utils/baseResponseStatus';
 import { errResponse, sucResponse } from '../../common/utils/response';
 import { CreateProfileDto } from '../dto/createProfile.dto';
 import { EditProfileDto } from '../dto/editProfile.dto';
-import { ProfileModelExample } from '../dto/profile.model';
+import { ProfileModelExample, ProfileResponseModelExample } from '../dto/profile.model';
 import { ProfilesService } from '../service/profiles.service';
 
 @ApiTags('Profiles')
@@ -148,7 +148,7 @@ export class ProfilesController {
   @ApiResponse({
     status: 100,
     description: 'SUCCESS',
-    schema: { example: sucResponse(baseResponse.SUCCESS, ProfileModelExample) },
+    schema: { example: sucResponse(baseResponse.SUCCESS, ProfileResponseModelExample) },
   })
   @ApiResponse({
     status: 400,
@@ -199,16 +199,7 @@ export class ProfilesController {
     status: 100,
     description: 'SUCCESS',
     schema: {
-      example: sucResponse(baseResponse.SUCCESS, [
-        {
-          "profileId": 29,
-          "personaName": "개발자",
-          "profileName": "야옹이",
-          "statusMessage": "나는 개발자다~!",
-          "profileImgUrl": "https://imag.url",
-          "createdAt": "2023-01-16T22:02:27.000Z"
-        },
-      ]),
+      example: sucResponse(baseResponse.SUCCESS, [ProfileResponseModelExample, ProfileResponseModelExample]),
     },
   })
   @ApiResponse({
@@ -252,7 +243,7 @@ export class ProfilesController {
   @ApiResponse({
     status: 100,
     description: 'SUCCESS',
-    schema: { example: sucResponse(baseResponse.SUCCESS, ProfileModelExample) },
+    schema: { example: sucResponse(baseResponse.SUCCESS, ProfileResponseModelExample) },
   })
   @ApiResponse({
     status: 400,

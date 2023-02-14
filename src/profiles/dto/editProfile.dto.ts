@@ -32,5 +32,5 @@ export class EditProfileDto {
     example: true,
     required: true,
   })
-  defaultImage: boolean | string;
+  defaultImage: string | boolean;
 }

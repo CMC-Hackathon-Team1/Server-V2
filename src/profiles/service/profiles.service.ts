@@ -31,7 +31,7 @@ export class ProfilesService {
     
     // 같은 페르소나 생성 validation
     const checkExistPerona = await this.personaRepository.getPersonaByName(newProfilePersonaName);
-      
+    
     // existPersonaId = 페르소나 테이블에 해당 페르소나가 존재하는 경우: 해당 페르소나 ID 사용 / 존재하지 않는 경우: 새로운 페르소나를 생성하여 생성된 페르소나 ID를 사용
     // existPersonaId를 이용해 프로필 생성에 필요한 personaId 저장
     const existPersonaId = checkExistPerona?.personaId; // checkExistPersona가 undefined인 경우가 있을 수 있으므로 ? 부여
@@ -108,7 +108,7 @@ export class ProfilesService {
   async editProfile(profileId: number, image: Express.Multer.File, req: any, editProfileDto: EditProfileDto) {
     try {
       const requestUserId = req.user.userId;
-      const targetProfile = await this.profileRepository.findProfileByProfileId(profileId);
+      const targetProfile = await this.profileRepository.getProfileModelWithProfileId(profileId);
 
       if (targetProfile?.userId !== requestUserId) {
         return errResponse(baseResponse.PROFILE_NO_AUTHENTICATION);
@@ -126,6 +126,7 @@ export class ProfilesService {
        * 3. defaultImage: false && image: false -> 기존에 사용하던 이미지 유지 (기존 이미지 유지)
        */
       let imgDir = '';
+
       // 1. defaultImage: true -> 기본 이미지로 변경 (기존 이미지 삭제)
       if (editProfileDto.defaultImage === true || editProfileDto.defaultImage === 'true') {
         // 기존 이미지는 삭제
@@ -148,6 +149,7 @@ export class ProfilesService {
             const prevImageDeleteResult = await this.AwsService.deleteS3Object(prevImgKey);
           }
         }
+        // 3. 기존 이미지 유지
         else {
           const prevImgKey = targetProfile.profileImgUrl.slice(`https://${process.env.AWS_S3_BUCKET_NAME}.s3.amazonaws.com/`.length);
 
@@ -178,7 +180,6 @@ export class ProfilesService {
       }
 
       const editedProfile = await this.profileRepository.editProfile(profileId, newContent);
-      delete editedProfile.userId;
 
       return sucResponse(baseResponse.SUCCESS, editedProfile);
     } catch (error) {
@@ -220,7 +221,7 @@ export class ProfilesService {
     }
   }
 
-  async checkProfile(userId, profileId: number) {
+  async checkProfile(userId: number, profileId: number) {
     const profileInfo = await this.profileRepository.checkUserProfileMatch(userId, profileId);
     // console.log(profileInfo);
 

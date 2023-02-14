@@ -239,7 +239,6 @@ export class ProfilesController {
     description:
       'API No. 2.5 타유저 프로필 등에서 활용 가능하도록 프로필 ID를 이용해 프로필 정보를 받아오는 API',
   })
-  @ApiBearerAuth('Authorization')
   @ApiResponse({
     status: 100,
     description: 'SUCCESS',
@@ -265,7 +264,6 @@ export class ProfilesController {
     description: 'profileId에 해당하는 프로필이 없는 경우',
     schema: { example: errResponse(baseResponse.PROFILE_NOT_EXIST) },
   })
-  @UseGuards(JWTAuthGuard)
   @Get('/:profileId')
   getProfileByProfileId(@Param('profileId', ParseIntPipe) profileId: number) {
     return this.profilesService.getProfileByProfileId(profileId);

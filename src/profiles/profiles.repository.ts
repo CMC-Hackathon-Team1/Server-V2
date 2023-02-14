@@ -56,10 +56,24 @@ export class ProfilesRepository {
   }
 
   // 프로필 ID로 프로필 찾기
-  async findProfileByProfileId(profileId: number): Promise<ProfileModel> {
-    return await this.profilesTable.findOne({
-      where: { profileId: profileId },
-    });
+  async findProfileByProfileId(profileId: number): Promise<ProfileResponseModel> {
+    try {
+      return await this.profilesTable
+        .createQueryBuilder('Profiles')
+        .leftJoinAndSelect('Profiles.persona', 'Persona')
+        .select([
+          'Profiles.profileId AS profileId',
+          'Persona.personaName AS personaName',
+          'Profiles.profileName AS profileName',
+          'Profiles.statusMessage AS statusMessage',
+          'Profiles.profileImgUrl AS profileImgUrl',
+          'Profiles.createdAt AS createdAt'
+        ])
+        .where('Profiles.profileId=:profileId', { profileId: profileId })
+        .getRawOne();
+    } catch (err) {
+      throw new Error('DB_Error');
+    }
   }
 
   // 프로필 삭제
@@ -68,7 +82,7 @@ export class ProfilesRepository {
   }
 
   // 프로필 업데이트 (업데이트를 수행한 후, 수정된 프로필을 return)
-  async editProfile(profileId: number, newContent: object) {
+  async editProfile(profileId: number, newContent: object): Promise<ProfileResponseModel> {
     await this.profilesTable.update(profileId, newContent);
 
     const editResult = await this.findProfileByProfileId(profileId);
@@ -76,7 +90,12 @@ export class ProfilesRepository {
     return editResult;
   }
 
-  async checkUserProfileMatch(userId, profileId: number) {
+  // profileId로 Profiles 테이블 row 가져오기
+  async getProfileModelWithProfileId(profileId: number): Promise<ProfileModel> {
+    return await this.profilesTable.findOne({ where: {profileId: profileId} });
+  }
+
+  async checkUserProfileMatch(userId: number, profileId: number) {
     return await this.profilesTable.find({
       where: {
         profileId: profileId,

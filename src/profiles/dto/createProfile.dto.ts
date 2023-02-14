@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class CreateProfileDto {
-  @ApiProperty({ description: '프로필 이름', example: '작가 야옹이' })
+  @ApiProperty({ description: '프로필 이름', example: '야옹이' })
   @IsNotEmpty()
   @MaxLength(20)
   @IsString()

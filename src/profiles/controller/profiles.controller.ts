@@ -28,7 +28,7 @@ import baseResponse from '../../common/utils/baseResponseStatus';
 import { errResponse, sucResponse } from '../../common/utils/response';
 import { CreateProfileDto } from '../dto/createProfile.dto';
 import { EditProfileDto } from '../dto/editProfile.dto';
-import { ProfileModelExample } from '../dto/profile.model';
+import { ProfileModelExample, ProfileResponseModelExample } from '../dto/profile.model';
 import { ProfilesService } from '../service/profiles.service';
 
 @ApiTags('Profiles')
@@ -142,13 +142,13 @@ export class ProfilesController {
   @ApiOperation({
     summary: '프로필 수정',
     description:
-      '프로필을 생성하는 경우와 Body가 유사하지만, 페르소나는 변경이 불가능하므로 프로필 수정 Body에서는 제외됩니다.\n\nprofileName, statusMessage, image, defaultImage를 받아야 하며 image는 생략이 가능합니다.\n\nstatusMessage가 비어있는 경우는 빈 문자열을 보내주시면 됩니다\n\ndefaultImage와 image의 작동은 아래와 같습니다\n\n1. defaultImage: true && image: 있음/없음 -> 기본 이미지로 변경\n\n2. defaultImage: false && image: 있음 -> 새로운 이미지로 변경\n\n3. defaultImage: false && image: 없음 -> 기존 이미지\n\n자세한 내용은 노션을 참고해주세요.',
+      '프로필을 생성하는 경우와 Body가 유사하지만, 페르소나는 변경이 불가능하므로 프로필 수정 Body에서는 제외됩니다.\n\nprofileName, statusMessage, image, defaultImage를 받아야 하며 image는 생략이 가능합니다.\n\nstatusMessage가 비어있는 경우는 빈 문자열을 보내주시면 됩니다\n\ndefaultImage와 image의 작동은 아래와 같습니다\n\n1. defaultImage: true && image: 있음/없음 -> 기본 이미지로 변경\n\n2. defaultImage: false && image: 있음 -> 새로운 이미지로 변경\n\n3. defaultImage: false && image: 없음 -> 기존 이미지\n\n자세한 내용은 노션을 참고해주세요.\n\nform-data에는 boolean 타입이 들어가지 않는 것으로 보여 true(boolean) 또는 "true"(string)으로 보내주시면 됩니다. (단, 대소문자 구분)',
   })
   @ApiBearerAuth('Authorization')
   @ApiResponse({
     status: 100,
     description: 'SUCCESS',
-    schema: { example: sucResponse(baseResponse.SUCCESS, ProfileModelExample) },
+    schema: { example: sucResponse(baseResponse.SUCCESS, ProfileResponseModelExample) },
   })
   @ApiResponse({
     status: 400,
@@ -199,16 +199,7 @@ export class ProfilesController {
     status: 100,
     description: 'SUCCESS',
     schema: {
-      example: sucResponse(baseResponse.SUCCESS, [
-        {
-          "profileId": 29,
-          "personaName": "개발자",
-          "profileName": "야옹이",
-          "statusMessage": "나는 개발자다~!",
-          "profileImgUrl": "https://imag.url",
-          "createdAt": "2023-01-16T22:02:27.000Z"
-        },
-      ]),
+      example: sucResponse(baseResponse.SUCCESS, [ProfileResponseModelExample, ProfileResponseModelExample]),
     },
   })
   @ApiResponse({
@@ -248,11 +239,10 @@ export class ProfilesController {
     description:
       'API No. 2.5 타유저 프로필 등에서 활용 가능하도록 프로필 ID를 이용해 프로필 정보를 받아오는 API',
   })
-  @ApiBearerAuth('Authorization')
   @ApiResponse({
     status: 100,
     description: 'SUCCESS',
-    schema: { example: sucResponse(baseResponse.SUCCESS, ProfileModelExample) },
+    schema: { example: sucResponse(baseResponse.SUCCESS, ProfileResponseModelExample) },
   })
   @ApiResponse({
     status: 400,
@@ -274,7 +264,6 @@ export class ProfilesController {
     description: 'profileId에 해당하는 프로필이 없는 경우',
     schema: { example: errResponse(baseResponse.PROFILE_NOT_EXIST) },
   })
-  @UseGuards(JWTAuthGuard)
   @Get('/:profileId')
   getProfileByProfileId(@Param('profileId', ParseIntPipe) profileId: number) {
     return this.profilesService.getProfileByProfileId(profileId);

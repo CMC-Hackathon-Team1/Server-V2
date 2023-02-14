@@ -26,3 +26,12 @@ export const ProfileModelExample = {
   statusMessage: '(프로필 상태 메시지)',
   createdAt: '(프로필 생성 날짜)',
 };
+
+export const ProfileResponseModelExample = {
+  profileId: 29,
+  personaName: '(페르소나 이름)',
+  profileName: '(프로필 이름)',
+  statusMessage: '(프로필 상태 메시지)',
+  profileImgUrl: '(프로필 이미지)',
+  createdAt: '(프로필 생성 날짜)',
+};

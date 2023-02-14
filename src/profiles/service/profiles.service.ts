@@ -84,7 +84,7 @@ export class ProfilesService {
   async deleteProfile(req: any, profileId: number) {
     try {
       const requestUserId = req.user.userId;
-      const targetProfile = await this.profileRepository.findProfileByProfileId(profileId);
+      const targetProfile = await this.profileRepository.getProfileModelWithProfileId(profileId);
 
       // 요청의 userId와 삭제 대상 프로필의 userId가 다른 경우
       if (targetProfile?.userId !== requestUserId) {

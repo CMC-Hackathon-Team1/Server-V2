@@ -28,9 +28,9 @@ export class EditProfileDto {
   image: object;
 
   @ApiProperty({
-    description: '기본 프로필 이미지로 변경 여부 (true로 들어오는 경우 이미지의 유무와 상관없이 기본 프로필 이미지로 변경됩니다)',
+    description: '기본 프로필 이미지로 변경 여부 (true로 들어오는 경우 이미지의 유무와 상관없이 기본 프로필 이미지로 변경됩니다)\n\nform-data에는 boolean 타입이 들어가지 않는 것으로 보여 true(boolean) 또는 "true"(string)으로 보내주시면 됩니다. (단, 대소문자 구분)',
     example: true,
     required: true,
   })
-  defaultImage: boolean;
+  defaultImage: boolean | string;
 }

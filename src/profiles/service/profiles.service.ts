@@ -127,7 +127,7 @@ export class ProfilesService {
        */
       let imgDir = '';
       // 1. defaultImage: true -> 기본 이미지로 변경 (기존 이미지 삭제)
-      if (editProfileDto.defaultImage === true) {
+      if (editProfileDto.defaultImage === true || editProfileDto.defaultImage === 'true') {
         // 기존 이미지는 삭제
         const prevImgKey = targetProfile.profileImgUrl.slice(`https://${process.env.AWS_S3_BUCKET_NAME}.s3.amazonaws.com/`.length);
         if (prevImgKey !== process.env.DEFAULT_PROFILE_IMAGE_DIR) {

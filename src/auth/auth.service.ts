@@ -15,7 +15,7 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async registerUser(newUser: UserDTO): Promise<object> {
+  async registerUser(newUser: UserDTO, loginType: string): Promise<object> {
     // 이미 있는 계정인지 체크
     const userFind: UserDTO = await this.userService.findByFields({
       where: { email: newUser.email },
@@ -28,7 +28,7 @@ export class AuthService {
     }
     // ---
 
-    const addedUser = await this.userService.save(newUser);
+    const addedUser = await this.userService.save(newUser, loginType);
     const result = {
       userId: addedUser.userId,
     };
@@ -46,6 +46,11 @@ export class AuthService {
     // 해당 이메일의 계정이 없는 경우
     if (!userFind || userFind == undefined) {
       return errResponse(baseResponse.USER_NOT_FOUND);
+    }
+
+    // 다른 플랫폼으로 가입한 계정인 경우
+    if (userFind.login_type != null) {
+      return errResponse(baseResponse.WRONG_LOGIN);
     }
 
     const validatePassword = await bcrypt.compare(userDTO.password, userFind.password);
@@ -75,7 +80,7 @@ export class AuthService {
     return await this.userService.getUserInfo(payload.userId);
   }
 
-  async handleSocialUser(email: string): Promise<any> {
+  async handleSocialUser(email: string, loginType: string): Promise<any> {
     const checkUser = await this.userService.findByFields({
       where: { email: email },
     });
@@ -87,12 +92,19 @@ export class AuthService {
     if (!checkUser || checkUser === undefined) {
       // 회원가입하기
       const newUser: UserDTO = { email: email, password: null };
-      const addedUser = await this.userService.save(newUser);
+      const addedUser = await this.userService.save(newUser, loginType);
       console.log(`추가된 회원 id: ${addedUser.userId}`);
 
       socialUserId = addedUser.userId;
       message = '회원가입 완료';
     } else {
+      // [Validation 처리]
+      // 다른 플랫폼으로 가입한 계정인 경우
+      if (checkUser.login_type != loginType) {
+        return errResponse(baseResponse.WRONG_LOGIN);
+      }
+      // ---
+
       // 로그인하기
       socialUserId = checkUser.userId;
       message = '로그인 완료';

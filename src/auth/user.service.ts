@@ -35,14 +35,32 @@ export class UserService {
   }
 
   // 이메일+비밀번호 로 회원을 DB에 저장하기
-  async save(userDTO: UserDTO): Promise<Users | undefined> {
+  async save(userDTO: UserDTO, loginType: string): Promise<any> {
     if (userDTO.password !== null) {
       // 비밀번호 암호화
       await this.transformPassword(userDTO);
     }
     // console.log(userDTO);
 
-    return await this.userRepository.save(userDTO);
+    // 자체로그인
+    if (loginType == 'own') {
+      return await this.userRepository.save(userDTO);
+    }
+    // 소셜로그인
+    else {
+      return await this.userRepository
+        .createQueryBuilder()
+        .insert()
+        .into(Users)
+        .values([
+          {
+            email: userDTO.email,
+            password: userDTO.password,
+            login_type: loginType,
+          },
+        ])
+        .execute();
+    }
   }
 
   // 비밀번호 암호화하기

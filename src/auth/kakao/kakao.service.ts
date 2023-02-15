@@ -56,10 +56,7 @@ export class KakaoService {
     } catch (e) {
       console.log(`kakaoUserInfoResponse Error : ${e}`);
 
-      // [Validation 처리]
-      // 응답이 잘 안 온 경우
-      return errResponse(baseResponse.KAKAO_USER_INFO_FAIL);
-      // ---
+      return false;
     }
   }
 
@@ -110,11 +107,18 @@ export class KakaoService {
 
     // 3. 액세스 토큰으로 카카오 유저 정보 가져오기
     const kakaoUserInfo = await this.getKakaoUserInfoByToken(accessToken);
+    // [Validation 처리]
+    // 응답이 잘 안 온 경우
+    if (!kakaoUserInfo) {
+      return errResponse(baseResponse.KAKAO_USER_INFO_FAIL);
+    }
+    // ---
     const kakaoUserEmail = kakaoUserInfo.kakao_account.email;
     // console.log(kakaoUserEmail);
 
+    const kakaoUserParams = { accessToken: accessToken, idToken: null };
     // 4. 서비스 회원가입 or 로그인 처리
-    const socialUserResult = await this.authService.handleSocialUser(kakaoUserEmail, 'kakao');
+    const socialUserResult = await this.authService.handleSocialUser(kakaoUserEmail, 'kakao', kakaoUserParams);
     // console.log(socialUserResult);
 
     // 5. 회원가입/로그인 결과, 서비스 jwt, 회원ID(?)
@@ -127,7 +131,7 @@ export class KakaoService {
     return result;
   }
 
-  async kakaoLogout(accessToken: any): Promise<any> {
+  async kakaoLogout(userId: number, accessToken: any): Promise<any> {
     // console.log(`LOGOUT TOKEN : ${accessToken}`);
 
     const headerUserInfo = {
@@ -148,6 +152,10 @@ export class KakaoService {
 
       // (로컬에서) 저장해둔 토큰 해제하기
       // this.setToken('');
+
+      // 해당 계정에서 토큰값들 초기화하기
+      const resetTokensResult = this.authService.resetTokens(userId);
+      // console.log(resetTokensResult);
 
       return sucResponse(baseResponse.SUCCESS, {
         TODO: '클라이언트에서 jwt를 지워주세요',

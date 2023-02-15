@@ -36,15 +36,13 @@ export class GoogleService {
         // headers,
         // data: qs.stringify(body),
       });
-      // console.log(googleVerifyTokenResponse);
+      console.log(googleVerifyTokenResponse);
 
       return googleVerifyTokenResponse.data;
     } catch (e) {
-      // console.log(`googleTokenResponse Error: ${e}`);
+      console.log(`googleTokenResponse Error: ${e}`);
 
-      // [Validation 처리]
-      // 응답이 잘 안 온 경우 (id token 검증 실패)
-      return errResponse(baseResponse.GOOGLE_ID_TOKEN_INVALID);
+      return false;
       // ---
     }
   }
@@ -52,6 +50,12 @@ export class GoogleService {
   async googleLogin(idToken: any): Promise<any> {
     // 2. id token 검증을 통해 구글 계정 이메일 가져오기
     const googleTokenInfo = await this.getVerifiedGoogleTokenInfo(idToken);
+    // [Validation 처리]
+    // 응답이 잘 안 온 경우 (id token 검증 실패)
+    if (!googleTokenInfo) {
+      return errResponse(baseResponse.GOOGLE_ID_TOKEN_INVALID);
+    }
+    // ---
     const googleVerifiedEmail = googleTokenInfo.email;
     // console.log(googleVerifiedEmail);
 
@@ -62,8 +66,9 @@ export class GoogleService {
     // console.log(googleUserEmail);
     // ---
 
+    const googleUserParams = { accessToken: null, idToken: idToken };
     // 3. 서비스 회원가입 or 로그인 처리
-    const socialUserResult = await this.authService.handleSocialUser(googleVerifiedEmail, 'google');
+    const socialUserResult = await this.authService.handleSocialUser(googleVerifiedEmail, 'google', googleUserParams);
     // console.log(socialUserResult);
 
     // 4. 회원가입/로그인 결과, 서비스 jwt, 회원ID(?)

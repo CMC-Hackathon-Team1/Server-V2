@@ -28,7 +28,7 @@ export class AuthService {
     }
     // ---
 
-    const addedUser = await this.userService.save(newUser, loginType);
+    const addedUser = await this.userService.save(newUser, loginType, null);
     const result = {
       userId: addedUser.userId,
     };
@@ -80,10 +80,8 @@ export class AuthService {
     return await this.userService.getUserInfo(payload.userId);
   }
 
-  async handleSocialUser(email: string, loginType: string): Promise<any> {
-    const checkUser = await this.userService.findByFields({
-      where: { email: email },
-    });
+  async handleSocialUser(email: string, loginType: string, socialParams: any): Promise<any> {
+    const checkUser = await this.userService.findByEmail(email);
     // console.log(checkUser);
 
     let socialUserId: number;
@@ -92,7 +90,7 @@ export class AuthService {
     if (!checkUser || checkUser === undefined) {
       // 회원가입하기
       const newUser: UserDTO = { email: email, password: null };
-      const addedUser = await this.userService.save(newUser, loginType);
+      const addedUser = await this.userService.save(newUser, loginType, socialParams);
       console.log(`추가된 회원 id: ${addedUser.userId}`);
 
       socialUserId = addedUser.userId;
@@ -107,6 +105,10 @@ export class AuthService {
 
       // 로그인하기
       socialUserId = checkUser.userId;
+
+      const updateUserResult = await this.userService.updateSocialParams(socialUserId, socialParams);
+      // console.log(updateUserResult);
+
       message = '로그인 완료';
     }
 
@@ -114,5 +116,9 @@ export class AuthService {
     const jwtToken = this.jwtService.sign(payload);
 
     return { userId: socialUserId, jwt: jwtToken, message: message };
+  }
+
+  async resetTokens(userId: number): Promise<any> {
+    return await this.userService.deleteTokens(userId);
   }
 }

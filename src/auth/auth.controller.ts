@@ -423,13 +423,16 @@ export class AuthController {
   })
   @Post('/kakao-logout')
   @UseGuards(JWTAuthGuard)
-  async kakaoLogout(@Body('access_token') acces_token: any, @Res() res: Response): Promise<any> {
+  async kakaoLogout(@Body('access_token') acces_token: any, @Req() req: Request, @Res() res: Response): Promise<any> {
     if (!acces_token) {
       return res.send(errResponse(baseResponse.KAKAO_ACCESS_TOKEN_EMPTY));
     }
 
+    const user: any = req.user;
+    const userId: number = user.userId;
+
     // 카카오 액세스 토큰으로 카카오 로그아웃 호출하기
-    const kakaoResult = await this.kakaoService.kakaoLogout(acces_token);
+    const kakaoResult = await this.kakaoService.kakaoLogout(userId, acces_token);
 
     // 쿠키 지우기 - DEPRECATED
     // res.cookie('jwt', '', {

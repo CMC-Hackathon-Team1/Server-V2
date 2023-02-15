@@ -7,7 +7,7 @@ import { CreateProfileDto } from '../dto/createProfile.dto';
 import { ProfilesRepository } from '../profiles.repository';
 import { EditProfileDto } from '../dto/editProfile.dto';
 import { AwsService } from '../../aws/aws.service';
-import dateFormatter from '../../common/utils/dateFormatter';
+import { Profile } from '../dto/profileResponse.dto';
 
 @Injectable()
 export class ProfilesService {
@@ -51,8 +51,6 @@ export class ProfilesService {
       });
       newProfilePeronaId = newPersona.personaId;
     }
-
-    console.log(newProfilePeronaId)
     
     // 새로운 프로필 생성
     let imgDir = '';
@@ -164,7 +162,10 @@ export class ProfilesService {
         statusMessage: editProfileDto.statusMessage
       }
 
-      const editedProfile = await this.profileRepository.editProfile(profileId, newContent);
+      const updateResult = await this.profileRepository.editProfile(profileId, newContent);
+      const profileWithPersonaName = await this.profileRepository.getProfileByProfileId(profileId);
+
+      const editedProfile = new Profile(profileWithPersonaName);
 
       return sucResponse(baseResponse.SUCCESS, editedProfile);
     } catch (error) {
@@ -177,11 +178,13 @@ export class ProfilesService {
   // 프로필 ID로 프로필 가져오기
   async getProfileByProfileId(profileId: number) {
     try {
-      const result = await this.profileRepository.findProfileByProfileId(profileId);
+      const targetProfile = await this.profileRepository.getProfileByProfileId(profileId);
 
-      if (!result) {
+      if (!targetProfile) {
         return errResponse(baseResponse.PROFILE_NOT_EXIST);
       }
+
+      const result = new Profile(targetProfile);
 
       return sucResponse(baseResponse.SUCCESS, result);
     } catch (error) {
@@ -193,12 +196,17 @@ export class ProfilesService {
   async getUserProfilesList(req: any) {
     try {
       const requestUserId = req.user.userId;
-      const profileList = await this.profileRepository.getUserProfilesList(requestUserId);
+      const userProfileList = await this.profileRepository.getUserProfilesList(requestUserId);
 
       // 사용자의 프로필이 존재하지 않는 경우
-      if (profileList.length === 0) {
+      if (userProfileList.length === 0) {
         return errResponse(baseResponse.USER_NO_PROFILE);
       }
+
+      const profileList = [];
+      userProfileList.forEach((item) => {
+        profileList.push(new Profile(item));
+      })
 
       return sucResponse(baseResponse.SUCCESS, profileList);
     } catch (error) {

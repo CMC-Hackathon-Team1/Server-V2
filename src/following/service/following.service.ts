@@ -16,12 +16,12 @@ export class FollowingService {
 
     async postFollow(fromProfileId: number,toProfileId: number): Promise<any> {//고쳐야함.
         try{
-            const isExistFromProfile=await this.profilesRepository.findProfileByProfileId(fromProfileId);
+            const isExistFromProfile=await this.profilesRepository.getProfileByProfileId(fromProfileId);
             if(!isExistFromProfile){
                 console.log(isExistFromProfile);
                 return errResponse(baseResponse.FROM_PROFILE_ID_NOT_FOUND);
             }
-            const isExistToProfile=await this.profilesRepository.findProfileByProfileId(toProfileId);
+            const isExistToProfile=await this.profilesRepository.getProfileByProfileId(toProfileId);
             if(!isExistToProfile){
                 console.log(isExistToProfile);
                 return errResponse(baseResponse.TO_PROFILE_ID_NOT_FOUND);

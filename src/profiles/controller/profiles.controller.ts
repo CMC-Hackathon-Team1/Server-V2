@@ -1,5 +1,4 @@
 import { AwsService } from '../../aws/aws.service';
-import { multerOptions } from '../../common/utils/multer.option';
 import {
   Body,
   Controller,
@@ -9,16 +8,16 @@ import {
   Post,
   Request,
   UploadedFile,
-  UploadedFiles,
   UseGuards,
   UseInterceptors,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
   ApiBody,
+  ApiCreatedResponse,
   ApiOperation,
   ApiResponse,
   ApiTags,
@@ -28,8 +27,8 @@ import baseResponse from '../../common/utils/baseResponseStatus';
 import { errResponse, sucResponse } from '../../common/utils/response';
 import { CreateProfileDto } from '../dto/createProfile.dto';
 import { EditProfileDto } from '../dto/editProfile.dto';
-import { ProfileModelExample, ProfileResponseModelExample } from '../dto/profile.model';
 import { ProfilesService } from '../service/profiles.service';
+import { Profile } from '../dto/profileResponse.dto';
 
 @ApiTags('Profiles')
 @Controller('profiles')
@@ -145,10 +144,11 @@ export class ProfilesController {
       '프로필을 생성하는 경우와 Body가 유사하지만, 페르소나는 변경이 불가능하므로 프로필 수정 Body에서는 제외됩니다.\n\nprofileName, statusMessage, image, defaultImage를 받아야 하며 image는 생략이 가능합니다.\n\nstatusMessage가 비어있는 경우는 빈 문자열을 보내주시면 됩니다\n\ndefaultImage와 image의 작동은 아래와 같습니다\n\n1. defaultImage: true && image: 있음/없음 -> 기본 이미지로 변경\n\n2. defaultImage: false && image: 있음 -> 새로운 이미지로 변경\n\n3. defaultImage: false && image: 없음 -> 기존 이미지\n\n자세한 내용은 노션을 참고해주세요.\n\nform-data에는 boolean 타입이 들어가지 않는 것으로 보여 true(boolean) 또는 "true"(string)으로 보내주시면 됩니다. (단, 대소문자 구분)',
   })
   @ApiBearerAuth('Authorization')
-  @ApiResponse({
+  @ApiCreatedResponse({
     status: 100,
-    description: 'SUCCESS',
-    schema: { example: sucResponse(baseResponse.SUCCESS, ProfileResponseModelExample) },
+    type: Profile,
+    isArray: false,
+    description: '성공했을때 response',
   })
   @ApiResponse({
     status: 400,
@@ -195,12 +195,11 @@ export class ProfilesController {
       '멀티 페르소나를 위해 사용자의 모든 프로필 목록을 가져오는 API (Header의 JWT를 제외한 별도 데이터 필요 X)',
   })
   @ApiBearerAuth('Authorization')
-  @ApiResponse({
+  @ApiCreatedResponse({
     status: 100,
-    description: 'SUCCESS',
-    schema: {
-      example: sucResponse(baseResponse.SUCCESS, [ProfileResponseModelExample, ProfileResponseModelExample]),
-    },
+    type: Profile,
+    isArray: true,
+    description: '성공했을때 response',
   })
   @ApiResponse({
     status: 400,
@@ -239,10 +238,11 @@ export class ProfilesController {
     description:
       'API No. 2.5 타유저 프로필 등에서 활용 가능하도록 프로필 ID를 이용해 프로필 정보를 받아오는 API',
   })
-  @ApiResponse({
+  @ApiCreatedResponse({
     status: 100,
-    description: 'SUCCESS',
-    schema: { example: sucResponse(baseResponse.SUCCESS, ProfileResponseModelExample) },
+    type: Profile,
+    isArray: false,
+    description: '성공했을때 response',
   })
   @ApiResponse({
     status: 400,

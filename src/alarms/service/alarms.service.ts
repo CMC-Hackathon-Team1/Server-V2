@@ -67,13 +67,13 @@ export class AlarmsService {
 
   // 팔로잉 알림 설정
   async followingAlarm(fromProfileId: number, toProfileId: number) {
-    const targetProfile = await this.profilesRepository.findProfileByProfileId(toProfileId);
+    const targetProfile = await this.profilesRepository.getProfileByProfileId(toProfileId);
     const targetUserId = targetProfile.userId
 
     const targetUser = await this.usersRepository.getUserByUserId(targetUserId);
     
     if (targetUser.followAlarmStatus == 'ACTIVE') {
-      const fromProfile = await this.profilesRepository.findProfileByProfileId(fromProfileId);
+      const fromProfile = await this.profilesRepository.getProfileByProfileId(fromProfileId);
       const fromProfileName = fromProfile.profileName;
       const toProfileName = targetProfile.profileName;
 

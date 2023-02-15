@@ -21,7 +21,7 @@ export class LikesService {
         const likesEntity=new Likes(profileId,feedId);
         console.log(likesEntity);
         try{
-            const isExistProfile=await this.profilesRepository.findProfileByProfileId(profileId);
+            const isExistProfile=await this.profilesRepository.getProfileByProfileId(profileId);
             if(!isExistProfile){
                 console.log(isExistProfile);
                 return errResponse(baseResponse.PROFILE_ID_NOT_FOUND);

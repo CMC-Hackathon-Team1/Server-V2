@@ -7,6 +7,7 @@ import { CreateProfileDto } from '../dto/createProfile.dto';
 import { ProfilesRepository } from '../profiles.repository';
 import { EditProfileDto } from '../dto/editProfile.dto';
 import { AwsService } from '../../aws/aws.service';
+import dateFormatter from '../../common/utils/dateFormatter';
 
 @Injectable()
 export class ProfilesService {
@@ -165,10 +166,10 @@ export class ProfilesService {
 
       const editedProfile = await this.profileRepository.editProfile(profileId, newContent);
 
-      console.log(dateFormatter(editedProfile.createdAt));
-
       return sucResponse(baseResponse.SUCCESS, editedProfile);
     } catch (error) {
+      console.log(error);
+
       return errResponse(baseResponse.DB_ERROR);
     }
   }

@@ -26,3 +26,5 @@ function dateFormatter(createdAt: Date): string {
     return '방금';
   }
 }
+
+export default dateFormatter;

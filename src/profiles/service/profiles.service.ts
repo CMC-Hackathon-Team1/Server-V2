@@ -157,22 +157,6 @@ export class ProfilesService {
         }
       }
 
-      /* if (image) {
-        const imageUploadResult = await this.AwsService.uploadFileToS3('imageTest', image);
-        imgDir = imageUploadResult.key;
-
-        // 기존 이미지는 삭제
-        const prevImgKey = targetProfile.profileImgUrl.slice(`https://${process.env.AWS_S3_BUCKET_NAME}.s3.amazonaws.com/`.length);
-        if (prevImgKey !== process.env.DEFAULT_PROFILE_IMAGE_DIR) {
-          const prevImageDeleteResult = await this.AwsService.deleteS3Object(prevImgKey);
-        }
-      }
-      else {
-        imgDir = process.env.DEFAULT_PROFILE_IMAGE_DIR;
-        const prevImgKey = targetProfile.profileImgUrl.slice(`https://${process.env.AWS_S3_BUCKET_NAME}.s3.amazonaws.com/`.length);
-        const prevImageDeleteResult = await this.AwsService.deleteS3Object(prevImgKey);
-      } */
-
       const newContent = {
         profileName: editProfileDto.profileName,
         profileImgUrl: `https://${process.env.AWS_S3_BUCKET_NAME}.s3.amazonaws.com/${imgDir}`,
@@ -180,6 +164,8 @@ export class ProfilesService {
       }
 
       const editedProfile = await this.profileRepository.editProfile(profileId, newContent);
+
+      console.log(dateFormatter(editedProfile.createdAt));
 
       return sucResponse(baseResponse.SUCCESS, editedProfile);
     } catch (error) {

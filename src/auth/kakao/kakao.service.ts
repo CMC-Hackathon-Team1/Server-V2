@@ -117,7 +117,7 @@ export class KakaoService {
     const socialUserResult = await this.authService.handleSocialUser(kakaoUserEmail, 'kakao');
     // console.log(socialUserResult);
 
-    // 5. 카카오 access token, 회원가입/로그인 한 userId, 서비스 jwt, 이메일(?) 반환
+    // 5. 회원가입/로그인 결과, 서비스 jwt, 회원ID(?)
     const result = {
       message: socialUserResult.message,
       serviceJwt: socialUserResult.jwt,

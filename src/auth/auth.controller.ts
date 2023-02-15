@@ -440,94 +440,156 @@ export class AuthController {
     return res.send(kakaoResult);
   }
 
-  // API No. 4.2.1.1. 구글 로그인 - 로그인
-  @Get('/google')
-  @UseGuards(AuthGuard('google'))
-  async googleAuth(@Req() req: Request): Promise<void> {
-    // initiate google oauth2 login flow
-    // redirect google login page
-  }
-
-  @Get('/google/callback')
-  @UseGuards(AuthGuard('google'))
-  async googleCallback(@Req() req: Request, @Res() res: Response): Promise<any> {
-    // console.log(req);
-    const { user } = req;
-    if (!user) {
-      return errResponse(baseResponse.GOOGLE_AUTH_USER_FAILED);
-    } else {
-      // console.log(user);
-      const googleUserEmail = user['email'];
-      const googleAccessToken = user['accessToken'];
-      // console.log(googleUserEmail, googleAccessToken);
-
-      const googleResult = await this.authService.handleSocialUser(
-        googleUserEmail,
-        'google',
-      );
-      // console.log(googleResult);
-
-      // [Validation 처리]
-      // jwt 토큰이 없으면 에러메시지 반환
-      if (!googleResult.serviceJwt) {
-        return res.send(googleResult);
-      }
-      // ---
-
-      // 구글 accessToken 헤더로 보내기
-      res.setHeader('Google-Access-Token', googleAccessToken);
-
-      // 쿠키 설정 (jwt 담기) - DEPRECATED
-      // res.cookie('jwt', googleResult.serviceJwt, {
-      //   // domain: 'OnAndOff Login',
-      //   httpOnly: true, // 브라우저에서의 쿠키 사용 막기 (XSS등의 보안강화용)
-      //   // maxAge: 24 * 60 * 60 * 1000, // 1day
-      // });
-      // ---
-
-      return res.send(
-        sucResponse(baseResponse.SUCCESS, {
-          state: googleResult.message,
-          // userId: googleResult.socialUserId,
-          jwt: googleResult.jwt,
-        }),
-      );
+  // API No. 4.1.2.1. 구글 로그인 - 회원가입/로그인
+  @ApiOperation({
+    summary: '4.2.1.1. 구글 로그인 - 회원가입/로그인',
+    description: `구글 계정을 통해 로그인/회원가입 한다. (이때, 구글 계정과 연동된 구글 이메일로 가입되도록 한다.) \n
+        [Response Body] - response에서 다음 2개 값이 넘어옵니다.\n
+        1. state : '회원가입인지, 로그인인지'
+        2. jwt= '{서비스 jwt값}'`,
+  })
+  @ApiBody({
+    required: true,
+    description: '클라이언트에서 받은 구글 id 토큰',
+    schema: { example: { id_token: 'eyJhbGciOiJS...' } },
+  })
+  @ApiResponse({
+    status: 100,
+    description: 'SUCCESS',
+    schema: {
+      example: sucResponse(baseResponse.SUCCESS, {
+        state: '로그인 완료 or 회원가입 완료',
+        // userId: 555,
+        jwt: 'eyJhbGciOiJI...',
+      }),
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Body 오류',
+    schema: { example: baseResponse.PIPE_ERROR_EXAMPLE },
+  })
+  @ApiResponse({
+    status: 500,
+    description: '서버 오류',
+    schema: { example: errResponse(baseResponse.SERVER_ERROR) },
+  })
+  @ApiResponse({
+    status: 1020,
+    description: '구글 로그인 실패',
+    schema: { example: errResponse(baseResponse.GOOGLE_LOGIN_FAILED) },
+  })
+  @ApiResponse({
+    status: 1021,
+    description: '구글 인증 토큰을 request에서 넘겨주지 않음',
+    schema: { example: errResponse(baseResponse.GOOGLE_ID_TOKEN_EMPTY) },
+  })
+  @ApiResponse({
+    status: 1022,
+    description: '구글 인증 토큰 검증에 실패함',
+    schema: { example: errResponse(baseResponse.GOOGLE_ID_TOKEN_INVALID) },
+  })
+  @ApiResponse({
+    status: 1102,
+    description: '다른 로그인 방식으로 가입한 회원임.',
+    schema: { example: errResponse(baseResponse.WRONG_LOGIN) },
+  })
+  @Post('/google-login')
+  async googleLogin(@Body('id_token') id_token: any, @Res() res: Response): Promise<any> {
+    // 1. 클라이언트로부터 구글 idToken 전달 받기 (request body)
+    if (!id_token) {
+      return errResponse(baseResponse.GOOGLE_ID_TOKEN_EMPTY);
     }
+
+    const googleResult = await this.googleService.googleLogin(id_token);
+
+    // [Validation 처리]
+    // jwt 토큰이 없으면 에러메시지 반환
+    if (!googleResult.serviceJwt) {
+      return res.send(googleResult);
+    }
+    // ---
+
+    // 최종. 서비스 로그인 토큰 반환(발급)
+    return res.send(
+      sucResponse(baseResponse.SUCCESS, {
+        state: googleResult.message,
+        jwt: googleResult.serviceJwt,
+        // userId: googleResult.socialUserId,
+      }),
+    );
   }
 
-  // [구글 로그인 다른 버전?]
-  // @Post('/google-login')
-  // async googleLogin(@Query('code') code: any, @Res() res: Response): Promise<any> {
-  //   // 1. 클라이언트로부터 인가 코드 전달 받기 (query string)
-  //   // const { code } = qs.code;
-  //   if (!code) {
-  //     return errResponse(baseResponse.KAKAO_AUTH_CODE_EMPTY);
+  // [구글 로그인] - for Web
+  // @Get('/google')
+  // @UseGuards(AuthGuard('google'))
+  // async googleAuth(@Req() req: Request): Promise<void> {
+  //   // initiate google oauth2 login flow
+  //   // redirect google login page
+  // }
+  //
+  // @Get('/google/callback')
+  // @UseGuards(AuthGuard('google'))
+  // async googleCallback(@Req() req: Request, @Res() res: Response): Promise<any> {
+  //   // console.log(req);
+  //   const { user } = req;
+  //   if (!user) {
+  //     return errResponse(baseResponse.GOOGLE_AUTH_USER_FAILED);
+  //   } else {
+  //     // console.log(user);
+  //     const googleUserEmail = user['email'];
+  //     const googleAccessToken = user['accessToken'];
+  //     // console.log(googleUserEmail, googleAccessToken);
+  //
+  //     const googleResult = await this.authService.handleSocialUser(
+  //       googleUserEmail,
+  //       'google',
+  //     );
+  //     // console.log(googleResult);
+  //
+  //     // [Validation 처리]
+  //     // jwt 토큰이 없으면 에러메시지 반환
+  //     if (!googleResult.serviceJwt) {
+  //       return res.send(googleResult);
+  //     }
+  //     // ---
+  //
+  //     // 구글 accessToken 헤더로 보내기
+  //     res.setHeader('Google-Access-Token', googleAccessToken);
+  //
+  //     return res.send(
+  //       sucResponse(baseResponse.SUCCESS, {
+  //         state: googleResult.message,
+  //         // userId: googleResult.socialUserId,
+  //         jwt: googleResult.jwt,
+  //       }),
+  //     );
+  //   }
+  // }
+
+  // API No. 4.1.3.1. 애플 로그인 - 회원가입/로그인
+  // @Post('/apple-login')
+  // async appleLogin(@Body('id_token') id_token: any, @Res() res: Response): Promise<any> {
+  //   // 1. 클라이언트로부터 토큰 전달 받기 (request body)
+  //   if (!_token) {
+  //     return errResponse(baseResponse._TOKEN_EMPTY);
   //   }
   //
-  //   const googleResult = await this.googleService.googleLogin(code);
+  //   const appleResult = await this.appleService.appleLogin(_token);
   //
   //   // [Validation 처리]
   //   // jwt 토큰이 없으면 에러메시지 반환
-  //   if (!googleResult.serviceJwt) {
-  //     return res.send(googleResult);
+  //   if (!appleResult.serviceJwt) {
+  //     return res.send(appleResult);
   //   }
-  //   // ---
-  //
-  //   // 쿠키 설정 (jwt 담기) - DEPRECATED
-  //   res.setHeader('Google-Access-Token', googleResult.googleAccessToken);
-  //   res.cookie('jwt', googleResult.serviceJwt, {
-  //     // domain: 'OnAndOff Login',
-  //     httpOnly: true, // 브라우저에서의 쿠키 사용 막기 (XSS등의 보안강화용)
-  //     // maxAge: 24 * 60 * 60 * 1000, // 1day
-  //   });
   //   // ---
   //
   //   // 최종. 서비스 로그인 토큰 반환(발급)
   //   return res.send(
   //     sucResponse(baseResponse.SUCCESS, {
-  //       state: googleResult.message,
-  //       userId: googleResult.socialUserId,
-  //       // googleAccessToken: googleResult.googleAccessToken,
+  //       state: appleResult.message,
+  //       jwt: appleResult.serviceJwt,
+  //       // userId: appleResult.socialUserId,
   //     }),
   //   );
   // }

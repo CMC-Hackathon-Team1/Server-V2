@@ -26,9 +26,11 @@ const baseResponse = {
   KAKAO_USER_INFO_FAIL: { statusCode: 1014, message: '카카오 유저 정보를 불러오는데 실패하였습니다.' },
   KAKAO_LOGOUT_FAILED: { statusCode: 1015, message: '카카오 로그아웃에 실패했습니다.' },
 
-  GOOGLE_LOGIN_FAILED: { statusCode: 1020, message: '카카오 로그인에 실패했습니다.' },
-  GOOGLE_AUTH_FAILED: { statusCode: 1021, message: '구글 인증에 실패했습니다.' },
-  GOOGLE_AUTH_USER_FAILED: { statusCode: 1022, message: '구글 사용자 정보 확인에 실패했습니다.' },
+  GOOGLE_LOGIN_FAILED: { statusCode: 1020, message: '구글 로그인에 실패했습니다.' },
+  GOOGLE_ID_TOKEN_EMPTY: { statusCode: 1021, message: '구글 인증토큰이 없습니다.' },
+  GOOGLE_ID_TOKEN_INVALID: { statusCode: 1022, message: '구글 인증토큰 검증에 실패했습니다.' },
+  GOOGLE_AUTH_FAILED: { statusCode: 1023, message: '구글 인증에 실패했습니다.' },
+  GOOGLE_AUTH_USER_FAILED: { statusCode: 1024, message: '구글 사용자 정보 확인에 실패했습니다.' },
 
   // 회원, 계정 관련
   USER_ALREADY_EXISTS: { statusCode: 1100, message: '이미 가입된 회원입니다.' },

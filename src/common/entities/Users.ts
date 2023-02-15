@@ -24,7 +24,11 @@ export class Users {
   @Column("varchar", { name: "login_type", nullable: true })
   login_type: string | null;
 
-  @ApiProperty({ description: '소셜로그인 토큰 (accessToken or idToken' })
+  @ApiProperty({ description: '소셜로그인 API를 요청/사용하기 위한 소셜 액세스 토큰' })
+  @Column("text", { name: "access_token", nullable: true })
+  access_token: string | null;
+
+  @ApiProperty({ description: '소셜 계정 사용자 인증 정보가 담긴 소셜 id 토큰' })
   @Column("text", { name: "provider_token", nullable: true })
   provider_token: string | null;
 

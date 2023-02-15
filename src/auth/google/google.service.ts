@@ -9,121 +9,75 @@ import { googleConfig } from '../../../config/google.config';
 
 @Injectable()
 export class GoogleService {
-  clientId: string;
+  clientIdAndroid: string;
+  clientIdIos: string;
+  clientIdWeb: string;
   clientSecret: string;
   googleRedirectUrl: string;
   constructor(
     private authService: AuthService,
     private userService: UserService,
   ) {
-    this.clientId = process.env.GOOGLE_CLIENT_ID;
-    this.clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+    this.clientIdAndroid = process.env.GOOGLE_ANDROID_CLIENT_ID;
+    this.clientIdIos = process.env.GOOGLE_IOS_CLIENT_ID;
+    // this.clientIdWeb = process.env.GOOGLE_WEB_CLIENT_SECRET;
+    // this.clientSecret = process.env.GOOGLE_WEB_CLIENT_SECRET;
     // this.googleRedirectUrl = process.env.GOOGLE_REDIRECT_URL;
-    this.googleRedirectUrl = process.env.GOOGLE_REDIRECT_LOCAL_URL;
+    // this.googleRedirectUrl = process.env.GOOGLE_REDIRECT_LOCAL_URL;
   }
 
-  async googleLogin(code: any): Promise<any> {
-    const headers = {
-      'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
-    };
-    const body = {
-      code: code,
-      client_id: this.clientId,
-      client_secret: this.clientSecret,
-      redirect_url: this.googleRedirectUrl,
-      grant_type: 'authorization_code',
-    };
-
-    let googleAccessToken;
-    // 2. 구글에게 인가 코드를 보내고 액세스 토큰 받기
+  // 구글의 id token 검증하기
+  async getVerifiedGoogleTokenInfo(idToken: any): Promise<any> {
     try {
-      const googleTokenResponse = await axios({
-        method: 'POST',
-        url: googleConfig.googleAccessTokenUrl,
+      const googleVerifyTokenResponse = await axios({
+        method: 'GET',
+        url: googleConfig.googleTokenInfoUrl + `?id_token=${idToken}`,
         timeout: 30000,
-        headers,
-        data: qs.stringify(body),
+        // headers,
+        // data: qs.stringify(body),
       });
-      console.log(googleTokenResponse);
+      console.log(googleVerifyTokenResponse);
 
-      const googleTokenInfo = googleTokenResponse.data;
-      // console.log(googleTokenInfo);
-      googleAccessToken = googleTokenInfo.access_token;
-      // console.log(`googleAccessToken: ${googleAccessToken}`);
-
-      // (로컬에서) 로그아웃을 위해 구글 액세스 토큰 저장해두기
-      // this.setToken(googleTokenInfo.access_token);
+      return googleVerifyTokenResponse.data;
     } catch (e) {
-      // console.log(`googleTokenResponse Error: ${e}`);
+      console.log(`googleTokenResponse Error: ${e}`);
 
-      // [Validation 처리]
-      // 응답이 잘 안 온 경우 (access token을 못 받은 경우)
-      return errResponse(baseResponse.KAKAO_ACCESS_TOKEN_FAIL);
+      return false;
       // ---
     }
-
-    // if (kakaoTokenResponse.status !== 200) {
-    if (googleAccessToken === '' || googleAccessToken === undefined) {
-      return errResponse(baseResponse.KAKAO_ACCESS_TOKEN_FAIL);
-    }
-
-    // 3. 액세스 토큰으로 구글 API 요청하기
-    // const kakaoUserInfo = await this.getKakaoUserInfoByToken(kakaoAccessToken);
-    // const kakaoUserEmail = kakaoUserInfo.kakao_account.email;
-    // console.log(kakaoUserEmail);
-
-    // // 4. 서비스 회원가입 or 로그인 처리
-    // const socialUserResult = await this.authService.handleSocialUser(kakaoUserEmail);
-    // // console.log(socialUserResult);
-    //
-    // // 5. 카카오 access token, 회원가입/로그인 한 userId, 서비스 jwt, 이메일(?) 반환
-    // const result = {
-    //   message: socialUserResult.message,
-    //   kakaoAccessToken: kakaoAccessToken,
-    //   serviceJwt: socialUserResult.jwt,
-    //   socialUserId: socialUserResult.userId,
   }
 
-  // return result;
+  async googleLogin(idToken: any): Promise<any> {
+    // 2. id token 검증을 통해 구글 계정 이메일 가져오기
+    const googleTokenInfo = await this.getVerifiedGoogleTokenInfo(idToken);
+    // [Validation 처리]
+    // 응답이 잘 안 온 경우 (id token 검증 실패)
+    if (!googleTokenInfo) {
+      return errResponse(baseResponse.GOOGLE_ID_TOKEN_INVALID);
+    }
+    // ---
+    const googleVerifiedEmail = googleTokenInfo.email;
+    // console.log(googleVerifiedEmail);
 
-  // async kakaoLogout(accessToken: any): Promise<any> {
-  //   // console.log(`LOGOUT TOKEN : ${accessToken}`);
-  //
-  //   const headerUserInfo = {
-  //     'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
-  //     Authorization: `Bearer ${accessToken}`,
-  //   };
-  //
-  //   // 방법1. 토큰 만료 (logout) - 로그아웃
-  //   try {
-  //     const kakaoLogoutResponse = await axios({
-  //       method: 'POST',
-  //       url: kakaoConfig.kakaoLogoutUrl,
-  //       timeout: 30000,
-  //       headers: headerUserInfo,
-  //     });
-  //
-  //     // console.log(kakaoLogoutResponse);
-  //
-  //     // (로컬에서) 저장해둔 토큰 해제하기
-  //     // this.setToken('');
-  //
-  //     return sucResponse(baseResponse.SUCCESS);
-  //   } catch (e) {
-  //     console.log(`kakaoLogoutResponse Error: ${e}`);
-  //     return errResponse(baseResponse.KAKAO_LOGOUT_FAILED);
-  //   }
-  //
-  //   // 방법2. 연결 끊기 (unlink) - 탈퇴 or 다른 카카오 아이디로 로그인
-  //   // try {
-  //   //   const kakaoUnlinkResponse = await axios({
-  //   //     method: 'POST',
-  //   //     url: kakaoConfig.kakaoUnlinkUrl,
-  //   //     timeout: 30000,
-  //   //     headers: headerUserInfo,
-  //   //   });
-  //   // } catch (e) {
-  //   //   console.log(`kakaoUnlinkResponse Error: ${e}`);
-  //   // }
-  // }
+    // [NOT NOW, FOR LATER IF NEEDED]
+    // 3. 액세스 토큰으로 구글 API 요청하기
+    // const googleUserInfo = await this.getGoogleUserInfoByToken(googleAccessToken);
+    // const googleUserEmail = googleUserInfo.email;
+    // console.log(googleUserEmail);
+    // ---
+
+    const googleUserParams = { accessToken: null, idToken: idToken };
+    // 3. 서비스 회원가입 or 로그인 처리
+    const socialUserResult = await this.authService.handleSocialUser(googleVerifiedEmail, 'google', googleUserParams);
+    // console.log(socialUserResult);
+
+    // 4. 회원가입/로그인 결과, 서비스 jwt, 회원ID(?)
+    const result = {
+      message: socialUserResult.message,
+      serviceJwt: socialUserResult.jwt,
+      // socialUserId: socialUserResult.userId,
+    };
+
+    return result;
+  }
 }

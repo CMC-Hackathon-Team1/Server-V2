@@ -71,7 +71,7 @@ export class AuthController {
   @Post('/signup')
   @UsePipes(ValidationPipe)
   async registerAccount(@Body() userDTO: UserDTO): Promise<any> {
-    return await this.authService.registerUser(userDTO);
+    return await this.authService.registerUser(userDTO, 'own');
   }
 
   // API No. 4.1.4.2. 자체로그인 - 로그인
@@ -102,6 +102,11 @@ export class AuthController {
     schema: {
       example: errResponse(baseResponse.USER_NOT_FOUND),
     },
+  })
+  @ApiResponse({
+    status: 1102,
+    description: '다른 로그인 방식으로 가입한 회원임.',
+    schema: { example: errResponse(baseResponse.WRONG_LOGIN) },
   })
   @Post('/login')
   async login(@Body() userDTO: UserDTO, @Res() res: Response): Promise<any> {
@@ -202,6 +207,8 @@ export class AuthController {
     // });
     // ---
 
+    // TODO: 자체로그인, 소셜로그인 구분하여 소셜로그인의 경우 소셜계정 연결까지 끊기
+
     return res.send(
       sucResponse(baseResponse.SUCCESS, {
         TODO: '클라이언트에서 jwt를 지워주세요',
@@ -213,15 +220,14 @@ export class AuthController {
   @ApiOperation({
     summary: '4.1.1.1. 카카오 로그인 - 회원가입/로그인',
     description: `카카오 계정을 통해 로그인/회원가입 한다. (이때, 카카오 계정과 연동된 이메일로 가입되도록 한다.) \n
-        [Response Header, Body] - response에서 다음 2개 값이 넘어옵니다.\n
-        1. response header - 'kakao-access-token' : '{카카오 액세스 토큰}',
-        2. response body - 'state' : '회원가입인지, 로그인인지', 'jwt'='{서비스 jwt값}'`,
+        [Response Body] - response에서 다음 2개 값이 넘어옵니다.\n
+        1. state : '회원가입인지, 로그인인지'
+        2. jwt= '{서비스 jwt값}'`,
   })
-  @ApiQuery({
-    name: 'code',
+  @ApiBody({
     required: true,
-    description: '클라이언트에서 받은 카카오 인가코드',
-    example: 'oDb1L9pz6qK3hdOMcop...',
+    description: '클라이언트에서 받은 카카오 액세스 토큰',
+    schema: { example: { access_token: 'ajdskfj...' } },
   })
   @ApiResponse({
     status: 100,
@@ -245,29 +251,41 @@ export class AuthController {
     schema: { example: errResponse(baseResponse.SERVER_ERROR) },
   })
   @ApiResponse({
-    status: 1011,
-    description: '카카오 인가 코드를 request에서 넘겨주지 않음',
-    schema: { example: errResponse(baseResponse.KAKAO_AUTH_CODE_EMPTY) },
-  })
-  @ApiResponse({
     status: 1012,
     description: '카카오 액세서 토큰을 받아오는데 실패함. (인가 코드가 잘못되었거나 유효하지 않음.)',
     schema: { example: errResponse(baseResponse.KAKAO_ACCESS_TOKEN_FAIL) },
+  })
+  @ApiResponse({
+    status: 1013,
+    description: '카카오 인증 토큰을 request에서 넘겨주지 않음',
+    schema: { example: errResponse(baseResponse.KAKAO_ACCESS_TOKEN_EMPTY) },
   })
   @ApiResponse({
     status: 1014,
     description: '카카오 유저 정보를 불러오는데 실패함. (액세스 토큰이 잘못되었거나 유효하지 않음.)',
     schema: { example: errResponse(baseResponse.KAKAO_USER_INFO_FAIL) },
   })
+  @ApiResponse({
+    status: 1102,
+    description: '다른 로그인 방식으로 가입한 회원임.',
+    schema: { example: errResponse(baseResponse.WRONG_LOGIN) },
+  })
   @Post('/kakao-login')
-  async kakaoLogin(@Query('code') code: any, @Res() res: Response): Promise<any> {
-    // 1. 클라이언트로부터 인가 코드 전달 받기 (query string)
-    // const { code } = qs.code;
-    if (!code) {
-      return errResponse(baseResponse.KAKAO_AUTH_CODE_EMPTY);
+  async kakaoLogin(@Body('access_token') acces_token: any, @Res() res: Response): Promise<any> {
+    // [DEPRECATED] - 프론트엔드에서 처리해줄 사항
+    // // 1. 클라이언트로부터 인가 코드 전달 받기 (query string)
+    // // const { code } = qs.code;
+    // if (!code) {
+    //   return errResponse(baseResponse.KAKAO_AUTH_CODE_EMPTY);
+    // }
+    // ---
+
+    // 1. 클라이언트로부터 카카오 액세스 토큰 전달 받기 (body)
+    if (!acces_token) {
+      return errResponse(baseResponse.KAKAO_ACCESS_TOKEN_EMPTY);
     }
 
-    const kakaoResult = await this.kakaoService.kakaoLogin(code);
+    const kakaoResult = await this.kakaoService.kakaoLogin(acces_token);
 
     // [Validation 처리]
     // jwt 토큰이 없으면 에러메시지 반환
@@ -276,15 +294,17 @@ export class AuthController {
     }
     // ---
 
-    // 카카오 accessToken 헤더로 보내기
-    res.setHeader('Kakao-Access-Token', kakaoResult.kakaoAccessToken);
-
-    // 쿠키 설정 (jwt 담기) - DEPRECATED
-    // res.cookie('jwt', kakaoResult.serviceJwt, {
-    //   // domain: 'OnAndOff Login',
-    //   httpOnly: true, // 브라우저에서의 쿠키 사용 막기 (XSS등의 보안강화용)
-    //   // maxAge: 24 * 60 * 60 * 1000, // 1day
-    // });
+    // [DEPRECATED] - 프론트엔드에서 처리할 사항
+    // // 카카오 accessToken 헤더로 보내기
+    // res.setHeader('Kakao-Access-Token', kakaoResult.kakaoAccessToken);
+    //
+    // // 쿠키 설정 (jwt 담기) - DEPRECATED
+    // // res.cookie('jwt', kakaoResult.serviceJwt, {
+    // //   // domain: 'OnAndOff Login',
+    // //   httpOnly: true, // 브라우저에서의 쿠키 사용 막기 (XSS등의 보안강화용)
+    // //   // maxAge: 24 * 60 * 60 * 1000, // 1day
+    // // });
+    // // ---
     // ---
 
     // 최종. 서비스 로그인 토큰 반환(발급)
@@ -342,7 +362,7 @@ export class AuthController {
   async kakaoUserInfo(@Req() req: Request): Promise<any> {
     // 카카오 유저 정보 불러오기
     const kakao_accessToken = req.headers['kakao-access-token'];
-    // console.log(kakao_token);
+    // console.log(kakao_accessToken);
     if (!kakao_accessToken) {
       return errResponse(baseResponse.KAKAO_ACCESS_TOKEN_EMPTY);
     }
@@ -356,16 +376,15 @@ export class AuthController {
   @ApiOperation({
     summary: '4.1.1.2. 카카오 로그인 - 로그아웃',
     description: `카카오 계정을 통해 로그아웃 한다. (추후 테스트와 보완이 필요함) \n
-        [Request Header, Body] - 로그아웃 시, 다음 2가지를 처리합니다.\n
-        1. request header - kakao access token 말소 (이후에 카카오 액세스 토큰을 다시 발급 받아야 로그인 가능합니다.)
-        2. request body - 서비스 jwt 제거 (헤더에 담아 보내던 서비스 jwt를 클라이언트에서 지우기/초기화 해야 합니다.)`,
+        로그아웃 시, 다음 2가지를 처리합니다.\n
+        1. kakao access token 말소 (이후에 카카오 액세스 토큰을 다시 발급 받아야 로그인 가능합니다.)
+        2. 서비스 jwt 제거 (헤더에 담아 보내던 서비스 jwt를 클라이언트에서 지우기/초기화 해야 합니다.)`,
   })
   @ApiBearerAuth('Authorization')
-  @ApiHeader({
-    name: 'kakao-access-token',
+  @ApiBody({
     required: true,
-    description: `'카카오 액세스 토큰' + '서비스 jwt'를 함께 보내야합니다. (서비스 jwt는 자체로그인에서 사용하던 방식과 같음)`,
-    example: 'oDb1L9pz6qK3hdOMcop...',
+    description: '클라이언트에서 받은 카카오 액세스 토큰',
+    schema: { example: { access_token: 'ajdskfj...' } },
   })
   @ApiResponse({
     status: 100,
@@ -388,14 +407,14 @@ export class AuthController {
     schema: { example: errResponse(baseResponse.SERVER_ERROR) },
   })
   @ApiResponse({
-    status: 1011,
-    description: '카카오 인가 코드를 request에서 넘겨주지 않음',
-    schema: { example: errResponse(baseResponse.KAKAO_AUTH_CODE_EMPTY) },
-  })
-  @ApiResponse({
     status: 1012,
     description: '카카오 액세서 토큰을 받아오는데 실패함. (인가 코드가 잘못되었거나 유효하지 않음.)',
     schema: { example: errResponse(baseResponse.KAKAO_ACCESS_TOKEN_FAIL) },
+  })
+  @ApiResponse({
+    status: 1013,
+    description: '카카오 인증 토큰을 request에서 넘겨주지 않음',
+    schema: { example: errResponse(baseResponse.KAKAO_ACCESS_TOKEN_EMPTY) },
   })
   @ApiResponse({
     status: 1014,
@@ -404,14 +423,16 @@ export class AuthController {
   })
   @Post('/kakao-logout')
   @UseGuards(JWTAuthGuard)
-  async kakaoLogout(@Req() req: Request, @Res() res: Response): Promise<any> {
-    const kakao_accessToken = req.headers['kakao-access-token'];
-    if (!kakao_accessToken) {
+  async kakaoLogout(@Body('access_token') acces_token: any, @Req() req: Request, @Res() res: Response): Promise<any> {
+    if (!acces_token) {
       return res.send(errResponse(baseResponse.KAKAO_ACCESS_TOKEN_EMPTY));
     }
 
+    const user: any = req.user;
+    const userId: number = user.userId;
+
     // 카카오 액세스 토큰으로 카카오 로그아웃 호출하기
-    const kakaoResult = await this.kakaoService.kakaoLogout(kakao_accessToken);
+    const kakaoResult = await this.kakaoService.kakaoLogout(userId, acces_token);
 
     // 쿠키 지우기 - DEPRECATED
     // res.cookie('jwt', '', {
@@ -422,93 +443,156 @@ export class AuthController {
     return res.send(kakaoResult);
   }
 
-  // API No. 4.2.1.1. 구글 로그인 - 로그인
-  @Get('/google')
-  @UseGuards(AuthGuard('google'))
-  async googleAuth(@Req() req: Request): Promise<void> {
-    // initiate google oauth2 login flow
-    // redirect google login page
-  }
-
-  @Get('/google/callback')
-  @UseGuards(AuthGuard('google'))
-  async googleCallback(@Req() req: Request, @Res() res: Response): Promise<any> {
-    // console.log(req);
-    const { user } = req;
-    if (!user) {
-      return errResponse(baseResponse.GOOGLE_AUTH_USER_FAILED);
-    } else {
-      // console.log(user);
-      const googleUserEmail = user['email'];
-      const googleAccessToken = user['accessToken'];
-      // console.log(googleUserEmail, googleAccessToken);
-
-      const googleResult = await this.authService.handleSocialUser(
-        googleUserEmail,
-      );
-      // console.log(googleResult);
-
-      // [Validation 처리]
-      // jwt 토큰이 없으면 에러메시지 반환
-      if (!googleResult.serviceJwt) {
-        return res.send(googleResult);
-      }
-      // ---
-
-      // 구글 accessToken 헤더로 보내기
-      res.setHeader('Google-Access-Token', googleAccessToken);
-
-      // 쿠키 설정 (jwt 담기) - DEPRECATED
-      // res.cookie('jwt', googleResult.serviceJwt, {
-      //   // domain: 'OnAndOff Login',
-      //   httpOnly: true, // 브라우저에서의 쿠키 사용 막기 (XSS등의 보안강화용)
-      //   // maxAge: 24 * 60 * 60 * 1000, // 1day
-      // });
-      // ---
-
-      return res.send(
-        sucResponse(baseResponse.SUCCESS, {
-          state: googleResult.message,
-          // userId: googleResult.socialUserId,
-          jwt: googleResult.jwt,
-        }),
-      );
+  // API No. 4.1.2.1. 구글 로그인 - 회원가입/로그인
+  @ApiOperation({
+    summary: '4.2.1.1. 구글 로그인 - 회원가입/로그인',
+    description: `구글 계정을 통해 로그인/회원가입 한다. (이때, 구글 계정과 연동된 구글 이메일로 가입되도록 한다.) \n
+        [Response Body] - response에서 다음 2개 값이 넘어옵니다.\n
+        1. state : '회원가입인지, 로그인인지'
+        2. jwt= '{서비스 jwt값}'`,
+  })
+  @ApiBody({
+    required: true,
+    description: '클라이언트에서 받은 구글 id 토큰',
+    schema: { example: { id_token: 'eyJhbGciOiJS...' } },
+  })
+  @ApiResponse({
+    status: 100,
+    description: 'SUCCESS',
+    schema: {
+      example: sucResponse(baseResponse.SUCCESS, {
+        state: '로그인 완료 or 회원가입 완료',
+        // userId: 555,
+        jwt: 'eyJhbGciOiJI...',
+      }),
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Body 오류',
+    schema: { example: baseResponse.PIPE_ERROR_EXAMPLE },
+  })
+  @ApiResponse({
+    status: 500,
+    description: '서버 오류',
+    schema: { example: errResponse(baseResponse.SERVER_ERROR) },
+  })
+  @ApiResponse({
+    status: 1020,
+    description: '구글 로그인 실패',
+    schema: { example: errResponse(baseResponse.GOOGLE_LOGIN_FAILED) },
+  })
+  @ApiResponse({
+    status: 1021,
+    description: '구글 인증 토큰을 request에서 넘겨주지 않음',
+    schema: { example: errResponse(baseResponse.GOOGLE_ID_TOKEN_EMPTY) },
+  })
+  @ApiResponse({
+    status: 1022,
+    description: '구글 인증 토큰 검증에 실패함',
+    schema: { example: errResponse(baseResponse.GOOGLE_ID_TOKEN_INVALID) },
+  })
+  @ApiResponse({
+    status: 1102,
+    description: '다른 로그인 방식으로 가입한 회원임.',
+    schema: { example: errResponse(baseResponse.WRONG_LOGIN) },
+  })
+  @Post('/google-login')
+  async googleLogin(@Body('id_token') id_token: any, @Res() res: Response): Promise<any> {
+    // 1. 클라이언트로부터 구글 idToken 전달 받기 (request body)
+    if (!id_token) {
+      return errResponse(baseResponse.GOOGLE_ID_TOKEN_EMPTY);
     }
+
+    const googleResult = await this.googleService.googleLogin(id_token);
+
+    // [Validation 처리]
+    // jwt 토큰이 없으면 에러메시지 반환
+    if (!googleResult.serviceJwt) {
+      return res.send(googleResult);
+    }
+    // ---
+
+    // 최종. 서비스 로그인 토큰 반환(발급)
+    return res.send(
+      sucResponse(baseResponse.SUCCESS, {
+        state: googleResult.message,
+        jwt: googleResult.serviceJwt,
+        // userId: googleResult.socialUserId,
+      }),
+    );
   }
 
-  // [구글 로그인 다른 버전?]
-  // @Post('/google-login')
-  // async googleLogin(@Query('code') code: any, @Res() res: Response): Promise<any> {
-  //   // 1. 클라이언트로부터 인가 코드 전달 받기 (query string)
-  //   // const { code } = qs.code;
-  //   if (!code) {
-  //     return errResponse(baseResponse.KAKAO_AUTH_CODE_EMPTY);
+  // [구글 로그인] - for Web
+  // @Get('/google')
+  // @UseGuards(AuthGuard('google'))
+  // async googleAuth(@Req() req: Request): Promise<void> {
+  //   // initiate google oauth2 login flow
+  //   // redirect google login page
+  // }
+  //
+  // @Get('/google/callback')
+  // @UseGuards(AuthGuard('google'))
+  // async googleCallback(@Req() req: Request, @Res() res: Response): Promise<any> {
+  //   // console.log(req);
+  //   const { user } = req;
+  //   if (!user) {
+  //     return errResponse(baseResponse.GOOGLE_AUTH_USER_FAILED);
+  //   } else {
+  //     // console.log(user);
+  //     const googleUserEmail = user['email'];
+  //     const googleAccessToken = user['accessToken'];
+  //     // console.log(googleUserEmail, googleAccessToken);
+  //
+  //     const googleResult = await this.authService.handleSocialUser(
+  //       googleUserEmail,
+  //       'google',
+  //     );
+  //     // console.log(googleResult);
+  //
+  //     // [Validation 처리]
+  //     // jwt 토큰이 없으면 에러메시지 반환
+  //     if (!googleResult.serviceJwt) {
+  //       return res.send(googleResult);
+  //     }
+  //     // ---
+  //
+  //     // 구글 accessToken 헤더로 보내기
+  //     res.setHeader('Google-Access-Token', googleAccessToken);
+  //
+  //     return res.send(
+  //       sucResponse(baseResponse.SUCCESS, {
+  //         state: googleResult.message,
+  //         // userId: googleResult.socialUserId,
+  //         jwt: googleResult.jwt,
+  //       }),
+  //     );
+  //   }
+  // }
+
+  // API No. 4.1.3.1. 애플 로그인 - 회원가입/로그인
+  // @Post('/apple-login')
+  // async appleLogin(@Body('id_token') id_token: any, @Res() res: Response): Promise<any> {
+  //   // 1. 클라이언트로부터 토큰 전달 받기 (request body)
+  //   if (!_token) {
+  //     return errResponse(baseResponse._TOKEN_EMPTY);
   //   }
   //
-  //   const googleResult = await this.googleService.googleLogin(code);
+  //   const appleResult = await this.appleService.appleLogin(_token);
   //
   //   // [Validation 처리]
   //   // jwt 토큰이 없으면 에러메시지 반환
-  //   if (!googleResult.serviceJwt) {
-  //     return res.send(googleResult);
+  //   if (!appleResult.serviceJwt) {
+  //     return res.send(appleResult);
   //   }
-  //   // ---
-  //
-  //   // 쿠키 설정 (jwt 담기) - DEPRECATED
-  //   res.setHeader('Google-Access-Token', googleResult.googleAccessToken);
-  //   res.cookie('jwt', googleResult.serviceJwt, {
-  //     // domain: 'OnAndOff Login',
-  //     httpOnly: true, // 브라우저에서의 쿠키 사용 막기 (XSS등의 보안강화용)
-  //     // maxAge: 24 * 60 * 60 * 1000, // 1day
-  //   });
   //   // ---
   //
   //   // 최종. 서비스 로그인 토큰 반환(발급)
   //   return res.send(
   //     sucResponse(baseResponse.SUCCESS, {
-  //       state: googleResult.message,
-  //       userId: googleResult.socialUserId,
-  //       // googleAccessToken: googleResult.googleAccessToken,
+  //       state: appleResult.message,
+  //       jwt: appleResult.serviceJwt,
+  //       // userId: appleResult.socialUserId,
   //     }),
   //   );
   // }

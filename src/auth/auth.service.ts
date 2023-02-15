@@ -49,7 +49,7 @@ export class AuthService {
     }
 
     // 다른 플랫폼으로 가입한 계정인 경우
-    if (userFind.login_type != null) {
+    if (userFind.login_type != 'own') {
       return errResponse(baseResponse.WRONG_LOGIN);
     }
 

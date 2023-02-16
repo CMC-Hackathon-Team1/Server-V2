@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, UpdateResult } from 'typeorm';
 import { SaveProfileDto } from './dto/saveProfile.dto';
 import { Profiles } from '../common/entities/Profiles';
-import { ProfileModel, ProfileResponseModel } from './dto/profile.model';
+import { ProfileModel } from './dto/profile.model';
+import { ProfileWithPersonaNameDto } from './dto/profileWithPersonaName.dto';
 
 @Injectable()
 export class ProfilesRepository {
@@ -19,7 +20,7 @@ export class ProfilesRepository {
   }
 
   // 사용자 모든 프로필 리스트 받아오기
-  async getUserProfilesList(userId: number): Promise<ProfileResponseModel[]> {
+  async getUserProfilesList(userId: number): Promise<ProfileWithPersonaNameDto[]> {
     try {
       return await this.profilesTable
         .createQueryBuilder('Profiles')
@@ -56,7 +57,7 @@ export class ProfilesRepository {
   }
 
   // 프로필 ID로 프로필 찾기
-  async findProfileByProfileId(profileId: number): Promise<ProfileResponseModel> {
+  async getProfileByProfileId(profileId: number): Promise<ProfileWithPersonaNameDto> {
     try {
       return await this.profilesTable
         .createQueryBuilder('Profiles')
@@ -82,12 +83,8 @@ export class ProfilesRepository {
   }
 
   // 프로필 업데이트 (업데이트를 수행한 후, 수정된 프로필을 return)
-  async editProfile(profileId: number, newContent: object): Promise<ProfileResponseModel> {
-    await this.profilesTable.update(profileId, newContent);
-
-    const editResult = await this.findProfileByProfileId(profileId);
-
-    return editResult;
+  async editProfile(profileId: number, newContent: object): Promise<UpdateResult> {
+    return await this.profilesTable.update(profileId, newContent);
   }
 
   // profileId로 Profiles 테이블 row 가져오기

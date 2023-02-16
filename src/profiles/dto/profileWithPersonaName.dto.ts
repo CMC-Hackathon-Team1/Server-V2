@@ -1,8 +1,8 @@
-export interface ProfileModel {
+export class ProfileWithPersonaNameDto {
   profileId: number;
   userId: number;
   profileName: string;
-  personaId: number;
+  personaName: string;
   profileImgUrl: string;
   statusMessage: string;
   createdAt: Date;

@@ -63,9 +63,14 @@ export class ProfilesController {
     schema: { example: errResponse(baseResponse.JWT_UNAUTHORIZED) },
   })
   @ApiResponse({
-    status: 501,
+    status: 500,
     description: '서버 오류',
     schema: { example: errResponse(baseResponse.SERVER_ERROR) },
+  })
+  @ApiResponse({
+    status: 501,
+    description: 'DB 오류',
+    schema: { example: errResponse(baseResponse.DB_ERROR) },
   })
   @ApiResponse({
     status: 1500,
@@ -115,6 +120,11 @@ export class ProfilesController {
     schema: { example: errResponse(baseResponse.JWT_UNAUTHORIZED) },
   })
   @ApiResponse({
+    status: 500,
+    description: '서버 오류',
+    schema: { example: errResponse(baseResponse.SERVER_ERROR) },
+  })
+  @ApiResponse({
     status: 501,
     description: 'DB 오류',
     schema: { example: errResponse(baseResponse.DB_ERROR) },
@@ -160,6 +170,11 @@ export class ProfilesController {
     status: 401,
     description: 'JWT 오류',
     schema: { example: errResponse(baseResponse.JWT_UNAUTHORIZED) },
+  })
+  @ApiResponse({
+    status: 500,
+    description: '서버 오류',
+    schema: { example: errResponse(baseResponse.SERVER_ERROR) },
   })
   @ApiResponse({
     status: 501,
@@ -213,6 +228,11 @@ export class ProfilesController {
     schema: { example: errResponse(baseResponse.JWT_UNAUTHORIZED) },
   })
   @ApiResponse({
+    status: 500,
+    description: '서버 오류',
+    schema: { example: errResponse(baseResponse.SERVER_ERROR) },
+  })
+  @ApiResponse({
     status: 501,
     description: 'DB 오류',
     schema: { example: errResponse(baseResponse.DB_ERROR) },
@@ -254,6 +274,11 @@ export class ProfilesController {
     status: 401,
     description: 'JWT 오류',
     schema: { example: errResponse(baseResponse.JWT_UNAUTHORIZED) },
+  })
+  @ApiResponse({
+    status: 500,
+    description: '서버 오류',
+    schema: { example: errResponse(baseResponse.SERVER_ERROR) },
   })
   @ApiResponse({
     status: 501,

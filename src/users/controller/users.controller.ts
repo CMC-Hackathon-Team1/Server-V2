@@ -1,4 +1,4 @@
-import { Controller, Post, Request, UseGuards } from '@nestjs/common';
+import { Controller, Delete, Request, UseGuards } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -48,7 +48,7 @@ export class UsersController {
     schema: { example: baseResponse.USER_NOT_FOUND },
   })
   @UseGuards(JWTAuthGuard)
-  @Post('/delete')
+  @Delete('/account')
   deleteUser(@Request() req: any) {
     return this.usersService.deleteUser(req);
   }

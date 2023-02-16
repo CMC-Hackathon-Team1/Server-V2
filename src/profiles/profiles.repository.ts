@@ -21,34 +21,24 @@ export class ProfilesRepository {
 
   // 사용자 모든 프로필 리스트 받아오기
   async getUserProfilesList(userId: number): Promise<ProfileWithPersonaNameDto[]> {
-    try {
-      return await this.profilesTable
-        .createQueryBuilder('Profiles')
-        .leftJoinAndSelect('Profiles.persona', 'Persona')
-        .select([
-          'Profiles.profileId AS profileId',
-          'Persona.personaName AS personaName',
-          'Profiles.profileName AS profileName',
-          'Profiles.statusMessage AS statusMessage',
-          'Profiles.profileImgUrl AS profileImgUrl',
-          'Profiles.createdAt AS createdAt'
-        ])
-        .where('Profiles.userId=:userId', { userId: userId })
-        .getRawMany();
-    } catch (err) {
-      console.log(err);
-      throw new Error('DB_Error');
-    }
+    return await this.profilesTable
+      .createQueryBuilder('Profiles')
+      .leftJoinAndSelect('Profiles.persona', 'Persona')
+      .select([
+        'Profiles.profileId AS profileId',
+        'Persona.personaName AS personaName',
+        'Profiles.profileName AS profileName',
+        'Profiles.statusMessage AS statusMessage',
+        'Profiles.profileImgUrl AS profileImgUrl',
+        'Profiles.createdAt AS createdAt'
+      ])
+      .where('Profiles.userId=:userId', { userId: userId })
+      .getRawMany();
   }
 
   // 사용자 프로필 페르소나 ID 목록 받아오기
   async getUserProfilePersonaIdList(userId: number): Promise<any[]> {
-    try {
-      return await this.profilesTable.find({where: {userId: userId}, select: ['personaId']});
-    } catch(err) {
-      // console.log(err);
-      throw new Error('DB_Error');
-    }
+    return await this.profilesTable.find({where: {userId: userId}, select: ['personaId']});
   }
 
   // 새 프로필 저장하기
@@ -58,23 +48,19 @@ export class ProfilesRepository {
 
   // 프로필 ID로 프로필 찾기
   async getProfileByProfileId(profileId: number): Promise<ProfileWithPersonaNameDto> {
-    try {
-      return await this.profilesTable
-        .createQueryBuilder('Profiles')
-        .leftJoinAndSelect('Profiles.persona', 'Persona')
-        .select([
-          'Profiles.profileId AS profileId',
-          'Persona.personaName AS personaName',
-          'Profiles.profileName AS profileName',
-          'Profiles.statusMessage AS statusMessage',
-          'Profiles.profileImgUrl AS profileImgUrl',
-          'Profiles.createdAt AS createdAt'
-        ])
-        .where('Profiles.profileId=:profileId', { profileId: profileId })
-        .getRawOne();
-    } catch (err) {
-      throw new Error('DB_Error');
-    }
+    return await this.profilesTable
+      .createQueryBuilder('Profiles')
+      .leftJoinAndSelect('Profiles.persona', 'Persona')
+      .select([
+        'Profiles.profileId AS profileId',
+        'Persona.personaName AS personaName',
+        'Profiles.profileName AS profileName',
+        'Profiles.statusMessage AS statusMessage',
+        'Profiles.profileImgUrl AS profileImgUrl',
+        'Profiles.createdAt AS createdAt'
+      ])
+      .where('Profiles.profileId=:profileId', { profileId: profileId })
+      .getRawOne();
   }
 
   // 프로필 삭제

@@ -2,9 +2,11 @@ import { AwsService } from '../../aws/aws.service';
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   Request,
   UploadedFile,
@@ -80,7 +82,7 @@ export class ProfilesController {
     schema: { example: errResponse(baseResponse.PROFILE_SAME_PERSONA) },
   })
   @UseGuards(JWTAuthGuard)
-  @Post('/create')
+  @Post('/')
   @UsePipes(ValidationPipe)
   @UseInterceptors(FileInterceptor('image'))
   createProfile(
@@ -97,7 +99,6 @@ export class ProfilesController {
     description: '프로필 삭제에 관한 API',
   })
   @ApiBearerAuth('Authorization')
-  @ApiBody({ schema: { example: { profileId: 1 } } })
   @ApiResponse({
     status: 100,
     description: 'SUCCESS',
@@ -129,9 +130,9 @@ export class ProfilesController {
     schema: { example: errResponse(baseResponse.PROFILE_NO_AUTHENTICATION) },
   })
   @UseGuards(JWTAuthGuard)
-  @Post('/delete')
+  @Delete('/:profileId')
   deleteProfile(
-    @Body('profileId', ParseIntPipe) profileId: number,
+    @Param('profileId', ParseIntPipe) profileId: number,
     @Request() req: any,
   ) {
     return this.profilesService.deleteProfile(req, profileId);
@@ -176,7 +177,7 @@ export class ProfilesController {
     schema: { example: errResponse(baseResponse.PROFILE_NO_AUTHENTICATION) },
   })
   @UseGuards(JWTAuthGuard)
-  @Post('/edit/:profileId')
+  @Patch('/:profileId')
   @UseInterceptors(FileInterceptor('image'))
   editProfile(
     @Param('profileId', ParseIntPipe) profileId: number,

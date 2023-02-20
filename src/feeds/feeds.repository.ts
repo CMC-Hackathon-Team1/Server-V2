@@ -7,12 +7,15 @@ import { FeedImgs } from '../common/entities/FeedImgs';
 import { Feeds } from '../common/entities/Feeds';
 import { Likes } from '../common/entities/Likes';
 import { PatchFeedRequestDTO } from './dto/patch-feed-request.dto';
+import { FollowFromTo } from '../common/entities/FollowFromTo';
 
 @Injectable()
 export class FeedRepository {
   constructor(
     @InjectRepository(Feeds)
     private feedTable: Repository<Feeds>,
+    // @InjectRepository(FollowFromTo)
+    // private followTable: Repository<FollowFromTo>,
   ) {}
   async save(feedEntity: Feeds) {
     return this.feedTable.save(feedEntity);
@@ -63,6 +66,47 @@ export class FeedRepository {
       .leftJoinAndSelect('Feeds.feedImgs', 'feedImg')
       .leftJoinAndSelect('Feeds.categories', 'category')
       .where('Feeds.isSecret=:isSecret', { isSecret: 'PUBLIC' });
+
+    if (categoryId != 0) {
+      //0이 아닐때는 categoryId를 통한 필터링
+      foundQuery
+        .andWhere('Feeds.categoryId=:category', { category: categoryId })
+        .skip(10 * (pageNumber - 1))
+        .take(10);
+    } else {
+      //0일때는 categoryId를 통한 필터링 적용 x
+      foundQuery.skip(10 * (pageNumber - 1)).take(10);
+    }
+
+    return foundQuery.getMany();
+  }
+
+  // 둘러보기 - 타유저 게시글 가져오기
+  async retrieveOtherFeeds(
+    profileId: number,
+    pageNumber: number,
+    categoryId: number,
+  ): Promise<Feeds[]> {
+    // console.log(profileId, categoryId);
+
+    const foundQuery = this.feedTable
+      .createQueryBuilder('Feeds')
+      .where('Feeds.isSecret=:isSecret', { isSecret: 'PUBLIC' })
+      .andWhere('Feeds.profileId!=:ownProfileId', { ownProfileId: profileId })  // 본인 게시글 제외
+      .leftJoinAndSelect('Feeds.profile', 'profiles')
+      .leftJoinAndSelect('profiles.persona', 'persona')
+      .leftJoinAndSelect('Feeds.feedImgs', 'feedImg')
+      .leftJoinAndSelect('Feeds.categories', 'category')
+      .leftJoinAndSelect('Feeds.likes', 'likes')
+      .leftJoinAndMapOne(
+        'Feeds.followInfo',
+        FollowFromTo,
+        'followFromTo',
+        'followFromTo.fromUserId = :profileId and followFromTo.toUserId = profiles.profileId',
+        { profileId: profileId },
+      )
+      // .andWhere('likes.profileId=:ownProfileId', { ownProfileId: profileId })   // 본인이 좋아요 누른 게시글만
+    ;
 
     if (categoryId != 0) {
       //0이 아닐때는 categoryId를 통한 필터링

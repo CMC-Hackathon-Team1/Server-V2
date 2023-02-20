@@ -445,7 +445,7 @@ export class AuthController {
 
   // API No. 4.1.2.1. 구글 로그인 - 회원가입/로그인
   @ApiOperation({
-    summary: '4.2.1.1. 구글 로그인 - 회원가입/로그인',
+    summary: '4.1.2.1. 구글 로그인 - 회원가입/로그인',
     description: `구글 계정을 통해 로그인/회원가입 한다. (이때, 구글 계정과 연동된 구글 이메일로 가입되도록 한다.) \n
         [Response Body] - response에서 다음 2개 값이 넘어옵니다.\n
         1. state : '회원가입인지, 로그인인지'

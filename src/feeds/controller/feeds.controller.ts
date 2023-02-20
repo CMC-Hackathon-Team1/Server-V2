@@ -38,7 +38,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { DeleteFeedDTO } from '../dto/delete-feed-request.dto';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { AwsService } from '../../aws/aws.service';
-import { Feed, retrieveFeedListDto } from "../dto/retrieve-feedList.dto";
+import { Feed, retrieveFeedListDto } from '../dto/retrieve-feedList.dto';
 
 @Controller('feeds')
 @ApiTags('Feed API')
@@ -112,7 +112,70 @@ export class FeedsController {
     // console.log(categoryId);
     // console.log(option);
 
-    return this.feedsService.RetrieveFeeds(profileId, pageNumber, categoryId);
+    return this.feedsService.RetrieveFeeds(profileId, pageNumber, categoryId, false);
+  }
+
+  @ApiCreatedResponse({
+    status: 100,
+    type: Feed,
+    isArray: true,
+    description: '성공했을때 response. 게시물 결과가 하나도 없는 경우도 성공이다.',
+  })
+  @ApiOperation({
+    summary: '2.2.1. 타유저(팔로잉) 게시글 피드',
+    description:
+      '둘러보기 팔로잉에서 사용되는 API이다. 카테고리 설정과 함께 작동한다.\n\
+                      실패했을 때의 에러핸들링의 경우 추가로 업데이트될 예정이다.',
+  })
+  @ApiBody({
+    schema: {
+      properties: {
+        profileId: { type: 'number' },
+      },
+      example: {
+        profileId: 27,
+      },
+    },
+    required: true,
+    description: '현재 유저의 profileId',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: true,
+    description:
+      'pagination을 통해 scroll하면서 10개씩 정보를 받아온다. 현재 몇번째 정보를 받아와야하는지를 넘겨주시면 됩니다.\n\
+                      1~10번째 정보를 받아와야한다면 page=1, 11~20번째 피드를 받아와야한다면 page=2',
+  })
+  @ApiQuery({
+    name: 'categoryId',
+    required: true,
+    description:
+      'categoryId를 받아내기 위해서는 Category API의 카테고리 목록 가져오기 API를 사용하시면 됩니다.\
+      0을 보낼 경우 category필터링 없이 전체 피드를 탐색합니다',
+  })
+  @ApiBearerAuth('Authorization')
+  @Get('/feedlist-following')
+  @UseGuards(JWTAuthGuard)
+  RetrieveFollowingFeeds(
+    @Body('profileId') profileId: number,
+    @Query('page') pageNumber: number,
+    @Query('categoryId') categoryId: number,
+  ): Promise<retrieveFeedListDto> {
+    //TODO parameter validation 필수.
+    //profileId가 유효한 id인지?
+    //pageNumber가 유효한 number인지?
+    //category는 유효한지?
+
+    // console.log(profileId);
+    // console.log(pageNumber);
+    // console.log(categoryId);
+    // console.log(option);
+    // console.log(profileId);
+    // console.log(pageNumber);
+    // console.log(categoryId);
+    // console.log(option);
+
+    return this.feedsService.RetrieveFeeds(profileId, pageNumber, categoryId, true);
   }
 
   @ApiOperation({

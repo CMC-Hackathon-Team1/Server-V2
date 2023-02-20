@@ -21,7 +21,7 @@ import { PostFeedRequestDTO } from '../dto/post-feed-request.dto';
 import { AwsService } from '../../aws/aws.service';
 import { FeedImgs } from '../../common/entities/FeedImgs';
 import { FeedImgsRepository } from '../feedImgs.repository';
-import { retrieveFeedListDto } from "../dto/retrieve-feedList.dto";
+import { retrieveFeedListDto } from '../dto/retrieve-feedList.dto';
 
 const util = require('util');
 
@@ -184,9 +184,10 @@ export class FeedsService {
     profileId: number,
     pageNumber: number,
     categoryId: number,
+    onlyFollowing: boolean,
   ): Promise<any> {
+    // [REFACTORED]
     // return this.feeds;
-    // FIXME: 리팩토링 중.. (본인 게시글은 보이면 안됨)
     // const feedEntity = await this.feedRepsitory.retrieveFeeds(
     //   profileId,
     //   pageNumber,
@@ -211,6 +212,7 @@ export class FeedsService {
     //
     // // console.log(util.inspect(foundDTO, {showHidden: false, depth: null}));
     // return foundDTO;
+    // ---
 
     const rawFeedList = await this.feedRepsitory.retrieveOtherFeeds(
       profileId,
@@ -220,7 +222,8 @@ export class FeedsService {
     // console.log(rawFeedList);
 
     // 원하는 정보들만 가공해서 보여주기
-    const feedListDTO: retrieveFeedListDto = new retrieveFeedListDto(rawFeedList);
+    const feedListDTO: retrieveFeedListDto = new retrieveFeedListDto(rawFeedList, onlyFollowing);
+    // console.log(feedListDTO);
 
     if (feedListDTO.feedArray.length <= 0) {
       return sucResponse(baseResponse.SUCCESS, { empty: '게시물이 없습니다.' });

@@ -8,24 +8,22 @@ export class retrieveFeedListDto {
   @ApiProperty({ description: 'feedArray' })
   feedArray: Feed[] = [];
 
-  constructor(rawFeedList: Feeds[]) {
+  constructor(rawFeedList: any[], onlyFollowing: boolean) {
     let cnt = 0;
     // 데이터 가공하기
     for (let i = 0; i < rawFeedList.length; i++) {
-      this.feedArray.push(new Feed(rawFeedList.at(i)));
+      // 탐색 게시글 목록
+      if (onlyFollowing == false) {
+        this.feedArray.push(new Feed(rawFeedList.at(i)));
+      }
+      // 팔로잉 게시글 목록
+      else {
+        if (rawFeedList.at(i).followInfo != null) {
+          this.feedArray.push(new Feed(rawFeedList.at(i)));
+        }
+      }
       cnt++;
     }
-    // for (let i = 0; i < FeedEntityList.length; i++) {
-    //   let tmp_feed;
-    //   if (
-    //     LikesEntityList.length > cnt &&
-    //     FeedEntityList.at(i).feedId == LikesEntityList[cnt].feedId
-    //   ) {
-    //     tmp_feed = new Feed(FeedEntityList.at(i), true);
-    //     cnt++;
-    //   } else tmp_feed = new Feed(FeedEntityList.at(i), false);
-    //   this.feedArray.push(tmp_feed);
-    // }
   }
 }
 
@@ -85,6 +83,9 @@ export class Feed {
     }
     // 팔로우 표시
     // this.isFollowing = isFollowing;
+    if (feedEntity.followInfo != null) {
+      this.isFollowing = true;
+    }
   }
 
   transformFromDateToFormat(createdAt: Date) {

@@ -15,6 +15,8 @@ import { hashTagFeedMappingRepository } from '../hash-tag-feed-mapping/hash-tag-
 import { AwsService } from '../aws/aws.service';
 import { FeedImgsRepository } from './feedImgs.repository';
 import { FeedImgs } from '../common/entities/FeedImgs';
+import { FollowingRepository } from '../following/following.repository';
+import { FollowFromTo } from '../common/entities/FollowFromTo';
 
 @Module({
   imports: [
@@ -24,7 +26,8 @@ import { FeedImgs } from '../common/entities/FeedImgs';
       Profiles,
       HashTags,
       FeedHashTagMapping,
-      FeedImgs
+      FeedImgs,
+      FollowFromTo,
     ]),
   ],
   controllers: [FeedsController],
@@ -37,6 +40,7 @@ import { FeedImgs } from '../common/entities/FeedImgs';
     hashTagFeedMappingRepository,
     FeedImgsRepository,
     AwsService,
+    FollowingRepository,
   ],
   exports: [
     FeedRepository,
@@ -44,7 +48,8 @@ import { FeedImgs } from '../common/entities/FeedImgs';
     ProfilesRepository,
     HashTagRepository,
     hashTagFeedMappingRepository,
-    FeedImgsRepository
+    FeedImgsRepository,
+    FollowingRepository,
   ],
 })
 export class FeedsModule {}

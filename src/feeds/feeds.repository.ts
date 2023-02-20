@@ -7,12 +7,15 @@ import { FeedImgs } from '../common/entities/FeedImgs';
 import { Feeds } from '../common/entities/Feeds';
 import { Likes } from '../common/entities/Likes';
 import { PatchFeedRequestDTO } from './dto/patch-feed-request.dto';
+import { FollowFromTo } from '../common/entities/FollowFromTo';
 
 @Injectable()
 export class FeedRepository {
   constructor(
     @InjectRepository(Feeds)
     private feedTable: Repository<Feeds>,
+    // @InjectRepository(FollowFromTo)
+    // private followTable: Repository<FollowFromTo>,
   ) {}
   async save(feedEntity: Feeds) {
     return this.feedTable.save(feedEntity);
@@ -78,7 +81,7 @@ export class FeedRepository {
     return foundQuery.getMany();
   }
 
-  // 둘러보기 - '탐색' 타유저 게시글 가져오기
+  // 둘러보기 - 타유저 게시글 가져오기
   async retrieveOtherFeeds(
     profileId: number,
     pageNumber: number,
@@ -95,6 +98,13 @@ export class FeedRepository {
       .leftJoinAndSelect('Feeds.feedImgs', 'feedImg')
       .leftJoinAndSelect('Feeds.categories', 'category')
       .leftJoinAndSelect('Feeds.likes', 'likes')
+      .leftJoinAndMapOne(
+        'Feeds.followInfo',
+        FollowFromTo,
+        'followFromTo',
+        'followFromTo.fromUserId = :profileId and followFromTo.toUserId = profiles.profileId',
+        { profileId: profileId },
+      )
       // .andWhere('likes.profileId=:ownProfileId', { ownProfileId: profileId })   // 본인이 좋아요 누른 게시글만
     ;
 

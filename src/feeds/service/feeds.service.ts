@@ -21,6 +21,7 @@ import { PostFeedRequestDTO } from '../dto/post-feed-request.dto';
 import { AwsService } from '../../aws/aws.service';
 import { FeedImgs } from '../../common/entities/FeedImgs';
 import { FeedImgsRepository } from '../feedImgs.repository';
+import { retrieveFeedListDto } from "../dto/retrieve-feedList.dto";
 
 const util = require('util');
 
@@ -32,7 +33,7 @@ export class FeedsService {
     private profileRepository: ProfilesRepository,
     private hashTagRepository: HashTagRepository,
     private hashTagFeedMappingRepository: hashTagFeedMappingRepository,
-    private feedImgRepository:FeedImgsRepository,
+    private feedImgRepository: FeedImgsRepository,
     private dataSource: DataSource,
     private readonly AwsService: AwsService,
   ) {}
@@ -59,7 +60,7 @@ export class FeedsService {
 
       const originHashTagMappingEntityList = feedEntity.feedHashTagMappings;
       const newHashTagList = patchFeedRequestDTO.hashTagList;
-      const newHashTagIdList = Array();
+      const newHashTagIdList = [];
       // 요청온 hashtagList의 HashTagId를 받아옴. 만약 없다면 만들어서 받아옴.
       for (let i = 0; i < newHashTagList.length; i++) {
         const hashTagEntity = await this.hashTagRepository.findByName(
@@ -81,7 +82,7 @@ export class FeedsService {
         }
       }
       if (originHashTagMappingEntityList.length != 0) {
-        const originHashTagMappingIdList: number[] = new Array();
+        const originHashTagMappingIdList: number[] = [];
 
         // hashTagMappingEntityList를 정렬할 필요. (오름차순 정렬.)
         originHashTagMappingEntityList.sort(
@@ -168,7 +169,7 @@ export class FeedsService {
     ) {
       console.log('there');
       // originCategoryMappingEntityList를 다 삭제.
-      const originHashTagMappingIdList: number[] = new Array();
+      const originHashTagMappingIdList: number[] = [];
       for (let i = 0; i < originHashTagMappingEntityList.length; i++) {
         originHashTagMappingIdList.push(
           originHashTagMappingEntityList.at(i).id,
@@ -179,37 +180,54 @@ export class FeedsService {
       this.hashTagFeedMappingRepository.delete(originHashTagMappingIdList);
     }
   }
-  async RetreiveFeeds(
+  async RetrieveFeeds(
     profileId: number,
     pageNumber: number,
     categoryId: number,
   ): Promise<any> {
     // return this.feeds;
-    let foundDTO: retrieveFeedsReturnDto;
-    const feedEntity = await this.feedRepsitory.retrieveFeeds(
+    // FIXME: 리팩토링 중.. (본인 게시글은 보이면 안됨)
+    // const feedEntity = await this.feedRepsitory.retrieveFeeds(
+    //   profileId,
+    //   pageNumber,
+    //   categoryId,
+    // );
+    // const feedIdList = [];
+    //
+    // console.log(feedEntity);
+    // if (feedEntity.length == 0) {
+    //   return errResponse(baseResponse.FEED_NOT_FOUND);
+    // }
+    // for (let i = 0; i < feedEntity.length; i++) {
+    //   feedIdList.push(feedEntity[i].feedId);
+    // }
+    // const isLikeEntity = await this.likeRepository.isLike(
+    //   feedIdList,
+    //   profileId,
+    // );
+    // console.log(feedEntity);
+    //
+    // const foundDTO: retrieveFeedsReturnDto = new retrieveFeedsReturnDto(feedEntity, isLikeEntity);
+    //
+    // // console.log(util.inspect(foundDTO, {showHidden: false, depth: null}));
+    // return foundDTO;
+
+    const rawFeedList = await this.feedRepsitory.retrieveOtherFeeds(
       profileId,
       pageNumber,
       categoryId,
     );
-    const feedIdList = [];
+    // console.log(rawFeedList);
 
-    console.log(feedEntity);
-    if (feedEntity.length == 0) {
-      return errResponse(baseResponse.FEED_NOT_FOUND);
+    // 원하는 정보들만 가공해서 보여주기
+    const feedListDTO: retrieveFeedListDto = new retrieveFeedListDto(rawFeedList);
+
+    if (feedListDTO.feedArray.length <= 0) {
+      return sucResponse(baseResponse.SUCCESS, { empty: '게시물이 없습니다.' });
     }
-    for (let i = 0; i < feedEntity.length; i++) {
-      feedIdList.push(feedEntity[i].feedId);
+    else {
+      return sucResponse(baseResponse.SUCCESS, feedListDTO.feedArray);
     }
-    const isLikeEntity = await this.likeRepository.isLike(
-      feedIdList,
-      profileId,
-    );
-    console.log(feedEntity);
-
-    foundDTO = new retrieveFeedsReturnDto(feedEntity, isLikeEntity);
-
-    // console.log(util.inspect(foundDTO, {showHidden: false, depth: null}));
-    return foundDTO;
   }
 
   async RetreiveMyFeedByMonth(
@@ -277,36 +295,34 @@ export class FeedsService {
     postFeedRequestDTO: PostFeedRequestDTO,
     images: Array<Express.Multer.File>,
   ) {
-    
     const newHashTagList: string[] = postFeedRequestDTO.hashTagList;
-    const saveHashTagIdList = Array();
+    const saveHashTagIdList = [];
 
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     try {
-      
       const feedEntity = PostFeedRequestDTO.DTOtoEntity(postFeedRequestDTO);
-      
 
       const savedFeedEntity = await this.feedRepsitory.save(feedEntity);
-      
-      console.log("자 여기서 시작");
+
+      console.log('자 여기서 시작');
       console.log(images);
-      if (images) { // 사용자가 이미지를 전달한 경우
-        console.log("들어와따!!!");
+      if (images) {
+        // 사용자가 이미지를 전달한 경우
+        console.log('들어와따!!!');
         for (let i = 0; i < images.length; i++) {
           const imageUploadResult = await this.AwsService.uploadFileToS3(
             'FeedBucket',
             images[i],
           );
-          const imgDir=imageUploadResult.key;
-          let feedImg=new FeedImgs();
-          feedImg.feedId=savedFeedEntity.feedId;
-          feedImg.feedImgUrl=`https://${process.env.AWS_S3_BUCKET_NAME}.s3.amazonaws.com/${imgDir}`
+          const imgDir = imageUploadResult.key;
+          const feedImg = new FeedImgs();
+          feedImg.feedId = savedFeedEntity.feedId;
+          feedImg.feedImgUrl = `https://${process.env.AWS_S3_BUCKET_NAME}.s3.amazonaws.com/${imgDir}`;
           await this.feedImgRepository.save(feedImg);
         }
       }
-      
+
       for (let i = 0; i < newHashTagList.length; i++) {
         const hashTagEntity = await this.hashTagRepository.findByName(
           newHashTagList.at(i),
@@ -326,15 +342,13 @@ export class FeedsService {
           saveHashTagIdList.push(returnValue.hashTagId);
         }
       }
-      
+
       for (let i = 0; i < saveHashTagIdList.length; i++) {
         const feedHashTagMapping = new FeedHashTagMapping();
         feedHashTagMapping.feedId = savedFeedEntity.feedId;
         feedHashTagMapping.hashTagId = saveHashTagIdList.at(i);
         await this.hashTagFeedMappingRepository.save(feedHashTagMapping);
       }
-
-      
     } catch (err) {
       console.log(err);
       return errResponse(baseResponse.DB_ERROR);
@@ -347,7 +361,6 @@ export class FeedsService {
 
   async deleteFeed(deleteFeedDTO: DeleteFeedDTO) {
     let feedEntity: Feeds;
-    let profileEntity: Profiles[];
     try {
       feedEntity = await this.feedRepsitory.findOne(deleteFeedDTO.feedId);
     } catch (err) {
@@ -357,7 +370,7 @@ export class FeedsService {
     if (!feedEntity) {
       return errResponse(baseResponse.FEED_NOT_FOUND);
     }
-    profileEntity = await this.profileRepository.getOne(
+    const profileEntity: Profiles[] = await this.profileRepository.getOne(
       deleteFeedDTO.profileId,
     );
     if (profileEntity.length == 0) {

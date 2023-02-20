@@ -19,10 +19,11 @@ export class FollowingController {
   constructor(private followingService: FollowingService) {}
 
   @ApiOperation({
-    summary: '둘러보기 API 2.1.3 팔로잉 설정/해제 기능',
+    summary:
+      '2.1.3. 탐색 게시글 팔로잉, 2.2.2. 팔로잉 게시글 팔로잉 - 팔로잉 설정/해제 기능',
     description:
-      '둘러보기 탐색에서 화면에서 사용되는 API이다. 둘러보기 탐색중에 마음에드는 프로필에 팔로우 설정/해제 할 수 있다.\n\
-                      팔로우상태에서는 팔로우가 해제 되고 팔로우를 안한상태에서는 팔로우상태가 된다.',
+      '둘러보기 탐색/팔로잉에서 사용되는 API이다. 둘러보기 게시물들 중에 마음에드는 프로필에 팔로우 설정/해제 할 수 있다.\n\
+                      팔로우 상태에서는 팔로우가 해제 되고 팔로우를 안한 상태에서는 팔로우 상태가 된다.',
   })
   @ApiResponse({
     status: baseResponse.JWT_UNAUTHORIZED.statusCode,

@@ -78,6 +78,40 @@ export class FeedRepository {
     return foundQuery.getMany();
   }
 
+  // 둘러보기 - '탐색' 타유저 게시글 가져오기
+  async retrieveOtherFeeds(
+    profileId: number,
+    pageNumber: number,
+    categoryId: number,
+  ): Promise<Feeds[]> {
+    // console.log(profileId, categoryId);
+
+    const foundQuery = this.feedTable
+      .createQueryBuilder('Feeds')
+      .where('Feeds.isSecret=:isSecret', { isSecret: 'PUBLIC' })
+      .andWhere('Feeds.profileId!=:ownProfileId', { ownProfileId: profileId })  // 본인 게시글 제외
+      .leftJoinAndSelect('Feeds.profile', 'profiles')
+      .leftJoinAndSelect('profiles.persona', 'persona')
+      .leftJoinAndSelect('Feeds.feedImgs', 'feedImg')
+      .leftJoinAndSelect('Feeds.categories', 'category')
+      .leftJoinAndSelect('Feeds.likes', 'likes')
+      // .andWhere('likes.profileId=:ownProfileId', { ownProfileId: profileId })   // 본인이 좋아요 누른 게시글만
+    ;
+
+    if (categoryId != 0) {
+      //0이 아닐때는 categoryId를 통한 필터링
+      foundQuery
+        .andWhere('Feeds.categoryId=:category', { category: categoryId })
+        .skip(10 * (pageNumber - 1))
+        .take(10);
+    } else {
+      //0일때는 categoryId를 통한 필터링 적용 x
+      foundQuery.skip(10 * (pageNumber - 1)).take(10);
+    }
+
+    return foundQuery.getMany();
+  }
+
   retrieveMyFeedByMonth(
     profileId: number,
     year: number,

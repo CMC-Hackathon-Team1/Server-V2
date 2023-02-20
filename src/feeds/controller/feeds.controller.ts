@@ -16,7 +16,6 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { Feeds } from '../../common/entities/Feeds';
-import { Feed, retrieveFeedsReturnDto } from '../dto/retreive-feeds-return.dto';
 import { feedExploreValidationPipe } from '../validation/feeds.explore-validation-pipe';
 import { FeedsService } from '../service/feeds.service';
 import {
@@ -39,30 +38,37 @@ import { AuthGuard } from '@nestjs/passport';
 import { DeleteFeedDTO } from '../dto/delete-feed-request.dto';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { AwsService } from '../../aws/aws.service';
+import { Feed, retrieveFeedListDto } from "../dto/retrieve-feedList.dto";
 
 @Controller('feeds')
 @ApiTags('Feed API')
 export class FeedsController {
   constructor(
     private feedsService: FeedsService,
-    private readonly AwsService: AwsService
-    ) {}
+    private readonly AwsService: AwsService,
+  ) {}
 
-  
   @ApiCreatedResponse({
     status: 100,
     type: Feed,
     isArray: true,
-    description: '성공했을때 response',
+    description: '성공했을때 response. 게시물 결과가 하나도 없는 경우도 성공이다.',
   })
   @ApiOperation({
-    summary: '둘러보기 API 2.1.1',
+    summary: '2.1.1. 타유저(탐색) 게시글 피드',
     description:
       '둘러보기 탐색에서 사용되는 API이다. 카테고리 설정과 함께 작동한다.\n\
                       실패했을 때의 에러핸들링의 경우 추가로 업데이트될 예정이다.',
   })
-  @ApiQuery({
-    name: 'profileId',
+  @ApiBody({
+    schema: {
+      properties: {
+        profileId: { type: 'number' },
+      },
+      example: {
+        profileId: 27,
+      },
+    },
     required: true,
     description: '현재 유저의 profileId',
   })
@@ -78,20 +84,20 @@ export class FeedsController {
     required: true,
     description:
       'categoryId를 받아내기 위해서는 Category API의 카테고리 목록 가져오기 API를 사용하시면 됩니다.\
-      0을 보낼 경우 category필터링 없이 전체 피드를 탐색합니다'
+      0을 보낼 경우 category필터링 없이 전체 피드를 탐색합니다',
   })
-  @ApiResponse({
-    status: baseResponse.FEED_NOT_FOUND.statusCode,
-    description: baseResponse.FEED_NOT_FOUND.message,
-  })
+  // @ApiResponse({
+  //   status: baseResponse.FEED_NOT_FOUND.statusCode,
+  //   description: baseResponse.FEED_NOT_FOUND.message,
+  // })
   @ApiBearerAuth('Authorization')
   @Get('/feedlist')
   @UseGuards(JWTAuthGuard)
-  RetreiveFeeds(
-    @Query('profileId') profileId: number,
+  RetrieveFeeds(
+    @Body('profileId') profileId: number,
     @Query('page') pageNumber: number,
     @Query('categoryId') categoryId: number,
-  ): Promise<retrieveFeedsReturnDto> {
+  ): Promise<retrieveFeedListDto> {
     //TODO parameter validation 필수.
     //profileId가 유효한 id인지?
     //pageNumber가 유효한 number인지?
@@ -106,10 +112,9 @@ export class FeedsController {
     // console.log(categoryId);
     // console.log(option);
 
-    return this.feedsService.RetreiveFeeds(profileId, pageNumber, categoryId);
+    return this.feedsService.RetrieveFeeds(profileId, pageNumber, categoryId);
   }
 
-  
   @ApiOperation({
     summary:
       '프로필 (게시글모아보기) API 3.1.2/기능명세서 1.4(1).1 해당일 게시글 모아보기',
@@ -173,8 +178,7 @@ export class FeedsController {
   }
 
   @ApiOperation({
-    summary:
-      '게시글 생성 API 기능명세서 1.3',
+    summary: '게시글 생성 API 기능명세서 1.3',
     description:
       '게시글 생성 API 이다. 해시태그는 최대 20개 img는 최대 5개까지 가능하다.(디스코드 질문!? 채널 참고)\
       모든 데이터는 from-data형태로 전달해야하며 images는 File, 나머지 데이터는 TEXT로 전달하면 된다.\
@@ -182,7 +186,7 @@ export class FeedsController {
       내부에서 배열로 바꿔 처리될 수 있도록 구현되어있다. 편한 방법대로 구현하시면 됩니다. content의 최대길이는 2000자로 2000자가 넘으면 errResponse가 발생합니다.\
       isSecret의 경우 PUBLIC(공개),PRIVATE(비공개)중 하나를 전송해야하며 대문자로 전송해야 합니다.\
       피드 이미지의 경우 "images" 키 이름으로 전송해야 한다.\
-      form-data형태로 보내야 하기 때문에 POST MAN에서 테스트하셔야합니다.'
+      form-data형태로 보내야 하기 때문에 POST MAN에서 테스트하셔야합니다.',
   })
   @ApiResponse({
     status: baseResponse.SUCCESS.statusCode,
@@ -205,31 +209,31 @@ export class FeedsController {
     description: baseResponse.DB_ERROR.message,
   })
   @ApiResponse({
-    status:baseResponse.FEED_HAVE_CONTENT_OR_IMAGE.statusCode,
-    description:baseResponse.FEED_HAVE_CONTENT_OR_IMAGE.message
+    status: baseResponse.FEED_HAVE_CONTENT_OR_IMAGE.statusCode,
+    description: baseResponse.FEED_HAVE_CONTENT_OR_IMAGE.message,
   })
   @ApiBearerAuth('Authorization')
   @UseGuards(JWTAuthGuard)
-  @Post('/') 
+  @Post('/')
   @UseInterceptors(FilesInterceptor('images'))
   @UsePipes(ValidationPipe)
   PostFeed(
     @Body() postFeedRequestDTO: PostFeedRequestDTO,
-    @UploadedFiles() images: Array<Express.Multer.File>
-    ) {
-    if(typeof postFeedRequestDTO.hashTagList=='string'){
-      postFeedRequestDTO.hashTagList=[postFeedRequestDTO.hashTagList]
+    @UploadedFiles() images: Array<Express.Multer.File>,
+  ) {
+    if (typeof postFeedRequestDTO.hashTagList == 'string') {
+      postFeedRequestDTO.hashTagList = [postFeedRequestDTO.hashTagList];
     }
-    if(postFeedRequestDTO.hashTagList.length>20){
+    if (postFeedRequestDTO.hashTagList.length > 20) {
       return errResponse(baseResponse.FEED_CAN_HAVE_20_HASHTAGS);
     }
-    if(!postFeedRequestDTO.content && !images){
-      return errResponse(baseResponse.FEED_HAVE_CONTENT_OR_IMAGE)
+    if (!postFeedRequestDTO.content && !images) {
+      return errResponse(baseResponse.FEED_HAVE_CONTENT_OR_IMAGE);
     }
-    if(images.length>5){
+    if (images.length > 5) {
       return errResponse(baseResponse.FEED_IMG_COUNT_OVER);
     }
-    return this.feedsService.postFeed(postFeedRequestDTO,images);
+    return this.feedsService.postFeed(postFeedRequestDTO, images);
   }
 
   @ApiOperation({
@@ -267,22 +271,26 @@ export class FeedsController {
   })
   @ApiBearerAuth('Authorization')
   @UseGuards(JWTAuthGuard)
-  @Patch('/') 
-  PatchFeed(@Body() patchFeedRequestDTO:PatchFeedRequestDTO){
-    console.log("patch 실행");
-    if(patchFeedRequestDTO.content.length>2000){
+  @Patch('/')
+  PatchFeed(@Body() patchFeedRequestDTO: PatchFeedRequestDTO) {
+    console.log('patch 실행');
+    if (patchFeedRequestDTO.content.length > 2000) {
       return errResponse(baseResponse.FEED_CONTENT_TO_MANY_CHARACTERS);
     }
-    if(patchFeedRequestDTO.isSecret!=FeedSecret.PUBLIC && patchFeedRequestDTO.isSecret!=FeedSecret.PRIVATE){
-      return errResponse(baseResponse.FEED_IS_SECRET_CAN_HAVE_PUBLIC_OR_PRIVATE)
+    if (
+      patchFeedRequestDTO.isSecret != FeedSecret.PUBLIC &&
+      patchFeedRequestDTO.isSecret != FeedSecret.PRIVATE
+    ) {
+      return errResponse(
+        baseResponse.FEED_IS_SECRET_CAN_HAVE_PUBLIC_OR_PRIVATE,
+      );
     }
     return this.feedsService.patchFeed(patchFeedRequestDTO);
   }
 
   @ApiOperation({
     summary: '게시글 삭제하기 API 1.4(1).2',
-    description:
-      '게시글 삭제하기 API.',
+    description: '게시글 삭제하기 API.',
   })
   @ApiResponse({
     status: baseResponse.SUCCESS.statusCode,
@@ -307,10 +315,9 @@ export class FeedsController {
   @ApiBearerAuth('Authorization')
   @UseGuards(JWTAuthGuard)
   @Patch('/status')
-  deleteFeed(@Body() deleteFeedDTO:DeleteFeedDTO){
+  deleteFeed(@Body() deleteFeedDTO: DeleteFeedDTO) {
     return this.feedsService.deleteFeed(deleteFeedDTO);
   }
-
 
   @ApiOperation({
     summary: '홈화면(캘런더) 1.4.1',

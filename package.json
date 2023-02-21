@@ -21,6 +21,7 @@
     "node:start:dev": "env-cmd -f .env.dev node dist/src/main.js"
   },
   "dependencies": {
+    "@nestjs-modules/mailer": "^1.8.1",
     "@nestjs/common": "^8.0.0",
     "@nestjs/config": "^2.2.0",
     "@nestjs/core": "^8.0.0",
@@ -39,9 +40,11 @@
     "class-validator": "^0.13.2",
     "cookie-parser": "^1.4.6",
     "cross-env": "^7.0.3",
+    "ejs": "^3.1.8",
     "express-basic-auth": "^1.2.1",
     "firebase-admin": "^11.5.0",
     "mysql2": "^2.3.3",
+    "nodemailer": "^6.9.1",
     "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",

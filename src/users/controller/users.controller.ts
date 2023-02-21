@@ -1,4 +1,4 @@
-import { Controller, Delete, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Post, Request, UseGuards } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -8,12 +8,14 @@ import {
 import { JWTAuthGuard } from '../../auth/security/auth.guard.jwt';
 import baseResponse from '../../common/utils/baseResponseStatus';
 import { errResponse, sucResponse } from '../../common/utils/response';
+import { EmailService } from '../../email/email.service';
+import { SendMailDTO } from '../dto/sendMailDTO';
 import { UsersService } from '../service/users.service';
 
 @ApiTags('Users')
 @Controller('users')
 export class UsersController {
-  constructor(private usersService: UsersService) {}
+  constructor(private usersService: UsersService,private emailService:EmailService) {}
 
   // API No. 1.8.7 회원 탈퇴
   @ApiOperation({
@@ -51,5 +53,39 @@ export class UsersController {
   @Delete('/account')
   deleteUser(@Request() req: any) {
     return this.usersService.deleteUser(req);
+  }
+
+  @ApiOperation({
+    summary: '문의사항 이메일 보내기 API',
+    description:
+      '문의사항 보내기에 관한 API이며 JWT 토큰에 들어있는 사용자 ID를 사용해 유저정보를 전달합니다.',
+  })
+  @ApiResponse({
+    status: 100,
+    description: 'SUCCESS',
+    schema: { example: baseResponse.SUCCESS },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'JWT 오류',
+    schema: { example: baseResponse.JWT_UNAUTHORIZED },
+  })
+  @ApiResponse({
+    status: 501,
+    description: 'DB 오류',
+    schema: { example: baseResponse.DB_ERROR },
+  })
+  @ApiResponse({
+    status: 1101,
+    description: '이미 만료된 JWT(이미 탈퇴된 회원의 JWT)를 보내는 경우',
+    schema: { example: baseResponse.USER_NOT_FOUND },
+  })
+  @ApiBearerAuth('Authorization')
+  @UseGuards(JWTAuthGuard)
+  @Post('/send-mail')
+  async sendMail(@Body() sendMailDTO:SendMailDTO,@Request() req:any){
+    const requestUserId = req.user.userId;
+
+    return await this.emailService.sendMail('alsdnrdl001@gmail.com',requestUserId,sendMailDTO.content);
   }
 }

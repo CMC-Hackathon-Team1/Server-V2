@@ -2,7 +2,7 @@ import { AwsService } from './aws/aws.service';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProfilesModule } from './profiles/profiles.module';
 import { PersonaModule } from './persona/persona.module';
@@ -32,7 +32,11 @@ import { HashTagModule } from './hash-tag/hash-tag.module';
 import { HashTagFeedMappingModule } from './hash-tag-feed-mapping/hash-tag-feed-mapping.module';
 import { CategoriesModule } from './categories/categories.module';
 import { AlarmsModule } from './alarms/alarms.module';
-
+import { EmailModule } from './email/email.module';
+import configEmail from '../config/email';
+import { MailerModule } from '@nestjs-modules/mailer';
+import {EjsAdapter} from '@nestjs-modules/mailer/dist/adapters/ejs.adapter';
+import path = require('path');
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -41,6 +45,25 @@ import { AlarmsModule } from './alarms/alarms.module';
           ? '.env.dev'
           : '.env.prod',
       isGlobal: true,
+      load:[configEmail],
+    }),
+    MailerModule.forRootAsync({
+      imports:[ConfigModule],
+      inject:[ConfigService],
+      useFactory:(config: ConfigService)=>{
+        console.log("=== write [.env] by config: network ===");
+        console.log(config.get('email'));
+        return{
+          ...config.get('email'),
+          template:{
+            dir:path.join(__dirname,'/templates'),
+            adapter:new EjsAdapter(),
+            options:{
+              strict:true,
+            },
+          },
+        };
+      },
     }),
     TypeOrmModule.forRoot({
       type: 'mysql',
@@ -80,6 +103,7 @@ import { AlarmsModule } from './alarms/alarms.module';
     HashTagFeedMappingModule,
     CategoriesModule,
     AlarmsModule,
+    EmailModule,
   ],
   controllers: [AppController],
   providers: [AppService, AwsService],

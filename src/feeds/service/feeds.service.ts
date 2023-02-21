@@ -22,11 +22,13 @@ import { AwsService } from '../../aws/aws.service';
 import { FeedImgs } from '../../common/entities/FeedImgs';
 import { FeedImgsRepository } from '../feedImgs.repository';
 import { retrieveFeedListDto } from '../dto/retrieve-feedList.dto';
+import { GetFeedByIdResDTO } from '../dto/get-feed-byId.dto';
 
 const util = require('util');
 
 @Injectable()
 export class FeedsService {
+  
   constructor(
     private feedRepsitory: FeedRepository,
     private likeRepository: LikesRepository,
@@ -38,6 +40,21 @@ export class FeedsService {
     private readonly AwsService: AwsService,
   ) {}
 
+  async getFeedById(feedId: number,profileId:number) {
+    const feedEntity:Feeds=await this.feedRepsitory.findFeedById(feedId);
+    const isLikeQueryResult=await this.likeRepository.isLike([feedId],profileId);
+    let isLike=false;
+
+    if(isLikeQueryResult.length>0){
+      isLike=true;
+    }else if(isLikeQueryResult.length==0){
+      isLike=false;
+    }
+    
+    const getFeedByIdResDTO:GetFeedByIdResDTO=new GetFeedByIdResDTO(feedEntity,isLike);//isLike처리해야함.
+    console.log(getFeedByIdResDTO);
+    return getFeedByIdResDTO;
+  }
   async patchFeed(patchFeedRequestDTO: PatchFeedRequestDTO) {
     // feedId를 통해 feedEntity가져옴. + save로 수정함.
     console.log('findOne');

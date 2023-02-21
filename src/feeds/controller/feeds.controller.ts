@@ -241,6 +241,17 @@ export class FeedsController {
   }
 
   @ApiOperation({
+    summary: '특정 feed 상세보기 API',
+  })
+
+  @ApiBearerAuth('Authorization')
+  @UseGuards(JWTAuthGuard)
+  @Get('/:feedId/profiles/:profileId')
+  getFeedById(@Param('feedId') feedId:number,@Param('profileId') profileId:number){
+    return this.feedsService.getFeedById(feedId,profileId);
+  }
+
+  @ApiOperation({
     summary: '게시글 생성 API 기능명세서 1.3',
     description:
       '게시글 생성 API 이다. 해시태그는 최대 20개 img는 최대 5개까지 가능하다.(디스코드 질문!? 채널 참고)\

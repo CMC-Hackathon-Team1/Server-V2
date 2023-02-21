@@ -11,12 +11,25 @@ import { FollowFromTo } from '../common/entities/FollowFromTo';
 
 @Injectable()
 export class FeedRepository {
+  
   constructor(
     @InjectRepository(Feeds)
     private feedTable: Repository<Feeds>,
     // @InjectRepository(FollowFromTo)
     // private followTable: Repository<FollowFromTo>,
   ) {}
+
+  async findFeedById(feedId: number): Promise<Feeds> {
+    const foundQuery = this.feedTable
+      .createQueryBuilder('Feeds')
+      .leftJoinAndSelect('Feeds.profile', 'profiles')
+      .leftJoinAndSelect('profiles.persona', 'persona')
+      .leftJoinAndSelect('Feeds.feedImgs', 'feedImg')
+      .leftJoinAndSelect('Feeds.categories', 'category')
+      .where('Feeds.feedId=:feedId',{feedId:feedId})
+
+      return foundQuery.getOne();
+  }
   async save(feedEntity: Feeds) {
     return this.feedTable.save(feedEntity);
   }

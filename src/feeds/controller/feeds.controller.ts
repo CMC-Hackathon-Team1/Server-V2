@@ -22,11 +22,11 @@ import {
   ApiBearerAuth,
   ApiBody,
   ApiCreatedResponse,
-  ApiOperation,
+  ApiOperation, ApiParam,
   ApiQuery,
   ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+  ApiTags
+} from "@nestjs/swagger";
 import { errResponse, sucResponse } from '../../common/utils/response';
 import baseResponse from '../../common/utils/baseResponseStatus';
 import { MyFeed } from '../dto/retreive-my-feed-bymonth.dto';
@@ -55,20 +55,13 @@ export class FeedsController {
     description: '성공했을때 response. 게시물 결과가 하나도 없는 경우도 성공이다.',
   })
   @ApiOperation({
-    summary: '2.1.1. 타유저(탐색) 게시글 피드',
+    summary: '2.1.1. 2.2.1. 타유저(탐색 or 팔로잉) 게시글 피드',
     description:
-      '둘러보기 탐색에서 사용되는 API이다. 카테고리 설정과 함께 작동한다.\n\
+      '둘러보기 탐색&팔로잉 에서 사용되는 API이다. 카테고리 설정과 함께 작동한다.\n\
                       실패했을 때의 에러핸들링의 경우 추가로 업데이트될 예정이다.',
   })
-  @ApiBody({
-    schema: {
-      properties: {
-        profileId: { type: 'number' },
-      },
-      example: {
-        profileId: 27,
-      },
-    },
+  @ApiParam({
+    name: 'profileId',
     required: true,
     description: '현재 유저의 profileId',
   })
@@ -85,97 +78,54 @@ export class FeedsController {
     description:
       'categoryId를 받아내기 위해서는 Category API의 카테고리 목록 가져오기 API를 사용하시면 됩니다.\
       0을 보낼 경우 category필터링 없이 전체 피드를 탐색합니다',
+  })
+  @ApiQuery({
+    name: 'fResult',
+    required: false,
+    description: `탐색 결과를 보여줄지, 팔로잉 결과를 보여줄지 선택하는 값입니다.\n
+      해당 쿼리스트링을 입력하지 않거나, 값을 입력하지 않거나, 값을 false로 보낼 경우, 팔로잉 여부 필터링 없이 전체 피드를 가져옵니다.\n
+      해당 쿼리스트링 값으로 true를 보낼 경우, 해당 사용자가 팔로잉한 계정들의 피드들만 가져옵니다.`,
   })
   // @ApiResponse({
   //   status: baseResponse.FEED_NOT_FOUND.statusCode,
   //   description: baseResponse.FEED_NOT_FOUND.message,
   // })
   @ApiBearerAuth('Authorization')
-  @Get('/feedlist')
+  @Get('/feedlist/:profileId')
   @UseGuards(JWTAuthGuard)
   RetrieveFeeds(
-    @Body('profileId') profileId: number,
+    // @Body('profileId') profileId: number,
+    @Param('profileId', ParseIntPipe) profileId: number,
     @Query('page') pageNumber: number,
     @Query('categoryId') categoryId: number,
+    @Query('fResult') isFollowing: boolean,
   ): Promise<retrieveFeedListDto> {
-    //TODO parameter validation 필수.
-    //profileId가 유효한 id인지?
-    //pageNumber가 유효한 number인지?
-    //category는 유효한지?
-
+    // TODO: parameter validation 필수.
+    // [Validation 처리]
+    // profileId 가 있는가
+    // if (!profileId) {
+    //   return errResponse(baseResponse.PROFILE_ID_NOT_FOUND);
+    // }
     // console.log(profileId);
-    // console.log(pageNumber);
-    // console.log(categoryId);
-    // console.log(option);
-    // console.log(profileId);
-    // console.log(pageNumber);
-    // console.log(categoryId);
-    // console.log(option);
 
-    return this.feedsService.RetrieveFeeds(profileId, pageNumber, categoryId, false);
-  }
+    // jwt 토큰 유저 정보와 profileId 가 맞게 매칭되어 있는가
+    // const checkProfileMatch = await this.profilesService.checkProfile(user.userId, profileId);
+    // console.log(checkProfileMatch);
 
-  @ApiCreatedResponse({
-    status: 100,
-    type: Feed,
-    isArray: true,
-    description: '성공했을때 response. 게시물 결과가 하나도 없는 경우도 성공이다.',
-  })
-  @ApiOperation({
-    summary: '2.2.1. 타유저(팔로잉) 게시글 피드',
-    description:
-      '둘러보기 팔로잉에서 사용되는 API이다. 카테고리 설정과 함께 작동한다.\n\
-                      실패했을 때의 에러핸들링의 경우 추가로 업데이트될 예정이다.',
-  })
-  @ApiBody({
-    schema: {
-      properties: {
-        profileId: { type: 'number' },
-      },
-      example: {
-        profileId: 27,
-      },
-    },
-    required: true,
-    description: '현재 유저의 profileId',
-  })
-  @ApiQuery({
-    name: 'page',
-    required: true,
-    description:
-      'pagination을 통해 scroll하면서 10개씩 정보를 받아온다. 현재 몇번째 정보를 받아와야하는지를 넘겨주시면 됩니다.\n\
-                      1~10번째 정보를 받아와야한다면 page=1, 11~20번째 피드를 받아와야한다면 page=2',
-  })
-  @ApiQuery({
-    name: 'categoryId',
-    required: true,
-    description:
-      'categoryId를 받아내기 위해서는 Category API의 카테고리 목록 가져오기 API를 사용하시면 됩니다.\
-      0을 보낼 경우 category필터링 없이 전체 피드를 탐색합니다',
-  })
-  @ApiBearerAuth('Authorization')
-  @Get('/feedlist-following')
-  @UseGuards(JWTAuthGuard)
-  RetrieveFollowingFeeds(
-    @Body('profileId') profileId: number,
-    @Query('page') pageNumber: number,
-    @Query('categoryId') categoryId: number,
-  ): Promise<retrieveFeedListDto> {
-    //TODO parameter validation 필수.
-    //profileId가 유효한 id인지?
-    //pageNumber가 유효한 number인지?
-    //category는 유효한지?
-
-    // console.log(profileId);
+    // pageNumber가 유효한 number인지?
     // console.log(pageNumber);
+    // category는 유효한지?
     // console.log(categoryId);
-    // console.log(option);
-    // console.log(profileId);
-    // console.log(pageNumber);
-    // console.log(categoryId);
-    // console.log(option);
+    // fResult는 유효한지?
+    // console.log(isFollowing);
+    // ---
 
-    return this.feedsService.RetrieveFeeds(profileId, pageNumber, categoryId, true);
+    if (!isFollowing || isFollowing == undefined) {
+      isFollowing = false;
+    }
+    // console.log(isFollowing);
+
+    return this.feedsService.RetrieveFeeds(profileId, pageNumber, categoryId, isFollowing);
   }
 
   @ApiOperation({
@@ -243,12 +193,11 @@ export class FeedsController {
   @ApiOperation({
     summary: '특정 feed 상세보기 API',
   })
-
   @ApiBearerAuth('Authorization')
   @UseGuards(JWTAuthGuard)
   @Get('/:feedId/profiles/:profileId')
   getFeedById(@Param('feedId') feedId:number,@Param('profileId') profileId:number){
-    return this.feedsService.getFeedById(feedId,profileId);
+    return this.feedsService.getFeedById(feedId, profileId);
   }
 
   @ApiOperation({
@@ -465,32 +414,98 @@ export class FeedsController {
     return this.feedsService.reportFeeds(feedId);
   }
 
-  // API No. 2.3.1 해시태그 검색
-  // @UseGuards(JWTAuthGuard)
-  // @Get('/feedlist/:profileId/search')
-  // searchFeeds(
-  //   @Param('profileId', ParseIntPipe) profileId: number,
-  //   @Query('hashtag') hashtag: string,
-  //   @Query('page') pageNumber: number,
-  //   @Query('categoryId') categoryId: number,) {
-  //   // [Validation 처리]
-  //   // profileId 가 있는가
-  //   if (!profileId) {
-  //     return errResponse(baseResponse.PROFILE_ID_NOT_FOUND);
-  //   }
-  //   // jwt 토큰 유저 정보와 profileId 가 맞게 매칭되어 있는가
-  //   // const checkProfileMatch = await this.statisticsService.checkProfile(user.userId, profileId);
-  //   // console.log(checkProfileMatch);
-  //
-  //   // if (!checkProfileMatch) {
-  //   //   return errResponse(baseResponse.PROFILE_NOT_MATCH);
-  //   // }
-  //   // 해시태그가 있는가
-  //   if (!hashtag) {
-  //     return errResponse(baseResponse.HASHTAG_NOT_FOUND);
-  //   }
-  //   // ---
-  //
-  //   return this.feedsService.searchFeedsByHashtag(hashtag);
-  // }
+  // API No. 2.3.1, 2.3.2 해시태그 검색 (전체, 팔로잉)
+  @ApiCreatedResponse({
+    status: 100,
+    type: Feed,
+    isArray: true,
+    description: '성공했을때 response. 게시물 결과가 하나도 없는 경우도 성공이다.',
+  })
+  @ApiOperation({
+    summary: '2.3.1. 2.3.2. 타유저(탐색 or 팔로잉) 게시글 피드 해시태그 검색',
+    description:
+      '둘러보기 검색(탐색&팔로잉)에서 사용되는 API이다. 해시태그를 검색어로 입력하며, 카테고리 설정과 함께 작동한다.\n\
+                      실패했을 때의 에러핸들링의 경우 추가로 업데이트될 예정이다.',
+  })
+  @ApiParam({
+    name: 'profileId',
+    required: true,
+    description: '현재 유저의 profileId',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: true,
+    description:
+      'pagination을 통해 scroll하면서 10개씩 정보를 받아온다. 현재 몇번째 정보를 받아와야하는지를 넘겨주시면 됩니다.\n\
+                      1~10번째 정보를 받아와야한다면 page=1, 11~20번째 피드를 받아와야한다면 page=2',
+  })
+  @ApiQuery({
+    name: 'categoryId',
+    required: true,
+    description:
+      'categoryId를 받아내기 위해서는 Category API의 카테고리 목록 가져오기 API를 사용하시면 됩니다.\
+      0을 보낼 경우 category필터링 없이 전체 피드를 탐색합니다',
+  })
+  @ApiQuery({
+    name: 'fResult',
+    required: false,
+    description: `탐색 결과를 보여줄지, 팔로잉 결과를 보여줄지 선택하는 값입니다.\n
+      해당 쿼리스트링을 입력하지 않거나, 값을 입력하지 않거나, 값을 false로 보낼 경우, 팔로잉 여부 필터링 없이 전체 피드를 가져옵니다.
+      해당 쿼리스트링 값으로 true를 보낼 경우, 해당 사용자가 팔로잉한 계정들의 피드들만 가져옵니다.`,
+  })
+  @ApiQuery({
+    name: 'query',
+    required: true,
+    description: `검색할 해시태그 검색어 값입니다. 넘겨야할 해시태그 값은 다음 규칙을 따릅니다.\n
+      1. 단일 string 값이어야한다. (ex. query=개발자)
+      2. 띄어쓰기를 허용하지 않는다.`,
+  })
+  @ApiResponse({
+    status: 1505,
+    description: '프로필 ID를 입력하지 않음',
+    schema: { example: baseResponse.PROFILE_ID_NOT_FOUND },
+  })
+  @ApiResponse({
+    status: 2500,
+    description: '검색어를 입력하지 않음',
+    schema: { example: baseResponse.HASHTAG_NOT_FOUND },
+  })
+  @ApiBearerAuth('Authorization')
+  @UseGuards(JWTAuthGuard)
+  @Get('/feedlist/:profileId/search')
+  searchFeeds(
+    @Param('profileId', ParseIntPipe) profileId: number,
+    @Query('page') pageNumber: number,
+    @Query('categoryId') categoryId: number,
+    @Query('fResult') isFollowing: boolean,
+    @Query('query') hashtags: string,
+  ) {
+    // [Validation 처리]
+    // profileId 가 있는가
+    if (!profileId) {
+      return errResponse(baseResponse.PROFILE_ID_NOT_FOUND);
+    }
+    // jwt 토큰 유저 정보와 profileId 가 맞게 매칭되어 있는가
+    // const checkProfileMatch = await this.profilesService.checkProfile(user.userId, profileId);
+    // console.log(checkProfileMatch);
+    // if (!checkProfileMatch) {
+    //   return errResponse(baseResponse.PROFILE_NOT_MATCH);
+    // }
+
+    // 해시태그가 있는가
+    if (!hashtags) {
+      return errResponse(baseResponse.HASHTAG_NOT_FOUND);
+    }
+    // ---
+
+    // 해시태그 가공 - 추후 여러 검색어일 경우를 위하여.. (띄어쓰기로 여러 해시태그 구분)
+    // const hashtagArr = hashtags.trim().split(' ');
+
+    if (!isFollowing || isFollowing == undefined) {
+      isFollowing = false;
+    }
+    // console.log(isFollowing);
+
+    return this.feedsService.searchFeedsByHashtag(profileId, pageNumber, categoryId, isFollowing, hashtags);
+  }
 }

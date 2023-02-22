@@ -11,12 +11,9 @@ import { FollowFromTo } from '../common/entities/FollowFromTo';
 
 @Injectable()
 export class FeedRepository {
-  
   constructor(
     @InjectRepository(Feeds)
-    private feedTable: Repository<Feeds>,
-    // @InjectRepository(FollowFromTo)
-    // private followTable: Repository<FollowFromTo>,
+    private feedTable: Repository<Feeds>, // @InjectRepository(FollowFromTo) // private followTable: Repository<FollowFromTo>,
   ) {}
 
   async findFeedById(feedId: number): Promise<Feeds> {
@@ -26,9 +23,9 @@ export class FeedRepository {
       .leftJoinAndSelect('profiles.persona', 'persona')
       .leftJoinAndSelect('Feeds.feedImgs', 'feedImg')
       .leftJoinAndSelect('Feeds.categories', 'category')
-      .where('Feeds.feedId=:feedId',{feedId:feedId})
+      .where('Feeds.feedId=:feedId', { feedId: feedId });
 
-      return foundQuery.getOne();
+    return foundQuery.getOne();
   }
   async save(feedEntity: Feeds) {
     return this.feedTable.save(feedEntity);
@@ -105,7 +102,7 @@ export class FeedRepository {
     const foundQuery = this.feedTable
       .createQueryBuilder('Feeds')
       .where('Feeds.isSecret=:isSecret', { isSecret: 'PUBLIC' })
-      .andWhere('Feeds.profileId!=:ownProfileId', { ownProfileId: profileId })  // 본인 게시글 제외
+      .andWhere('Feeds.profileId!=:ownProfileId', { ownProfileId: profileId }) // 본인 게시글 제외
       .leftJoinAndSelect('Feeds.profile', 'profiles')
       .leftJoinAndSelect('profiles.persona', 'persona')
       .leftJoinAndSelect('Feeds.feedImgs', 'feedImg')
@@ -117,10 +114,8 @@ export class FeedRepository {
         'followFromTo',
         'followFromTo.fromUserId = :profileId and followFromTo.toUserId = profiles.profileId',
         { profileId: profileId },
-      )
-      // .andWhere('likes.profileId=:ownProfileId', { ownProfileId: profileId })   // 본인이 좋아요 누른 게시글만
-    ;
-
+      );
+    // .andWhere('likes.profileId=:ownProfileId', { ownProfileId: profileId })   // 본인이 좋아요 누른 게시글만
     if (categoryId != 0) {
       //0이 아닐때는 categoryId를 통한 필터링
       foundQuery
@@ -204,5 +199,45 @@ export class FeedRepository {
 
   async reportFeeds(feedId: number) {
     return await this.feedTable.update(feedId, { status: 'REPORTED' });
+  }
+
+  async retrieveOtherFeedsByHashtag(
+    profileId: number,
+    pageNumber: number,
+    categoryId: number,
+    hashTagId: number,
+  ) {
+    const foundQuery = this.feedTable
+      .createQueryBuilder('Feeds')
+      .where('Feeds.isSecret=:isSecret', { isSecret: 'PUBLIC' })
+      .andWhere('Feeds.profileId!=:ownProfileId', { ownProfileId: profileId })  // 본인 게시글 제외
+      .leftJoinAndSelect('Feeds.profile', 'profiles')
+      .leftJoinAndSelect('profiles.persona', 'persona')
+      .leftJoinAndSelect('Feeds.feedImgs', 'feedImg')
+      .leftJoinAndSelect('Feeds.categories', 'category')
+      .leftJoinAndSelect('Feeds.likes', 'likes')
+      .leftJoinAndMapOne(
+        'Feeds.followInfo',
+        FollowFromTo,
+        'followFromTo',
+        'followFromTo.fromUserId = :profileId and followFromTo.toUserId = profiles.profileId',
+        { profileId: profileId },
+      )
+      .leftJoinAndSelect('Feeds.feedHashTagMappings', 'feedHashTagMapping')
+      .andWhere('feedHashTagMapping.hashTagId=:hashTagId', { hashTagId: hashTagId })
+    ;
+
+    if (categoryId != 0) {
+      //0이 아닐때는 categoryId를 통한 필터링
+      foundQuery
+        .andWhere('Feeds.categoryId=:category', { category: categoryId })
+        .skip(10 * (pageNumber - 1))
+        .take(10);
+    } else {
+      //0일때는 categoryId를 통한 필터링 적용 x
+      foundQuery.skip(10 * (pageNumber - 1)).take(10);
+    }
+
+    return foundQuery.getMany();
   }
 }

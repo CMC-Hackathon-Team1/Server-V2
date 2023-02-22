@@ -410,44 +410,43 @@ export class FeedsService {
     return sucResponse(baseResponse.SUCCESS);
   }
 
-  async searchFeedsByHashtag(hashtag: string): Promise<any> {
+  async searchFeedsByHashtag(
+    profileId: number,
+    pageNumber: number,
+    categoryId: number,
+    onlyFollowing: boolean,
+    hashtag: string,
+  ): Promise<any> {
     // 1. 해시태그가 있는지 검색
     const hashTagEntity = await this.hashTagRepository.findByName(hashtag);
     // console.log(hashTagEntity);
     // 해시태그가 없는 경우 (검색 결과 없음)
     if (hashTagEntity.length <= 0) {
       return sucResponse(baseResponse.SUCCESS, {
-        message: '검색 결과가 없습니다',
+        empty: '게시물이 없습니다.',
       });
     }
     // 해시태그가 있는 경우
     const hashTagId = hashTagEntity[0].hashTagId;
     // 2. 해시태그 ID를 통해 게시글 검색
-    // let foundDTO: retrieveFeedsReturnDto;
-    // const feedEntity = await this.feedRepsitory.retrieveFeeds(
-    //   profileId,
-    //   pageNumber,
-    //   categoryId,
-    // );
-    // const feedIdList = [];
-    //
-    // console.log(feedEntity);
-    // if (feedEntity.length == 0) {
-    //   return errResponse(baseResponse.FEED_NOT_FOUND);
-    // }
-    // for (let i = 0; i < feedEntity.length; i++) {
-    //   feedIdList.push(feedEntity[i].feedId);
-    // }
-    // const isLikeEntity = await this.likeRepository.isLike(
-    //   feedIdList,
-    //   profileId,
-    // );
-    // console.log(feedEntity);
-    //
-    // foundDTO = new retrieveFeedsReturnDto(feedEntity, isLikeEntity);
-    //
-    // // console.log(util.inspect(foundDTO, {showHidden: false, depth: null}));
-    // return foundDTO;
+    const rawFeedList = await this.feedRepsitory.retrieveOtherFeedsByHashtag(
+      profileId,
+      pageNumber,
+      categoryId,
+      hashTagId,
+    );
+    console.log(rawFeedList);
+
+    // 원하는 정보들만 가공해서 보여주기
+    const feedListDTO: retrieveFeedListDto = new retrieveFeedListDto(rawFeedList, onlyFollowing);
+    // console.log(feedListDTO);
+
+    if (feedListDTO.feedArray.length <= 0) {
+      return sucResponse(baseResponse.SUCCESS, { empty: '게시물이 없습니다.' });
+    }
+    else {
+      return sucResponse(baseResponse.SUCCESS, feedListDTO.feedArray);
+    }
 
     return undefined;
   }

@@ -56,6 +56,11 @@ export class ProfilesService {
       // 새로운 프로필 생성
       let imgDir = '';
       // 사용자가 이미지를 전달한 경우
+
+      console.log('-----이미지 확인-----');
+      console.log(image);
+      console.log('-----확인 완료-------');
+
       if (image) {
         const imageUploadResult = await this.AwsService.uploadFileToS3('imageTest', image);
         imgDir = imageUploadResult.key;

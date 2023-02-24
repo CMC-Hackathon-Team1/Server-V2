@@ -20,16 +20,24 @@ export class ProfilesService {
   // 프로필 생성
   async createProfile(image: Express.Multer.File, req: any, createProfileDto: CreateProfileDto): Promise<any> {
     try {
+      console.log('--요청 데이터 확인 시작--');
+      console.log(image);
+      console.log(req);
+      console.log(createProfileDto);
+      console.log('--요청 데이터 확인 완료--');
+      
       const requestUserId = req.user.userId;
       const userProfilePersonaList = await this.profileRepository.getUserProfilePersonaIdList(requestUserId);
       const newProfilePersonaName = createProfileDto.personaName;
       
+      console.log('--프로필 갯수 확인 시작--');
       // 프로필 갯수 validation
       if (userProfilePersonaList.length >= 3) {
         return errResponse(baseResponse.PROFILE_COUNT_OVER, {
           currentProfileCount: userProfilePersonaList.length,
         });
       }
+      console.log('--프로필 갯수 확인 완료--');
       
       // 같은 페르소나 생성 validation
       const checkExistPerona = await this.personaRepository.getPersonaByName(newProfilePersonaName);
@@ -43,6 +51,7 @@ export class ProfilesService {
         }
       }
 
+      console.log('--페르소나 확인 시작--');
       // 아무도 사용하지 않은 새로운 페르소나인 경우 페르소나를 생성한 후 생성된 페르소나 ID를 이용하여 프로필을 생성
       let newProfilePeronaId = existPersonaId;
       if (existPersonaId === undefined) {
@@ -52,15 +61,17 @@ export class ProfilesService {
         });
         newProfilePeronaId = newPersona.personaId;
       }
+      console.log('--페르소나 확인 완료--');
       
       // 새로운 프로필 생성
       let imgDir = '';
       // 사용자가 이미지를 전달한 경우
 
-      console.log('-----이미지 확인-----');
+      console.log('--이미지 확인 시작--');
       console.log(image);
-      console.log('-----확인 완료-------');
+      console.log('--이미지 확인 완료--');
 
+      console.log('--이미지 저장 시작--');
       if (image) {
         const imageUploadResult = await this.AwsService.uploadFileToS3('imageTest', image);
         imgDir = imageUploadResult.key;
@@ -68,6 +79,7 @@ export class ProfilesService {
       else {
         imgDir = process.env.DEFAULT_PROFILE_IMAGE_DIR;
       }
+      console.log('--이미지 저장 완료--');
       const newProfileDto: SaveProfileDto = {
         userId: requestUserId,
         profileName: createProfileDto.profileName,
@@ -84,6 +96,7 @@ export class ProfilesService {
 
       return sucResponse(baseResponse.SUCCESS, result);
     } catch (error) {
+      console.log(error);
       return errResponse(baseResponse.DB_ERROR);
     }
   }

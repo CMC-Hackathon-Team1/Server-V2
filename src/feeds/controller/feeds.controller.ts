@@ -501,10 +501,10 @@ export class FeedsController {
     // 해시태그 가공 - 추후 여러 검색어일 경우를 위하여.. (띄어쓰기로 여러 해시태그 구분)
     // const hashtagArr = hashtags.trim().split(' ');
 
+    
     if (!isFollowing || isFollowing == undefined) {
       isFollowing = false;
     }
-    // console.log(isFollowing);
 
     return this.feedsService.searchFeedsByHashtag(profileId, pageNumber, categoryId, isFollowing, hashtags);
   }

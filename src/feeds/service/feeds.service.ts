@@ -439,7 +439,7 @@ export class FeedsService {
 
     // 원하는 정보들만 가공해서 보여주기
     const feedListDTO: retrieveFeedListDto = new retrieveFeedListDto(rawFeedList, onlyFollowing);
-    // console.log(feedListDTO);
+    console.log(feedListDTO);
 
     if (feedListDTO.feedArray.length <= 0) {
       return sucResponse(baseResponse.SUCCESS, { empty: '게시물이 없습니다.' });

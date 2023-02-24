@@ -8,16 +8,19 @@ export class retrieveFeedListDto {
   @ApiProperty({ description: 'feedArray' })
   feedArray: Feed[] = [];
 
-  constructor(rawFeedList: any[], onlyFollowing: boolean) {
+  constructor(rawFeedList: any[], onlyFollowing: any) {
     let cnt = 0;
     // 데이터 가공하기
     for (let i = 0; i < rawFeedList.length; i++) {
+    
       // 탐색 게시글 목록
-      if (onlyFollowing == false) {
+      if (onlyFollowing=="false" || onlyFollowing == false) {
+        console.log("not only following");
         this.feedArray.push(new Feed(rawFeedList.at(i)));
       }
       // 팔로잉 게시글 목록
       else {
+        console.log("only following");
         if (rawFeedList.at(i).followInfo != null) {
           this.feedArray.push(new Feed(rawFeedList.at(i)));
         }

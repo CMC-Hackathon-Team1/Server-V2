@@ -9,6 +9,8 @@ export class GetFeedByIdResDTO{
     @ApiProperty()
     private profileName: String;
     @ApiProperty()
+    private profileImg:String;
+    @ApiProperty()
     private createdAt: String; // 언제 생성된 게시글인지 확인해줘야한다.
     @ApiProperty()
     private feedContent: String;
@@ -17,14 +19,24 @@ export class GetFeedByIdResDTO{
     @ApiProperty({description:"현재 로그인한 profileId가 이 게시글을 좋아요 눌렀을 경우 true 좋아요를 누르지 않았을 경우 false가 전송됩니다."})
     private isLike : Boolean;
 
+    @ApiProperty()
+    private hashTagList:Array<String>=new Array();
+
 	constructor(feedEnitty: any,isLike: Boolean) {
+        console.log("profile?");
+        console.log(feedEnitty);
+        console.log(feedEnitty.feedHashTagMappings.at(0).hashTag.hashTagName);
         this.feedId=feedEnitty.feedId;
         this.personaName=feedEnitty.profile.persona.personaName;
         this.profileName=feedEnitty.profile.profileName;
         this.feedContent=feedEnitty.content;
+        this.profileImg=feedEnitty.profile.profileImgUrl;
         this.createdAt=this.transformFromDateToFormat(feedEnitty.createdAt);
         for(let i =0; i<feedEnitty.feedImgs.length; i++){
             this.feedImgList.push(feedEnitty.feedImgs.at(i).feedImgUrl);
+        }
+        for(let i=0; i<feedEnitty.feedHashTagMappings.length;i++){
+            this.hashTagList.push(feedEnitty.feedHashTagMappings.at(i).hashTag.hashTagName);
         }
         this.isLike=isLike;
 	}

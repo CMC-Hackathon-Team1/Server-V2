@@ -23,6 +23,8 @@ export class FeedRepository {
       .leftJoinAndSelect('profiles.persona', 'persona')
       .leftJoinAndSelect('Feeds.feedImgs', 'feedImg')
       .leftJoinAndSelect('Feeds.categories', 'category')
+      .leftJoinAndSelect('Feeds.feedHashTagMappings','feedHashTagMappings')
+      .leftJoinAndSelect('feedHashTagMappings.hashTag','hashTags')
       .where('Feeds.feedId=:feedId', { feedId: feedId });
 
     return foundQuery.getOne();

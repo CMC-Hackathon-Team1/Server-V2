@@ -216,7 +216,7 @@ export class FeedRepository {
       .leftJoinAndSelect('Feeds.feedImgs', 'feedImg')
       .leftJoinAndSelect('Feeds.categories', 'category')
       .leftJoinAndSelect('Feeds.likes', 'likes')
-      .leftJoinAndMapOne(
+      .innerJoinAndMapOne(
         'Feeds.followInfo',
         FollowFromTo,
         'followFromTo',

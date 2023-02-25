@@ -23,6 +23,7 @@ import { FeedImgs } from '../../common/entities/FeedImgs';
 import { FeedImgsRepository } from '../feedImgs.repository';
 import { retrieveFeedListDto } from '../dto/retrieve-feedList.dto';
 import { GetFeedByIdResDTO } from '../dto/get-feed-byId.dto';
+import { FollowFromTo } from '../../common/entities/FollowFromTo';
 
 const util = require('util');
 
@@ -41,7 +42,7 @@ export class FeedsService {
   ) {}
 
   async getFeedById(feedId: number,profileId:number) {
-    const feedEntity:Feeds=await this.feedRepsitory.findFeedById(feedId);
+    const feedEntity:Feeds=await this.feedRepsitory.findFeedById(feedId,profileId);
     const isLikeQueryResult=await this.likeRepository.isLike([feedId],profileId);
     let isLike=false;
 
@@ -50,7 +51,8 @@ export class FeedsService {
     }else if(isLikeQueryResult.length==0){
       isLike=false;
     }
-    
+    console.log("here!!");
+    console.log(feedEntity['followInfo']);
     const getFeedByIdResDTO:GetFeedByIdResDTO=new GetFeedByIdResDTO(feedEntity,isLike);//isLike처리해야함.
     console.log(getFeedByIdResDTO);
     return getFeedByIdResDTO;

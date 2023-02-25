@@ -434,6 +434,7 @@ export class FeedsService {
       pageNumber,
       categoryId,
       hashTagId,
+      onlyFollowing
     );
     console.log(rawFeedList);
 

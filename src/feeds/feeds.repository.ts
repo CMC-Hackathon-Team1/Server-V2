@@ -206,6 +206,7 @@ export class FeedRepository {
     pageNumber: number,
     categoryId: number,
     hashTagId: number,
+    onlyFollowing:any,
   ) {
     const foundQuery = this.feedTable
       .createQueryBuilder('Feeds')
@@ -216,16 +217,26 @@ export class FeedRepository {
       .leftJoinAndSelect('Feeds.feedImgs', 'feedImg')
       .leftJoinAndSelect('Feeds.categories', 'category')
       .leftJoinAndSelect('Feeds.likes', 'likes')
-      .leftJoinAndMapOne(
+      .leftJoinAndSelect('Feeds.feedHashTagMappings', 'feedHashTagMapping')
+      .andWhere('feedHashTagMapping.hashTagId=:hashTagId', { hashTagId: hashTagId })
+    ;
+    if(onlyFollowing=="false" || onlyFollowing==false){
+      foundQuery.leftJoinAndMapOne(
+            'Feeds.followInfo',
+            FollowFromTo,
+            'followFromTo',
+            'followFromTo.fromUserId = :profileId and followFromTo.toUserId = profiles.profileId',
+            { profileId: profileId },
+        )
+    }else{
+      foundQuery.innerJoinAndMapOne(
         'Feeds.followInfo',
         FollowFromTo,
         'followFromTo',
         'followFromTo.fromUserId = :profileId and followFromTo.toUserId = profiles.profileId',
         { profileId: profileId },
       )
-      .leftJoinAndSelect('Feeds.feedHashTagMappings', 'feedHashTagMapping')
-      .andWhere('feedHashTagMapping.hashTagId=:hashTagId', { hashTagId: hashTagId })
-    ;
+    }
 
     if (categoryId != 0) {
       //0이 아닐때는 categoryId를 통한 필터링

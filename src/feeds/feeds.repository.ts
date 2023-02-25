@@ -242,6 +242,7 @@ export class FeedRepository {
       .leftJoinAndSelect('Feeds.categories', 'category')
       .leftJoinAndSelect('Feeds.likes', 'likes')
       .leftJoinAndSelect('Feeds.feedHashTagMappings', 'feedHashTagMapping')
+      .leftJoinAndSelect('feedHashTagMapping.hashTag','hashTag')
       .andWhere('feedHashTagMapping.hashTagId=:hashTagId', { hashTagId: hashTagId })
     ;
     if(onlyFollowing=="false" || onlyFollowing==false){

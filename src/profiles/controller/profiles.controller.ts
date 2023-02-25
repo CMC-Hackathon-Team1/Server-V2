@@ -89,7 +89,7 @@ export class ProfilesController {
   @UseGuards(JWTAuthGuard)
   @Post('/')
   @UsePipes(ValidationPipe)
-  @UseInterceptors(FileInterceptor('image'))
+  @UseInterceptors(FileInterceptor('image', {limits: {fieldSize: 1024 * 1024 * 5}}))
   createProfile(
     @UploadedFile() image: Express.Multer.File,
     @Body() createProfileDto: CreateProfileDto,
@@ -193,7 +193,7 @@ export class ProfilesController {
   })
   @UseGuards(JWTAuthGuard)
   @Patch('/:profileId')
-  @UseInterceptors(FileInterceptor('image'))
+  @UseInterceptors(FileInterceptor('image', {limits: {fieldSize: 1024 * 1024 * 5}}))
   editProfile(
     @Param('profileId', ParseIntPipe) profileId: number,
     @UploadedFile() image: Express.Multer.File,

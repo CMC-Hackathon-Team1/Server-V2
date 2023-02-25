@@ -244,6 +244,8 @@ export class FeedsController {
     @Body() postFeedRequestDTO: PostFeedRequestDTO,
     @UploadedFiles() images: Array<Express.Multer.File>,
   ) {
+    console.log(postFeedRequestDTO);
+    console.log(images);
     if (typeof postFeedRequestDTO.hashTagList == 'string') {
       postFeedRequestDTO.hashTagList = [postFeedRequestDTO.hashTagList];
     }

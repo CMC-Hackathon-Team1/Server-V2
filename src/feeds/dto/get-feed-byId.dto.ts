@@ -18,29 +18,32 @@ export class GetFeedByIdResDTO{
     private feedImgList: Array<String>=new Array();
     @ApiProperty({description:"현재 로그인한 profileId가 이 게시글을 좋아요 눌렀을 경우 true 좋아요를 누르지 않았을 경우 false가 전송됩니다."})
     private isLike : Boolean;
-
+    @ApiProperty()
+    private isFollowing: Boolean;
     @ApiProperty()
     private hashTagList:Array<String>=new Array();
 
-	constructor(feedEnitty: any,isLike: Boolean) {
-        console.log("profile?");
-        console.log(feedEnitty);
-        console.log(feedEnitty.feedHashTagMappings.at(0).hashTag.hashTagName);
-        this.feedId=feedEnitty.feedId;
-        this.personaName=feedEnitty.profile.persona.personaName;
-        this.profileName=feedEnitty.profile.profileName;
-        this.feedContent=feedEnitty.content;
-        this.profileImg=feedEnitty.profile.profileImgUrl;
-        this.createdAt=this.transformFromDateToFormat(feedEnitty.createdAt);
-        for(let i =0; i<feedEnitty.feedImgs.length; i++){
-            this.feedImgList.push(feedEnitty.feedImgs.at(i).feedImgUrl);
+	constructor(feedEntity: any,isLike: Boolean) {
+        this.feedId=feedEntity.feedId;
+        this.personaName=feedEntity.profile.persona.personaName;
+        this.profileName=feedEntity.profile.profileName;
+        this.feedContent=feedEntity.content;
+        this.profileImg=feedEntity.profile.profileImgUrl;
+        this.createdAt=this.transformFromDateToFormat(feedEntity.createdAt);
+        for(let i =0; i<feedEntity.feedImgs.length; i++){
+            this.feedImgList.push(feedEntity.feedImgs.at(i).feedImgUrl);
         }
-        if (feedEnitty.feedHashTagMappings) {
-            for(let i=0; i<feedEnitty.feedHashTagMappings.length;i++){
-              this.hashTagList.push(feedEnitty.feedHashTagMappings.at(i).hashTag.hashTagName);
+        if (feedEntity.feedHashTagMappings) {
+            for(let i=0; i<feedEntity.feedHashTagMappings.length;i++){
+              this.hashTagList.push(feedEntity.feedHashTagMappings.at(i).hashTag.hashTagName);
             }  
           }
-        this.isLike=isLike;
+        this.isLike = isLike;
+        if (feedEntity['followInfo']) {
+            this.isFollowing = true;
+        } else {
+            this.isFollowing = false;
+        }
 	}
 
     transformFromDateToFormat(createdAt:Date){

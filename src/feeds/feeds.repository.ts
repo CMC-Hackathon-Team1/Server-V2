@@ -16,7 +16,7 @@ export class FeedRepository {
     private feedTable: Repository<Feeds>, // @InjectRepository(FollowFromTo) // private followTable: Repository<FollowFromTo>,
   ) {}
 
-  async findFeedById(feedId: number): Promise<Feeds> {
+  async findFeedById(feedId: number,profileId): Promise<Feeds> {
     const foundQuery = this.feedTable
       .createQueryBuilder('Feeds')
       .leftJoinAndSelect('Feeds.profile', 'profiles')
@@ -25,6 +25,13 @@ export class FeedRepository {
       .leftJoinAndSelect('Feeds.categories', 'category')
       .leftJoinAndSelect('Feeds.feedHashTagMappings', 'feedHashTagMappings')
       .leftJoinAndSelect('feedHashTagMappings.hashTag', 'hashTags')
+      .leftJoinAndMapOne(
+        'Feeds.followInfo',
+        FollowFromTo,
+        'followFromTo',
+        'followFromTo.fromUserId = :profileId and followFromTo.toUserId = profiles.profileId',
+        { profileId: profileId },
+      )
       .where('Feeds.feedId=:feedId', { feedId: feedId })
       .andWhere('Feeds.status=:status', { status: 'ACTIVE' })
       .andWhere('Feeds.isSecret=:isSecret', { isSecret: "PUBLIC" });

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Users } from '../common/entities/Users';
+import { UserStatus } from './enum/userStatus.enum';
 
 @Injectable()
 export class UsersRepository {
@@ -18,6 +19,11 @@ export class UsersRepository {
   // 유저 정보 가져오기
   async getUserByUserId(userId: number) {
     return await this.usersTable.findOne({ where: { userId: userId } });
+  }
+
+  // 계정 공개상태 변경
+  async changeUserStatus(userStatus: UserStatus, userId: number) {
+    return await this.usersTable.update(userId, { status: userStatus });
   }
 
   // 공지사항 알림 설정 되어있는 모든 유저 정보 가져오기

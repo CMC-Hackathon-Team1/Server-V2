@@ -42,7 +42,7 @@ export class Users {
 
   @ApiProperty({
     description: '회원 상태',
-    enum: ['ACTIVE', 'INACTIVE', 'DELETED'],
+    enum: ['ACTIVE', 'INACTIVE', 'HIDDEN', 'PENDING'],
     default: 'ACTIVE',
   })
   @Column("varchar", {

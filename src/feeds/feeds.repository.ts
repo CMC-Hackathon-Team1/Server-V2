@@ -26,6 +26,7 @@ export class FeedRepository {
       .leftJoinAndSelect('Feeds.feedHashTagMappings', 'feedHashTagMappings')
       .leftJoinAndSelect('feedHashTagMappings.hashTag', 'hashTags')
       .where('Feeds.feedId=:feedId', { feedId: feedId })
+      .andWhere('Feeds.status=:status', { status: 'ACTIVE' })
       .andWhere('Feeds.isSecret=:isSecret', { isSecret: "PUBLIC" });
     return foundQuery.getOne();
   }
@@ -107,6 +108,7 @@ export class FeedRepository {
     const foundQuery = this.feedTable
       .createQueryBuilder('Feeds')
       .where('Feeds.isSecret=:isSecret', { isSecret: 'PUBLIC' })
+      .andWhere('Feeds.status=:status', { status: 'ACTIVE' })
       .andWhere('Feeds.profileId!=:ownProfileId', { ownProfileId: profileId }) // 본인 게시글 제외
       .leftJoinAndSelect('Feeds.profile', 'profiles')
       .leftJoinAndSelect('profiles.persona', 'persona')
@@ -159,6 +161,7 @@ export class FeedRepository {
       .createQueryBuilder('Feeds')
       .leftJoinAndSelect('Feeds.feedImgs', 'feedImg')
       .where('Feeds.profileId=:profileId', { profileId: profileId })
+      .andWhere('Feeds.status=:status', { status: 'ACTIVE' })
       .skip(10 * (pageNumber - 1))
       .take(10);
 
@@ -190,26 +193,28 @@ export class FeedRepository {
 
     const found = await this.feedTable.query(
       `select sub.feedId,
-            imgSub.feedImgUrl,
-            date_format(sub.originCreatedAt, "%d") as day
-     from (select feedId,
-                  profileId,
-                  content,
-                  likeNum,
-                  createdAt                                  as originCreatedAt,
-                  ROW_NUMBER() OVER (PARTITION BY createdAt) as ranking,
-                  status
-           from Feeds
-           where (createdAt)
-                     IN (select max(createdAt)
-                         from Feeds
-                         where DATE_FORMAT(createdAt, "%Y-%m") = ?#이부분 parameter처리.
-                         and profileId=? #이부분도 parameter처리
-                         group by DATE_FORMAT(createdAt, "%Y-%m-%d"))) as sub
-              LEFT JOIN (select feedId, max(feedImgUrl) as feedImgUrl from FeedImgs group by feedId) as imgSub
-                        on sub.feedId = imgSub.feedId
-     where ranking = 1
-     order by day asc;`,
+      imgSub.feedImgUrl,
+      date_format(sub.originCreatedAt, "%d") as day
+       from (select feedId,
+                    profileId,
+                    content,
+                    likeNum,
+                    createdAt                                  as originCreatedAt,
+                    ROW_NUMBER() OVER (PARTITION BY createdAt) as ranking,
+                    status
+             from Feeds
+             where (createdAt) IN (
+                   select max(createdAt)
+                   from Feeds
+                   where DATE_FORMAT(createdAt, "%Y-%m") = ?#이부분 parameter처리.
+                     and profileId = ?                      #이부분도 parameter처리
+                   group by DATE_FORMAT(createdAt, "%Y-%m-%d")
+                   ) AND status='ACTIVE'
+             ) as sub
+        LEFT JOIN (select feedId, max(feedImgUrl) as feedImgUrl from FeedImgs group by feedId) as imgSub
+                  on sub.feedId = imgSub.feedId
+        where ranking = 1
+        order by day asc;`,
       [this_month, profileId],
     );
     return found;
@@ -229,6 +234,7 @@ export class FeedRepository {
     const foundQuery = this.feedTable
       .createQueryBuilder('Feeds')
       .where('Feeds.isSecret=:isSecret', { isSecret: 'PUBLIC' })
+      .andWhere('Feeds.status=:status', { status: 'ACTIVE' })
       .andWhere('Feeds.profileId!=:ownProfileId', { ownProfileId: profileId })  // 본인 게시글 제외
       .leftJoinAndSelect('Feeds.profile', 'profiles')
       .leftJoinAndSelect('profiles.persona', 'persona')

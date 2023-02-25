@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { TokenFileWebIdentityCredentials } from 'aws-sdk';
 import { IsNotEmpty } from 'class-validator';
 import { Feeds } from '../../common/entities/Feeds';
-import { ExploreOptions } from '../enum/expore-options-enum';
+import { FeedSecret } from '../enum/feed-secret-enum';
 
 export class PostFeedRequestDTO {
   @ApiProperty()
@@ -17,7 +17,7 @@ export class PostFeedRequestDTO {
   content: string;
   @ApiProperty()
   @IsNotEmpty()
-  isSecret: ExploreOptions;
+  isSecret: FeedSecret;
 
   static DTOtoEntity(postFeedRequestDTO: PostFeedRequestDTO): Feeds {
     let feedEntity: Feeds = new Feeds();

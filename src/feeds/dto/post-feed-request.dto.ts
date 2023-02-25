@@ -8,17 +8,13 @@ export class PostFeedRequestDTO {
   @ApiProperty()
   @IsNotEmpty()
   profileId: number;
-
   @ApiProperty()
   @IsNotEmpty()
   categoryId: number;
-
   @ApiProperty()
   hashTagList: string[];
-
   @ApiProperty()
   content: string;
-
   @ApiProperty()
   @IsNotEmpty()
   isSecret: ExploreOptions;

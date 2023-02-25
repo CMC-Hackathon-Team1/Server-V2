@@ -371,7 +371,6 @@ export class FeedsController {
     @Query('year') year: number,
     @Query('month') month: number,
   ) {
-    console.log('아 쫌!!');
     return this.feedsService.RetriveMyFeedInCalender(profileId, year, month);
   }
 

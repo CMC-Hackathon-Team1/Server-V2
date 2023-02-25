@@ -235,6 +235,7 @@ export class FeedsService {
       profileId,
       pageNumber,
       categoryId,
+      onlyFollowing
     );
     // console.log(rawFeedList);
 

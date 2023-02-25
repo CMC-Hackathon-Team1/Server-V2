@@ -35,9 +35,11 @@ export class GetFeedByIdResDTO{
         for(let i =0; i<feedEnitty.feedImgs.length; i++){
             this.feedImgList.push(feedEnitty.feedImgs.at(i).feedImgUrl);
         }
-        for(let i=0; i<feedEnitty.feedHashTagMappings.length;i++){
-            this.hashTagList.push(feedEnitty.feedHashTagMappings.at(i).hashTag.hashTagName);
-        }
+        if (feedEnitty.feedHashTagMappings) {
+            for(let i=0; i<feedEnitty.feedHashTagMappings.length;i++){
+              this.hashTagList.push(feedEnitty.feedHashTagMappings.at(i).hashTag.hashTagName);
+            }  
+          }
         this.isLike=isLike;
 	}
 

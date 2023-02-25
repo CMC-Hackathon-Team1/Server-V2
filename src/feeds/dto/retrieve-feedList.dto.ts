@@ -43,12 +43,10 @@ export class Feed {
   private profileId: number;
   @ApiProperty()
   private profileName: string;
-  @ApiProperty({
-    description:
-      '게시글 생성일자는 String형태로 보내드리며 받으신 값을 정해진 위치에 그대로 삽입하시면 됩니다.\n\
-                                아직 기획이 구체화 되지 않아 db에서 받은값을 그대로 보내드리고 있으며 어떻게 표시할지가 구체화 되면\n\
-                                변경될 예정입니다.',
-  })
+  @ApiProperty()
+  private profileImg: string;
+
+  @ApiProperty()
   private createdAt: string; // 언제 생성된 게시글인지 확인해줘야한다.
   @ApiProperty()
   private feedContent: string;
@@ -68,16 +66,27 @@ export class Feed {
   })
   private isFollowing: boolean = false;
 
+  @ApiProperty()
+    private hashTagList:Array<String>=new Array();
+
+  
   constructor(feedEntity: any) {
     this.feedId = feedEntity.feedId;
     this.personaId = feedEntity.profile.personaId;
     this.personaName = feedEntity.profile.profileName;
     this.profileId = feedEntity.profileId;
+    this.profileImg = feedEntity.profile.profileImgUrl;
     this.profileName = feedEntity.profile.persona.personaName;
     this.feedContent = feedEntity.content;
     this.createdAt = this.transformFromDateToFormat(feedEntity.createdAt);
     for (let i = 0; i < feedEntity.feedImgs.length; i++) {
       this.feedImgList.push(feedEntity.feedImgs.at(i).feedImgUrl);
+    }
+    console.log(feedEntity.feedHashTagMappings.at(0));
+    if (feedEntity.feedHashTagMappings) {
+      for(let i=0; i<feedEntity.feedHashTagMappings.length;i++){
+        this.hashTagList.push(feedEntity.feedHashTagMappings.at(i).hashTag.hashTagName);
+      }  
     }
     // 좋아요 표시
     // this.isLike = isLike;

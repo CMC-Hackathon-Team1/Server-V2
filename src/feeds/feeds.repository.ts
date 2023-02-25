@@ -23,10 +23,10 @@ export class FeedRepository {
       .leftJoinAndSelect('profiles.persona', 'persona')
       .leftJoinAndSelect('Feeds.feedImgs', 'feedImg')
       .leftJoinAndSelect('Feeds.categories', 'category')
-      .leftJoinAndSelect('Feeds.feedHashTagMappings','feedHashTagMappings')
-      .leftJoinAndSelect('feedHashTagMappings.hashTag','hashTags')
-      .where('Feeds.feedId=:feedId', { feedId: feedId });
-
+      .leftJoinAndSelect('Feeds.feedHashTagMappings', 'feedHashTagMappings')
+      .leftJoinAndSelect('feedHashTagMappings.hashTag', 'hashTags')
+      .where('Feeds.feedId=:feedId', { feedId: feedId })
+      .andWhere('Feeds.isSecret=:isSecret', { isSecret: "PUBLIC" });
     return foundQuery.getOne();
   }
   async save(feedEntity: Feeds) {
@@ -77,6 +77,8 @@ export class FeedRepository {
       .leftJoinAndSelect('profiles.persona', 'persona')
       .leftJoinAndSelect('Feeds.feedImgs', 'feedImg')
       .leftJoinAndSelect('Feeds.categories', 'category')
+      .leftJoinAndSelect('Feeds.feedHashTagMappings', 'feedHashTagMappings')
+      .leftJoinAndSelect('feedHashTagMappings.hashTag', 'hashTags')
       .where('Feeds.isSecret=:isSecret', { isSecret: 'PUBLIC' });
 
     if (categoryId != 0) {
@@ -98,6 +100,7 @@ export class FeedRepository {
     profileId: number,
     pageNumber: number,
     categoryId: number,
+    onlyFollowing: any,
   ): Promise<Feeds[]> {
     // console.log(profileId, categoryId);
 
@@ -110,13 +113,26 @@ export class FeedRepository {
       .leftJoinAndSelect('Feeds.feedImgs', 'feedImg')
       .leftJoinAndSelect('Feeds.categories', 'category')
       .leftJoinAndSelect('Feeds.likes', 'likes')
-      .leftJoinAndMapOne(
+      .leftJoinAndSelect('Feeds.feedHashTagMappings', 'feedHashTagMapping')
+      .leftJoinAndSelect('feedHashTagMapping.hashTag', 'hashTag');
+      
+    if(onlyFollowing=="false" || onlyFollowing==false){
+      foundQuery.leftJoinAndMapOne(
+            'Feeds.followInfo',
+            FollowFromTo,
+            'followFromTo',
+            'followFromTo.fromUserId = :profileId and followFromTo.toUserId = profiles.profileId',
+            { profileId: profileId },
+        )
+    }else{
+      foundQuery.innerJoinAndMapOne(
         'Feeds.followInfo',
         FollowFromTo,
         'followFromTo',
         'followFromTo.fromUserId = :profileId and followFromTo.toUserId = profiles.profileId',
         { profileId: profileId },
-      );
+      )
+    }
     // .andWhere('likes.profileId=:ownProfileId', { ownProfileId: profileId })   // 본인이 좋아요 누른 게시글만
     if (categoryId != 0) {
       //0이 아닐때는 categoryId를 통한 필터링

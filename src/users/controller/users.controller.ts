@@ -1,6 +1,7 @@
-import { Body, Controller, Delete, Get, Post, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Patch, Post, Request, UseGuards } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiBody,
   ApiOperation,
   ApiResponse,
   ApiTags,
@@ -9,7 +10,9 @@ import { JWTAuthGuard } from '../../auth/security/auth.guard.jwt';
 import baseResponse from '../../common/utils/baseResponseStatus';
 import { errResponse, sucResponse } from '../../common/utils/response';
 import { EmailService } from '../../email/email.service';
+import { ChangeUserStatusDto } from '../dto/changeUserStatus.dto';
 import { SendMailDTO } from '../dto/sendMailDTO';
+import { UserStatus } from '../enum/userStatus.enum';
 import { UsersService } from '../service/users.service';
 
 @ApiTags('Users')
@@ -83,9 +86,45 @@ export class UsersController {
   @ApiBearerAuth('Authorization')
   @UseGuards(JWTAuthGuard)
   @Post('/send-mail')
-  async sendMail(@Body() sendMailDTO:SendMailDTO,@Request() req:any){
+  async sendMail(@Body() sendMailDTO: SendMailDTO, @Request() req:any){
     const requestUserId = req.user.userId;
 
     return await this.emailService.sendMail('alsdnrdl001@gmail.com',requestUserId,sendMailDTO.content);
+  }
+
+  // 계정 공개상태 설정
+  @ApiOperation({
+    summary: '계정 공개상태 변경',
+    description:
+      'ACTIVE / HIDDEN으로 구분되며 각각 공개 / 비공개 입니다.',
+  })
+  @ApiBearerAuth('Authorization')
+  @ApiBody({
+    schema: { example: { userStatus: 'ACTIVE 또는 HIDDEN' }}
+  })
+  @ApiResponse({
+    status: 100,
+    description: 'SUCCESS',
+    schema: { example: baseResponse.SUCCESS },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'JWT 오류',
+    schema: { example: baseResponse.JWT_UNAUTHORIZED },
+  })
+  @ApiResponse({
+    status: 501,
+    description: 'DB 오류',
+    schema: { example: baseResponse.DB_ERROR },
+  })
+  @ApiResponse({
+    status: 1103,
+    description: '요청 Body 오류',
+    schema: { example: baseResponse.USER_STATUS_ERROR },
+  })
+  @UseGuards(JWTAuthGuard)
+  @Patch('/status')
+  async changeUserStatus(@Body() changeUserStatusDto: ChangeUserStatusDto, @Request() req: any) {
+    return await this.usersService.changeUserStatus(changeUserStatusDto, req);
   }
 }

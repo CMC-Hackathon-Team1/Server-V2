@@ -17,17 +17,25 @@ export class AuthService {
 
   async registerUser(newUser: UserDTO, loginType: string): Promise<object> {
     // 이미 있는 계정인지 체크
-    const userFind: UserDTO = await this.userService.findByFields({
+    const userFind = await this.userService.findByFields({
       where: { email: newUser.email },
     });
+    console.log(userFind);
 
     // [Validation 처리]
     // 이미 있는 계정인 경우
-    if (userFind) {
+    if (userFind && userFind.status == 'ACTIVE') {
       return errResponse(baseResponse.USER_ALREADY_EXISTS);
     }
     // ---
+    // [인증 절차]
+    // 아직 인증 미완료된 경우
+    if (userFind && userFind.status == 'PENDING') {
+      console.log('PENDING CUSTOMER ACTION (EMAIL NOTIFICATION)');
+      return errResponse(baseResponse.EMAIL_NOTIFICATION_FAILED);
+    }
 
+    // 인증 완료된 경우 -> 회원 추가
     const addedUser = await this.userService.save(newUser, loginType, null);
     const result = {
       userId: addedUser.userId,

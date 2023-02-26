@@ -2,6 +2,8 @@ import {
   Body,
   Controller,
   Get,
+  Param,
+  ParseIntPipe,
   Post,
   Query,
   Req,
@@ -29,6 +31,7 @@ import {
 import { KakaoService } from './kakao/kakao.service';
 import { GoogleService } from './google/google.service';
 import { AuthGuard } from '@nestjs/passport';
+import { OwnAuthService } from './own/ownAuth.service';
 
 @ApiTags('로그인, 인증 API')
 @Controller('auth')
@@ -36,6 +39,7 @@ export class AuthController {
   constructor(
     private authService: AuthService,
     private userService: UserService,
+    private ownAuthService: OwnAuthService,
     private kakaoService: KakaoService,
     private googleService: GoogleService,
   ) {}
@@ -70,9 +74,21 @@ export class AuthController {
   })
   @Post('/signup')
   @UsePipes(ValidationPipe)
-  async registerAccount(@Body() userDTO: UserDTO): Promise<any> {
-    return await this.authService.registerUser(userDTO, 'own');
+  async signUp(@Body() userDTO: UserDTO): Promise<any> {
+    return await this.ownAuthService.signUp(userDTO);
   }
+
+  @Post('/signup-callback')
+  async validateEmail(
+    @Body() email: string,
+    @Query('code') authCode: string,
+  ): Promise<any> {
+    return await this.ownAuthService.authenticateAccount(email, authCode);
+  }
+
+  // async registerAccount(@Body() userDTO: UserDTO): Promise<any> {
+  //   return await this.authService.registerUser(userDTO, 'own');
+  // }
 
   // API No. 4.1.4.2. 자체로그인 - 로그인
   @ApiOperation({
@@ -84,7 +100,9 @@ export class AuthController {
     status: 100,
     description: 'SUCCESS',
     headers: {},
-    schema: { example: sucResponse(baseResponse.SUCCESS, { jwt: 'eyJhbGciOiJI...' }) },
+    schema: {
+      example: sucResponse(baseResponse.SUCCESS, { jwt: 'eyJhbGciOiJI...' }),
+    },
   })
   @ApiResponse({
     status: 400,
@@ -181,7 +199,11 @@ export class AuthController {
   @ApiResponse({
     status: 100,
     description: 'SUCCESS',
-    schema: { example: sucResponse(baseResponse.SUCCESS, { TODO: '클라이언트에서 jwt를 지워주세요'}) },
+    schema: {
+      example: sucResponse(baseResponse.SUCCESS, {
+        TODO: '클라이언트에서 jwt를 지워주세요',
+      }),
+    },
   })
   @ApiResponse({
     status: 400,
@@ -252,7 +274,8 @@ export class AuthController {
   })
   @ApiResponse({
     status: 1012,
-    description: '카카오 액세서 토큰을 받아오는데 실패함. (인가 코드가 잘못되었거나 유효하지 않음.)',
+    description:
+      '카카오 액세서 토큰을 받아오는데 실패함. (인가 코드가 잘못되었거나 유효하지 않음.)',
     schema: { example: errResponse(baseResponse.KAKAO_ACCESS_TOKEN_FAIL) },
   })
   @ApiResponse({
@@ -262,7 +285,8 @@ export class AuthController {
   })
   @ApiResponse({
     status: 1014,
-    description: '카카오 유저 정보를 불러오는데 실패함. (액세스 토큰이 잘못되었거나 유효하지 않음.)',
+    description:
+      '카카오 유저 정보를 불러오는데 실패함. (액세스 토큰이 잘못되었거나 유효하지 않음.)',
     schema: { example: errResponse(baseResponse.KAKAO_USER_INFO_FAIL) },
   })
   @ApiResponse({
@@ -271,7 +295,10 @@ export class AuthController {
     schema: { example: errResponse(baseResponse.WRONG_LOGIN) },
   })
   @Post('/kakao-login')
-  async kakaoLogin(@Body('access_token') acces_token: any, @Res() res: Response): Promise<any> {
+  async kakaoLogin(
+    @Body('access_token') acces_token: any,
+    @Res() res: Response,
+  ): Promise<any> {
     // [DEPRECATED] - 프론트엔드에서 처리해줄 사항
     // // 1. 클라이언트로부터 인가 코드 전달 받기 (query string)
     // // const { code } = qs.code;
@@ -355,7 +382,8 @@ export class AuthController {
   })
   @ApiResponse({
     status: 1014,
-    description: '카카오 유저 정보를 불러오는데 실패함. (액세스 토큰이 잘못되었거나 유효하지 않음.)',
+    description:
+      '카카오 유저 정보를 불러오는데 실패함. (액세스 토큰이 잘못되었거나 유효하지 않음.)',
     schema: { example: errResponse(baseResponse.KAKAO_USER_INFO_FAIL) },
   })
   @Get('/kakao/user')
@@ -367,7 +395,8 @@ export class AuthController {
       return errResponse(baseResponse.KAKAO_ACCESS_TOKEN_EMPTY);
     }
 
-    const getKakaoUser = this.kakaoService.getKakaoUserInfoByToken(kakao_accessToken);
+    const getKakaoUser =
+      this.kakaoService.getKakaoUserInfoByToken(kakao_accessToken);
 
     return getKakaoUser;
   }
@@ -389,7 +418,11 @@ export class AuthController {
   @ApiResponse({
     status: 100,
     description: 'SUCCESS',
-    schema: { example: sucResponse(baseResponse.SUCCESS, { TODO: '클라이언트에서 jwt를 지워주세요'}) },
+    schema: {
+      example: sucResponse(baseResponse.SUCCESS, {
+        TODO: '클라이언트에서 jwt를 지워주세요',
+      }),
+    },
   })
   @ApiResponse({
     status: 400,
@@ -408,7 +441,8 @@ export class AuthController {
   })
   @ApiResponse({
     status: 1012,
-    description: '카카오 액세서 토큰을 받아오는데 실패함. (인가 코드가 잘못되었거나 유효하지 않음.)',
+    description:
+      '카카오 액세서 토큰을 받아오는데 실패함. (인가 코드가 잘못되었거나 유효하지 않음.)',
     schema: { example: errResponse(baseResponse.KAKAO_ACCESS_TOKEN_FAIL) },
   })
   @ApiResponse({
@@ -418,12 +452,17 @@ export class AuthController {
   })
   @ApiResponse({
     status: 1014,
-    description: '카카오 유저 정보를 불러오는데 실패함. (액세스 토큰이 잘못되었거나 유효하지 않음.)',
+    description:
+      '카카오 유저 정보를 불러오는데 실패함. (액세스 토큰이 잘못되었거나 유효하지 않음.)',
     schema: { example: errResponse(baseResponse.KAKAO_USER_INFO_FAIL) },
   })
   @Post('/kakao-logout')
   @UseGuards(JWTAuthGuard)
-  async kakaoLogout(@Body('access_token') acces_token: any, @Req() req: Request, @Res() res: Response): Promise<any> {
+  async kakaoLogout(
+    @Body('access_token') acces_token: any,
+    @Req() req: Request,
+    @Res() res: Response,
+  ): Promise<any> {
     if (!acces_token) {
       return res.send(errResponse(baseResponse.KAKAO_ACCESS_TOKEN_EMPTY));
     }
@@ -432,7 +471,10 @@ export class AuthController {
     const userId: number = user.userId;
 
     // 카카오 액세스 토큰으로 카카오 로그아웃 호출하기
-    const kakaoResult = await this.kakaoService.kakaoLogout(userId, acces_token);
+    const kakaoResult = await this.kakaoService.kakaoLogout(
+      userId,
+      acces_token,
+    );
 
     // 쿠키 지우기 - DEPRECATED
     // res.cookie('jwt', '', {
@@ -498,7 +540,10 @@ export class AuthController {
     schema: { example: errResponse(baseResponse.WRONG_LOGIN) },
   })
   @Post('/google-login')
-  async googleLogin(@Body('id_token') id_token: any, @Res() res: Response): Promise<any> {
+  async googleLogin(
+    @Body('id_token') id_token: any,
+    @Res() res: Response,
+  ): Promise<any> {
     // 1. 클라이언트로부터 구글 idToken 전달 받기 (request body)
     if (!id_token) {
       return errResponse(baseResponse.GOOGLE_ID_TOKEN_EMPTY);

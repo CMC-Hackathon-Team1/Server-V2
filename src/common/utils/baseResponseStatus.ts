@@ -18,6 +18,9 @@ const baseResponse = {
   // 인증 관련
   AUTH_COOKIE_JWT_EMPTY: { statusCode: 1000, message: '쿠키에 jwt가 없습니다.' },
   TOKEN_VERIFICATION_FAILURE: { statusCode: 1001, message: 'JWT 토큰 검증 실패' },
+  USER_AUTH_WRONG: { statusCode: 1002, message: '회원 인증에 실패했습니다.' },
+  USER_WRONG_STATUS: { statusCode: 1003, message: '회원 인증 상태에 문제가 있습니다.' },
+  EMAIL_NOTIFICATION_FAILED: { statusCode: 1004, message: '이메일 인증이 완료되지 않았습니다.' },
 
   KAKAO_LOGIN_FAILED: { statusCode: 1010, message: '카카오 로그인에 실패했습니다.' },
   KAKAO_AUTH_CODE_EMPTY: { statusCode: 1011, message: '카카오 인가코드가 없습니다.' },

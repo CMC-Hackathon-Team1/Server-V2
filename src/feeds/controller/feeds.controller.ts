@@ -86,10 +86,14 @@ export class FeedsController {
       해당 쿼리스트링을 입력하지 않거나, 값을 입력하지 않거나, 값을 false로 보낼 경우, 팔로잉 여부 필터링 없이 전체 피드를 가져옵니다.\n
       해당 쿼리스트링 값으로 true를 보낼 경우, 해당 사용자가 팔로잉한 계정들의 피드들만 가져옵니다.`,
   })
-  // @ApiResponse({
-  //   status: baseResponse.FEED_NOT_FOUND.statusCode,
-  //   description: baseResponse.FEED_NOT_FOUND.message,
-  // })
+  @ApiResponse({
+    status: baseResponse.SUCCESS.statusCode,
+    description: baseResponse.SUCCESS.message,
+  })
+  @ApiResponse({
+    status:baseResponse.DB_ERROR.statusCode,
+    description:baseResponse.DB_ERROR.message,
+  })
   @ApiBearerAuth('Authorization')
   @Get('/feedlist/:profileId')
   @UseGuards(JWTAuthGuard)
@@ -193,6 +197,18 @@ export class FeedsController {
   @ApiOperation({
     summary: '특정 feed 상세보기 API',
   })
+  @ApiResponse({
+    status: baseResponse.SUCCESS.statusCode,
+    description: baseResponse.SUCCESS.message,
+  })
+  @ApiResponse({
+    status:baseResponse.DB_ERROR.statusCode,
+    description:baseResponse.DB_ERROR.message,
+  })
+  @ApiResponse({
+    status:baseResponse.FEED_NOT_FOUND.statusCode,
+    description:baseResponse.FEED_NOT_FOUND.message,
+  })
   @ApiBearerAuth('Authorization')
   @UseGuards(JWTAuthGuard)
   @Get('/:feedId/profiles/:profileId')
@@ -244,8 +260,6 @@ export class FeedsController {
     @Body() postFeedRequestDTO: PostFeedRequestDTO,
     @UploadedFiles() images: Array<Express.Multer.File>,
   ) {
-    console.log(postFeedRequestDTO);
-    console.log(images);
     if (typeof postFeedRequestDTO.hashTagList == 'string') {
       postFeedRequestDTO.hashTagList = [postFeedRequestDTO.hashTagList];
     }
@@ -364,6 +378,14 @@ export class FeedsController {
     name: 'month',
     required: true,
     description: '검색하고싶은 달 "mm"형식으로 제공되어야한다.(2자리수) ex) 01',
+  })
+  @ApiResponse({
+    status: baseResponse.SUCCESS.statusCode,
+    description: baseResponse.SUCCESS.message,
+  })
+  @ApiResponse({
+    status: baseResponse.DB_ERROR.statusCode,
+    description: baseResponse.DB_ERROR.message,
   })
   @ApiBearerAuth('Authorization')
   @UseGuards(JWTAuthGuard)

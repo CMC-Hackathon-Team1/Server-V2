@@ -10,6 +10,7 @@ import { JwtStrategy } from './security/jwt.strategy';
 import { jwtConfig } from '../../config/jwt.config';
 import { KakaoService } from './kakao/kakao.service';
 import { GoogleService } from './google/google.service';
+import { OwnAuthService } from './own/ownAuth.service';
 
 @Module({
   imports: [
@@ -19,6 +20,6 @@ import { GoogleService } from './google/google.service';
   ],
   exports: [AuthService],
   controllers: [AuthController],
-  providers: [AuthService, UserService, JwtStrategy, KakaoService, GoogleService],
+  providers: [AuthService, UserService, OwnAuthService, JwtStrategy, KakaoService, GoogleService],
 })
 export class AuthModule {}

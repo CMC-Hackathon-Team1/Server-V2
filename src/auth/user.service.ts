@@ -27,9 +27,10 @@ export class UserService {
     return userInfo;
   }
 
-  // 조건으로 회원 1명 검색하기 (ex. 이메일+비밀번호)
+  // 조건으로 회원 1명 검색하기
   async findByFields(
-    options: FindOneOptions<UserDTO>,
+    options: FindOneOptions<UserDTO>,  // 이메일+비밀번호로 검색하기
+    // options: FindOneOptions<Users>,
   ): Promise<Users | undefined> {
     return await this.userRepository.findOne(options);
   }
@@ -38,6 +39,69 @@ export class UserService {
     return await this.userRepository.findOne({
       where: {
         email: email,
+      },
+    });
+  }
+
+  // 자체 회원가입 인증 전, 임시로 유저 생성
+  async tempSave(pendingUser: UserDTO, authCode: string): Promise<any> {
+    if (pendingUser.password !== null) {
+      // 비밀번호 암호화
+      await this.transformPassword(pendingUser);
+    }
+    return await this.userRepository
+      .createQueryBuilder()
+      .insert()
+      .into(Users)
+      .values([
+        {
+          email: pendingUser.email,
+          password: pendingUser.password,
+          login_type: 'own',
+          access_token: authCode,
+          status: 'PENDING',
+        },
+      ])
+      .execute();
+  }
+  // 이메일 인증만 다시 원하는 경우, 인증 코드 업데이트하기
+  async tempUpdate(pendingUser: UserDTO, authCode: string): Promise<any> {
+    if (pendingUser.password !== null) {
+      // 비밀번호 암호화
+      await this.transformPassword(pendingUser);
+    }
+    return await this.userRepository
+      .createQueryBuilder()
+      .update(Users)
+      .set({ access_token: authCode })
+      .where('email=:email', { email: pendingUser.email })
+      .execute();
+  }
+  // 이메일 인증이 완료되지 않으면 임시 유저 삭제하기
+  async deleteTempUser(pendingUser: UserDTO): Promise<any> {
+    return await this.userRepository
+      .createQueryBuilder()
+      .delete()
+      .from(Users)
+      .where('email=:email', { email: pendingUser.email })
+      .execute();
+  }
+
+  // 이메일 인증이 정상적으로 끝난 경우, 회원 상태 활성화하기
+  async activateUser(pendingUser: UserDTO): Promise<any> {
+    return await this.userRepository
+      .createQueryBuilder()
+      .update(Users)
+      .set({ status: 'ACTIVE', access_token: null })
+      .where('email=:email', { email: pendingUser.email })
+      .execute();
+  }
+
+  async checkActiveUser(email: string): Promise<any> {
+    return await this.userRepository.findOne({
+      where: {
+        email: email,
+        status: 'ACTIVE',
       },
     });
   }

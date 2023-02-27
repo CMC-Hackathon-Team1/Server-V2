@@ -2,6 +2,8 @@ import {
   Body,
   Controller,
   Get,
+  Param,
+  ParseIntPipe,
   Post,
   Query,
   Req,
@@ -21,14 +23,15 @@ import {
   ApiBearerAuth,
   ApiBody,
   ApiHeader,
-  ApiOperation,
+  ApiOperation, ApiParam,
   ApiQuery,
   ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+  ApiTags
+} from "@nestjs/swagger";
 import { KakaoService } from './kakao/kakao.service';
 import { GoogleService } from './google/google.service';
 import { AuthGuard } from '@nestjs/passport';
+import { OwnAuthService } from './own/ownAuth.service';
 
 @ApiTags('로그인, 인증 API')
 @Controller('auth')
@@ -36,6 +39,7 @@ export class AuthController {
   constructor(
     private authService: AuthService,
     private userService: UserService,
+    private ownAuthService: OwnAuthService,
     private kakaoService: KakaoService,
     private googleService: GoogleService,
   ) {}
@@ -46,6 +50,73 @@ export class AuthController {
     description: '이메일,비밀번호로 직접 회원가입한다.',
   })
   @ApiBody({ type: UserDTO })
+  @ApiParam({
+    name: 'level',
+    required: true,
+    description: `회원가입 단계\n
+    0 : 처음 회원가입 버튼을 누를 때 (이메일 인증을 보낼 떄)
+    1 (또는 다른 번호) : 이메일 인증이 완료된 후에 다음 단계로 넘어갈 때`,
+  })
+  @ApiResponse({
+    status: 100,
+    description: 'SUCCESS',
+    schema: {
+      example: sucResponse(baseResponse.SUCCESS, {
+        state:
+          '인증메일을 확인해주세요. 10분 이내에 답변하지 않으면 회원가입이 취소됩니다.',
+      }),
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Body 오류',
+    schema: { example: baseResponse.PIPE_ERROR_EXAMPLE },
+  })
+  @ApiResponse({
+    status: 500,
+    description: '서버 오류',
+    schema: { example: errResponse(baseResponse.SERVER_ERROR) },
+  })
+  @ApiResponse({
+    status: 1006,
+    description: '이메일 인증 메일 보내는 중에 에러.',
+    schema: {
+      example: errResponse(baseResponse.EMAIL_AUTH_RENDER_FAILED),
+    },
+  })
+  @ApiResponse({
+    status: 1007,
+    description: '이메일 인증 메일 보내기 실패.',
+    schema: {
+      example: errResponse(baseResponse.EMAIL_SEND_FAILED),
+    },
+  })
+  @ApiResponse({
+    status: 1100,
+    description: '해당 이메일로 이미 가입된 회원이 있음.',
+    schema: {
+      example: errResponse(baseResponse.USER_ALREADY_EXISTS),
+    },
+  })
+  @Post('/signup/:level')
+  @UsePipes(ValidationPipe)
+  async signUp(@Body() userDTO: UserDTO, @Param('level', ParseIntPipe) level: number): Promise<any> {
+    if (level == 0) {
+      return await this.ownAuthService.signUp(userDTO);
+    } else {
+      const checkActivatedUser = await this.userService.checkActiveUser(userDTO.email);
+      if (!checkActivatedUser) {
+        return errResponse(baseResponse.USER_AUTH_WRONG);
+      } else {
+        return sucResponse(baseResponse.SUCCESS);
+      }
+    }
+  }
+
+  @ApiOperation({
+    summary: '4.1.4.1. 자체 로그인 - 회원가입 - 검증',
+    description: '회원가입 API를 통해 이메일에서 인증 버튼을 누르면 자동 호출되는 부분입니다. (직접 테스트 X)',
+  })
   @ApiResponse({
     status: 100,
     description: 'SUCCESS',
@@ -62,17 +133,39 @@ export class AuthController {
     schema: { example: errResponse(baseResponse.SERVER_ERROR) },
   })
   @ApiResponse({
-    status: 1100,
-    description: '해당 이메일로 이미 가입된 회원이 있음.',
+    status: 1002,
+    description: '인증코드가 잘못됨',
     schema: {
-      example: errResponse(baseResponse.USER_ALREADY_EXISTS),
+      example: errResponse(baseResponse.USER_AUTH_WRONG),
     },
   })
-  @Post('/signup')
-  @UsePipes(ValidationPipe)
-  async registerAccount(@Body() userDTO: UserDTO): Promise<any> {
-    return await this.authService.registerUser(userDTO, 'own');
+  @ApiResponse({
+    status: 1003,
+    description: '현재 이메일 인증 중이던 회원에 문제가 발생함',
+    schema: {
+      example: errResponse(baseResponse.USER_WRONG_STATUS),
+    },
+  })
+  @ApiResponse({
+    status: 1005,
+    description: '이메일 인증 기한이 만료됨. 처음부터 다시 회원가입 하세요.',
+    schema: {
+      example: errResponse(baseResponse.EMAIL_NOTIFICATION_EXPIRED),
+    },
+  })
+  @Get('/signup-callback')
+  async validateEmail(
+    // @Body() email: string,
+    @Query('email') email: string,
+    @Query('code') authCode: string,
+  ): Promise<any> {
+    console.log(email, authCode);
+    return await this.ownAuthService.authenticateAccount(email, authCode);
   }
+
+  // async registerAccount(@Body() userDTO: UserDTO): Promise<any> {
+  //   return await this.authService.registerUser(userDTO, 'own');
+  // }
 
   // API No. 4.1.4.2. 자체로그인 - 로그인
   @ApiOperation({
@@ -84,7 +177,9 @@ export class AuthController {
     status: 100,
     description: 'SUCCESS',
     headers: {},
-    schema: { example: sucResponse(baseResponse.SUCCESS, { jwt: 'eyJhbGciOiJI...' }) },
+    schema: {
+      example: sucResponse(baseResponse.SUCCESS, { jwt: 'eyJhbGciOiJI...' }),
+    },
   })
   @ApiResponse({
     status: 400,
@@ -181,7 +276,11 @@ export class AuthController {
   @ApiResponse({
     status: 100,
     description: 'SUCCESS',
-    schema: { example: sucResponse(baseResponse.SUCCESS, { TODO: '클라이언트에서 jwt를 지워주세요'}) },
+    schema: {
+      example: sucResponse(baseResponse.SUCCESS, {
+        TODO: '클라이언트에서 jwt를 지워주세요',
+      }),
+    },
   })
   @ApiResponse({
     status: 400,
@@ -252,7 +351,8 @@ export class AuthController {
   })
   @ApiResponse({
     status: 1012,
-    description: '카카오 액세서 토큰을 받아오는데 실패함. (인가 코드가 잘못되었거나 유효하지 않음.)',
+    description:
+      '카카오 액세서 토큰을 받아오는데 실패함. (인가 코드가 잘못되었거나 유효하지 않음.)',
     schema: { example: errResponse(baseResponse.KAKAO_ACCESS_TOKEN_FAIL) },
   })
   @ApiResponse({
@@ -262,7 +362,8 @@ export class AuthController {
   })
   @ApiResponse({
     status: 1014,
-    description: '카카오 유저 정보를 불러오는데 실패함. (액세스 토큰이 잘못되었거나 유효하지 않음.)',
+    description:
+      '카카오 유저 정보를 불러오는데 실패함. (액세스 토큰이 잘못되었거나 유효하지 않음.)',
     schema: { example: errResponse(baseResponse.KAKAO_USER_INFO_FAIL) },
   })
   @ApiResponse({
@@ -271,7 +372,10 @@ export class AuthController {
     schema: { example: errResponse(baseResponse.WRONG_LOGIN) },
   })
   @Post('/kakao-login')
-  async kakaoLogin(@Body('access_token') acces_token: any, @Res() res: Response): Promise<any> {
+  async kakaoLogin(
+    @Body('access_token') acces_token: any,
+    @Res() res: Response,
+  ): Promise<any> {
     // [DEPRECATED] - 프론트엔드에서 처리해줄 사항
     // // 1. 클라이언트로부터 인가 코드 전달 받기 (query string)
     // // const { code } = qs.code;
@@ -355,7 +459,8 @@ export class AuthController {
   })
   @ApiResponse({
     status: 1014,
-    description: '카카오 유저 정보를 불러오는데 실패함. (액세스 토큰이 잘못되었거나 유효하지 않음.)',
+    description:
+      '카카오 유저 정보를 불러오는데 실패함. (액세스 토큰이 잘못되었거나 유효하지 않음.)',
     schema: { example: errResponse(baseResponse.KAKAO_USER_INFO_FAIL) },
   })
   @Get('/kakao/user')
@@ -367,7 +472,8 @@ export class AuthController {
       return errResponse(baseResponse.KAKAO_ACCESS_TOKEN_EMPTY);
     }
 
-    const getKakaoUser = this.kakaoService.getKakaoUserInfoByToken(kakao_accessToken);
+    const getKakaoUser =
+      this.kakaoService.getKakaoUserInfoByToken(kakao_accessToken);
 
     return getKakaoUser;
   }
@@ -389,7 +495,11 @@ export class AuthController {
   @ApiResponse({
     status: 100,
     description: 'SUCCESS',
-    schema: { example: sucResponse(baseResponse.SUCCESS, { TODO: '클라이언트에서 jwt를 지워주세요'}) },
+    schema: {
+      example: sucResponse(baseResponse.SUCCESS, {
+        TODO: '클라이언트에서 jwt를 지워주세요',
+      }),
+    },
   })
   @ApiResponse({
     status: 400,
@@ -408,7 +518,8 @@ export class AuthController {
   })
   @ApiResponse({
     status: 1012,
-    description: '카카오 액세서 토큰을 받아오는데 실패함. (인가 코드가 잘못되었거나 유효하지 않음.)',
+    description:
+      '카카오 액세서 토큰을 받아오는데 실패함. (인가 코드가 잘못되었거나 유효하지 않음.)',
     schema: { example: errResponse(baseResponse.KAKAO_ACCESS_TOKEN_FAIL) },
   })
   @ApiResponse({
@@ -418,12 +529,17 @@ export class AuthController {
   })
   @ApiResponse({
     status: 1014,
-    description: '카카오 유저 정보를 불러오는데 실패함. (액세스 토큰이 잘못되었거나 유효하지 않음.)',
+    description:
+      '카카오 유저 정보를 불러오는데 실패함. (액세스 토큰이 잘못되었거나 유효하지 않음.)',
     schema: { example: errResponse(baseResponse.KAKAO_USER_INFO_FAIL) },
   })
   @Post('/kakao-logout')
   @UseGuards(JWTAuthGuard)
-  async kakaoLogout(@Body('access_token') acces_token: any, @Req() req: Request, @Res() res: Response): Promise<any> {
+  async kakaoLogout(
+    @Body('access_token') acces_token: any,
+    @Req() req: Request,
+    @Res() res: Response,
+  ): Promise<any> {
     if (!acces_token) {
       return res.send(errResponse(baseResponse.KAKAO_ACCESS_TOKEN_EMPTY));
     }
@@ -432,7 +548,10 @@ export class AuthController {
     const userId: number = user.userId;
 
     // 카카오 액세스 토큰으로 카카오 로그아웃 호출하기
-    const kakaoResult = await this.kakaoService.kakaoLogout(userId, acces_token);
+    const kakaoResult = await this.kakaoService.kakaoLogout(
+      userId,
+      acces_token,
+    );
 
     // 쿠키 지우기 - DEPRECATED
     // res.cookie('jwt', '', {
@@ -498,7 +617,10 @@ export class AuthController {
     schema: { example: errResponse(baseResponse.WRONG_LOGIN) },
   })
   @Post('/google-login')
-  async googleLogin(@Body('id_token') id_token: any, @Res() res: Response): Promise<any> {
+  async googleLogin(
+    @Body('id_token') id_token: any,
+    @Res() res: Response,
+  ): Promise<any> {
     // 1. 클라이언트로부터 구글 idToken 전달 받기 (request body)
     if (!id_token) {
       return errResponse(baseResponse.GOOGLE_ID_TOKEN_EMPTY);

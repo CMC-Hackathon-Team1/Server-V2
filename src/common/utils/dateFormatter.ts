@@ -1,5 +1,6 @@
 function dateFormatter(createdAt: Date): string {
   const currentTime = new Date();
+  // console.log(currentTime.getTime(), createdAt.getTime());
   const diffTime = currentTime.getTime() - createdAt.getTime();
 
   if (diffTime / (1000 * 60 * 60 * 24) >= 7) {
@@ -10,7 +11,7 @@ function dateFormatter(createdAt: Date): string {
     return year + '년 ' + month + '월 ' + day + '일';
   } else if (diffTime / (1000 * 60 * 60 * 24) > 1) {
     const currentDate = currentTime.getDate();
-    const createdDate = currentTime.getDate();
+    const createdDate = createdAt.getDate();
     const beforeDay = currentDate - createdDate;
 
     return beforeDay + '일 전';

@@ -29,7 +29,6 @@ const util = require('util');
 
 @Injectable()
 export class FeedsService {
-  
   constructor(
     private feedRepsitory: FeedRepository,
     private likeRepository: LikesRepository,
@@ -41,27 +40,35 @@ export class FeedsService {
     private readonly AwsService: AwsService,
   ) {}
 
-  async getFeedById(feedId: number,profileId:number) {
-    try{
-      const feedEntity:Feeds=await this.feedRepsitory.findFeedById(feedId,profileId);
-      if(!feedEntity){
+  async getFeedById(feedId: number, profileId: number) {
+    try {
+      const feedEntity: Feeds = await this.feedRepsitory.findFeedById(
+        feedId,
+        profileId,
+      );
+      if (!feedEntity) {
         return errResponse(baseResponse.FEED_NOT_FOUND);
       }
-      const isLikeQueryResult=await this.likeRepository.isLike([feedId],profileId);
-      let isLike=false;
-  
-      if(isLikeQueryResult.length>0){
-        isLike=true;
-      }else if(isLikeQueryResult.length==0){
-        isLike=false;
+      const isLikeQueryResult = await this.likeRepository.isLike(
+        [feedId],
+        profileId,
+      );
+      let isLike = false;
+
+      if (isLikeQueryResult.length > 0) {
+        isLike = true;
+      } else if (isLikeQueryResult.length == 0) {
+        isLike = false;
       }
-      
-      const getFeedByIdResDTO:GetFeedByIdResDTO=new GetFeedByIdResDTO(feedEntity,isLike);//isLike처리해야함.
+
+      const getFeedByIdResDTO: GetFeedByIdResDTO = new GetFeedByIdResDTO(
+        feedEntity,
+        isLike,
+      ); //isLike처리해야함.
       return getFeedByIdResDTO;
-    }catch(err){
+    } catch (err) {
       return errResponse(baseResponse.DB_ERROR);
     }
-    
   }
   async patchFeed(patchFeedRequestDTO: PatchFeedRequestDTO) {
     // feedId를 통해 feedEntity가져옴. + save로 수정함.
@@ -243,18 +250,21 @@ export class FeedsService {
       profileId,
       pageNumber,
       categoryId,
-      onlyFollowing
+      onlyFollowing,
     );
     // console.log(rawFeedList);
 
     // 원하는 정보들만 가공해서 보여주기
-    const feedListDTO: retrieveFeedListDto = new retrieveFeedListDto(rawFeedList, onlyFollowing);
+    const feedListDTO: retrieveFeedListDto = new retrieveFeedListDto(
+      profileId,
+      rawFeedList,
+      onlyFollowing,
+    );
     // console.log(feedListDTO);
 
     if (feedListDTO.feedArray.length <= 0) {
-      return sucResponse(baseResponse.SUCCESS, { empty: '게시물이 없습니다.' });
-    }
-    else {
+      return sucResponse(baseResponse.SUCCESS, []);
+    } else {
       return sucResponse(baseResponse.SUCCESS, feedListDTO.feedArray);
     }
   }
@@ -267,55 +277,56 @@ export class FeedsService {
     pageNumber: number,
   ) {
     let feedEntity: Feeds[];
-    try{
-      feedEntity= await this.feedRepsitory.retrieveMyFeedByMonth(
+    try {
+      feedEntity = await this.feedRepsitory.retrieveMyFeedByMonth(
         profileId,
         year,
         month,
         day,
         pageNumber,
       );
-    }catch(err){
+    } catch (err) {
       return errResponse(baseResponse.DB_ERROR);
     }
-    
-    try{
-      const foundDTO: RetreiveMyFeedByMonthReturnDTO =new RetreiveMyFeedByMonthReturnDTO(feedEntity);
 
-      return sucResponse(baseResponse.SUCCESS,foundDTO);
-    }catch(err){
+    try {
+      const foundDTO: RetreiveMyFeedByMonthReturnDTO =
+        new RetreiveMyFeedByMonthReturnDTO(feedEntity);
+
+      return sucResponse(baseResponse.SUCCESS, foundDTO);
+    } catch (err) {
       return errResponse(baseResponse.SERVER_ERROR);
     }
   }
 
-  async RetriveMyFeedInCalender(
-    profileId,
-    year,
-    month,
-  ) {
-    try{
-      const feedEntities: RetreiveMyFeedInCalendarReturnDTO[] = await this.feedRepsitory.RetriveMyFeedInCalender(profileId, year, month);
+  async RetriveMyFeedInCalender(profileId, year, month) {
+    try {
+      const feedEntities: RetreiveMyFeedInCalendarReturnDTO[] =
+        await this.feedRepsitory.RetriveMyFeedInCalender(
+          profileId,
+          year,
+          month,
+        );
       // RetriveMyFeedByMonth와는 다르게 GROUP BY 를 통해 일자별로 정리되어야하며 일자에 따라 ORDER BY 되어야한다.
       console.log('return object');
       // const foundDTOList:RetreiveMyFeedInCalendarReturnDTO[]=[];
-  
+
       // for(let i =0; i<feedEntities.length; i++){
-  
+
       //     console.log(feedEntities[i].feedId);
       //     console.log(feedEntities[i].day);
       //     console.log(feedEntities[i].feedImgUrl);
       //     foundDTOList.push(new RetreiveMyFeedInCalendarReturnDTO(feedEntities[0]));
       // }
-  
+
       // console.log(foundDTOList);
       // const foundDTO:RetreiveMyFeedByMonthReturnDTO=new RetreiveMyFeedByMonthReturnDTO(feedEntity);
       // console.log(foundDTO);
-  
-      return sucResponse(baseResponse.SUCCESS,feedEntities);
-    }catch(err){
+
+      return sucResponse(baseResponse.SUCCESS, feedEntities);
+    } catch (err) {
       return errResponse(baseResponse.DB_ERROR);
     }
-    
   }
 
   async reportFeeds(feedId: number) {
@@ -453,18 +464,21 @@ export class FeedsService {
       pageNumber,
       categoryId,
       hashTagId,
-      onlyFollowing
+      onlyFollowing,
     );
-    console.log(rawFeedList);
+    // console.log(rawFeedList);
 
     // 원하는 정보들만 가공해서 보여주기
-    const feedListDTO: retrieveFeedListDto = new retrieveFeedListDto(rawFeedList, onlyFollowing);
-    console.log(feedListDTO);
+    const feedListDTO: retrieveFeedListDto = new retrieveFeedListDto(
+      profileId,
+      rawFeedList,
+      onlyFollowing,
+    );
+    // console.log(feedListDTO);
 
     if (feedListDTO.feedArray.length <= 0) {
-      return sucResponse(baseResponse.SUCCESS, { empty: '게시물이 없습니다.' });
-    }
-    else {
+      return sucResponse(baseResponse.SUCCESS, []);
+    } else {
       return sucResponse(baseResponse.SUCCESS, feedListDTO.feedArray);
     }
 

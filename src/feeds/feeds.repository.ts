@@ -121,28 +121,41 @@ export class FeedRepository {
       .leftJoinAndSelect('profiles.persona', 'persona')
       .leftJoinAndSelect('Feeds.feedImgs', 'feedImg')
       .leftJoinAndSelect('Feeds.categories', 'category')
-      .leftJoinAndSelect('Feeds.likes', 'likes')
+      // .leftJoinAndSelect('Feeds.likes', 'likes')
       .leftJoinAndSelect('Feeds.feedHashTagMappings', 'feedHashTagMapping')
-      .leftJoinAndSelect('feedHashTagMapping.hashTag', 'hashTag');
-      
-    if(onlyFollowing=="false" || onlyFollowing==false){
+      .leftJoinAndSelect('feedHashTagMapping.hashTag', 'hashTag')
+      .orderBy({ 'Feeds.createdAt': 'DESC', 'Feeds.feedId': 'DESC' })
+    // .andWhere('likes.profileId=:ownProfileId', { ownProfileId: profileId })   // 본인이 좋아요 누른 게시글만
+    ;
+
+    // 좋아요 여부
+    foundQuery.leftJoinAndMapOne(
+      'Feeds.likeInfo',
+      Likes,
+      'likes',
+      'likes.profileId = :profileId and Feeds.feedId = likes.feedId',
+      { profileId: profileId },
+    );
+
+    // 팔로우 여부
+    if (onlyFollowing == 'false' || onlyFollowing == false) {
       foundQuery.leftJoinAndMapOne(
-            'Feeds.followInfo',
-            FollowFromTo,
-            'followFromTo',
-            'followFromTo.fromUserId = :profileId and followFromTo.toUserId = profiles.profileId',
-            { profileId: profileId },
-        )
-    }else{
+        'Feeds.followInfo',
+        FollowFromTo,
+        'followFromTo',
+        'followFromTo.fromUserId = :profileId and followFromTo.toUserId = profiles.profileId',
+        { profileId: profileId },
+      );
+    } else {
       foundQuery.innerJoinAndMapOne(
         'Feeds.followInfo',
         FollowFromTo,
         'followFromTo',
         'followFromTo.fromUserId = :profileId and followFromTo.toUserId = profiles.profileId',
         { profileId: profileId },
-      )
+      );
     }
-    // .andWhere('likes.profileId=:ownProfileId', { ownProfileId: profileId })   // 본인이 좋아요 누른 게시글만
+
     if (categoryId != 0) {
       //0이 아닐때는 categoryId를 통한 필터링
       foundQuery
@@ -236,7 +249,7 @@ export class FeedRepository {
     pageNumber: number,
     categoryId: number,
     hashTagId: number,
-    onlyFollowing:any,
+    onlyFollowing: any,
   ) {
     const foundQuery = this.feedTable
       .createQueryBuilder('Feeds')
@@ -247,27 +260,37 @@ export class FeedRepository {
       .leftJoinAndSelect('profiles.persona', 'persona')
       .leftJoinAndSelect('Feeds.feedImgs', 'feedImg')
       .leftJoinAndSelect('Feeds.categories', 'category')
-      .leftJoinAndSelect('Feeds.likes', 'likes')
+      // .leftJoinAndSelect('Feeds.likes', 'likes')
       .leftJoinAndSelect('Feeds.feedHashTagMappings', 'feedHashTagMapping')
-      .leftJoinAndSelect('feedHashTagMapping.hashTag','hashTag')
+      .leftJoinAndSelect('feedHashTagMapping.hashTag', 'hashTag')
       .andWhere('feedHashTagMapping.hashTagId=:hashTagId', { hashTagId: hashTagId })
+      .orderBy({ 'Feeds.createdAt': 'DESC', 'Feeds.feedId': 'DESC' })
     ;
-    if(onlyFollowing=="false" || onlyFollowing==false){
+    // 좋아요 여부
+    foundQuery.leftJoinAndMapOne(
+      'Feeds.likeInfo',
+      Likes,
+      'likes',
+      'likes.profileId = :profileId and Feeds.feedId = likes.feedId',
+      { profileId: profileId },
+    );
+    // 팔로우 여부
+    if (onlyFollowing == 'false' || onlyFollowing == false) {
       foundQuery.leftJoinAndMapOne(
-            'Feeds.followInfo',
-            FollowFromTo,
-            'followFromTo',
-            'followFromTo.fromUserId = :profileId and followFromTo.toUserId = profiles.profileId',
-            { profileId: profileId },
-        )
-    }else{
+        'Feeds.followInfo',
+        FollowFromTo,
+        'followFromTo',
+        'followFromTo.fromUserId = :profileId and followFromTo.toUserId = profiles.profileId',
+        { profileId: profileId },
+      );
+    } else {
       foundQuery.innerJoinAndMapOne(
         'Feeds.followInfo',
         FollowFromTo,
         'followFromTo',
         'followFromTo.fromUserId = :profileId and followFromTo.toUserId = profiles.profileId',
         { profileId: profileId },
-      )
+      );
     }
 
     if (categoryId != 0) {

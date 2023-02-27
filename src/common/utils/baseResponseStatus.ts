@@ -21,6 +21,9 @@ const baseResponse = {
   USER_AUTH_WRONG: { statusCode: 1002, message: '회원 인증에 실패했습니다.' },
   USER_WRONG_STATUS: { statusCode: 1003, message: '회원 인증 상태에 문제가 있습니다.' },
   EMAIL_NOTIFICATION_FAILED: { statusCode: 1004, message: '이메일 인증이 완료되지 않았습니다.' },
+  EMAIL_NOTIFICATION_EXPIRED: { statusCode: 1005, message: '이메일 인증이 만료되었습니다. 다시 요청하세요.' },
+  EMAIL_AUTH_RENDER_FAILED: { statusCode: 1006, message: '이메일 폼 오류' },
+  EMAIL_SEND_FAILED: { statusCode: 1007, message: '이메일 인증 메일 보내기 실패' },
 
   KAKAO_LOGIN_FAILED: { statusCode: 1010, message: '카카오 로그인에 실패했습니다.' },
   KAKAO_AUTH_CODE_EMPTY: { statusCode: 1011, message: '카카오 인가코드가 없습니다.' },

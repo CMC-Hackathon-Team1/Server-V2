@@ -35,8 +35,9 @@ import { AlarmsModule } from './alarms/alarms.module';
 import { EmailModule } from './email/email.module';
 import configEmail from '../config/email';
 import { MailerModule } from '@nestjs-modules/mailer';
-import {EjsAdapter} from '@nestjs-modules/mailer/dist/adapters/ejs.adapter';
+import { EjsAdapter } from '@nestjs-modules/mailer/dist/adapters/ejs.adapter';
 import path = require('path');
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -45,21 +46,21 @@ import path = require('path');
           ? '.env.dev'
           : '.env.prod',
       isGlobal: true,
-      load:[configEmail],
+      load: [configEmail],
     }),
     MailerModule.forRootAsync({
-      imports:[ConfigModule],
-      inject:[ConfigService],
-      useFactory:(config: ConfigService)=>{
-        console.log("=== write [.env] by config: network ===");
-        console.log(config.get('email'));
-        return{
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => {
+        // console.log('=== write [.env] by config: network ===');
+        // console.log(config.get('email'));
+        return {
           ...config.get('email'),
-          template:{
-            dir:path.join(__dirname,'/templates'),
-            adapter:new EjsAdapter(),
-            options:{
-              strict:true,
+          template: {
+            dir: path.join(__dirname, '/templates'),
+            adapter: new EjsAdapter(),
+            options: {
+              strict: true,
             },
           },
         };

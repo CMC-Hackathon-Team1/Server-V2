@@ -23,11 +23,11 @@ import {
   ApiBearerAuth,
   ApiBody,
   ApiHeader,
-  ApiOperation,
+  ApiOperation, ApiParam,
   ApiQuery,
   ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+  ApiTags
+} from "@nestjs/swagger";
 import { KakaoService } from './kakao/kakao.service';
 import { GoogleService } from './google/google.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -50,6 +50,73 @@ export class AuthController {
     description: '이메일,비밀번호로 직접 회원가입한다.',
   })
   @ApiBody({ type: UserDTO })
+  @ApiParam({
+    name: 'level',
+    required: true,
+    description: `회원가입 단계\n
+    0 : 처음 회원가입 버튼을 누를 때 (이메일 인증을 보낼 떄)
+    1 (또는 다른 번호) : 이메일 인증이 완료된 후에 다음 단계로 넘어갈 때`,
+  })
+  @ApiResponse({
+    status: 100,
+    description: 'SUCCESS',
+    schema: {
+      example: sucResponse(baseResponse.SUCCESS, {
+        state:
+          '인증메일을 확인해주세요. 10분 이내에 답변하지 않으면 회원가입이 취소됩니다.',
+      }),
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Body 오류',
+    schema: { example: baseResponse.PIPE_ERROR_EXAMPLE },
+  })
+  @ApiResponse({
+    status: 500,
+    description: '서버 오류',
+    schema: { example: errResponse(baseResponse.SERVER_ERROR) },
+  })
+  @ApiResponse({
+    status: 1006,
+    description: '이메일 인증 메일 보내는 중에 에러.',
+    schema: {
+      example: errResponse(baseResponse.EMAIL_AUTH_RENDER_FAILED),
+    },
+  })
+  @ApiResponse({
+    status: 1007,
+    description: '이메일 인증 메일 보내기 실패.',
+    schema: {
+      example: errResponse(baseResponse.EMAIL_SEND_FAILED),
+    },
+  })
+  @ApiResponse({
+    status: 1100,
+    description: '해당 이메일로 이미 가입된 회원이 있음.',
+    schema: {
+      example: errResponse(baseResponse.USER_ALREADY_EXISTS),
+    },
+  })
+  @Post('/signup/:level')
+  @UsePipes(ValidationPipe)
+  async signUp(@Body() userDTO: UserDTO, @Param('level', ParseIntPipe) level: number): Promise<any> {
+    if (level == 0) {
+      return await this.ownAuthService.signUp(userDTO);
+    } else {
+      const checkActivatedUser = await this.userService.checkActiveUser(userDTO.email);
+      if (!checkActivatedUser) {
+        return errResponse(baseResponse.USER_AUTH_WRONG);
+      } else {
+        return sucResponse(baseResponse.SUCCESS);
+      }
+    }
+  }
+
+  @ApiOperation({
+    summary: '4.1.4.1. 자체 로그인 - 회원가입 - 검증',
+    description: '회원가입 API를 통해 이메일에서 인증 버튼을 누르면 자동 호출되는 부분입니다. (직접 테스트 X)',
+  })
   @ApiResponse({
     status: 100,
     description: 'SUCCESS',
@@ -66,23 +133,33 @@ export class AuthController {
     schema: { example: errResponse(baseResponse.SERVER_ERROR) },
   })
   @ApiResponse({
-    status: 1100,
-    description: '해당 이메일로 이미 가입된 회원이 있음.',
+    status: 1002,
+    description: '인증코드가 잘못됨',
     schema: {
-      example: errResponse(baseResponse.USER_ALREADY_EXISTS),
+      example: errResponse(baseResponse.USER_AUTH_WRONG),
     },
   })
-  @Post('/signup')
-  @UsePipes(ValidationPipe)
-  async signUp(@Body() userDTO: UserDTO): Promise<any> {
-    return await this.ownAuthService.signUp(userDTO);
-  }
-
-  @Post('/signup-callback')
+  @ApiResponse({
+    status: 1003,
+    description: '현재 이메일 인증 중이던 회원에 문제가 발생함',
+    schema: {
+      example: errResponse(baseResponse.USER_WRONG_STATUS),
+    },
+  })
+  @ApiResponse({
+    status: 1005,
+    description: '이메일 인증 기한이 만료됨. 처음부터 다시 회원가입 하세요.',
+    schema: {
+      example: errResponse(baseResponse.EMAIL_NOTIFICATION_EXPIRED),
+    },
+  })
+  @Get('/signup-callback')
   async validateEmail(
-    @Body() email: string,
+    // @Body() email: string,
+    @Query('email') email: string,
     @Query('code') authCode: string,
   ): Promise<any> {
+    console.log(email, authCode);
     return await this.ownAuthService.authenticateAccount(email, authCode);
   }
 

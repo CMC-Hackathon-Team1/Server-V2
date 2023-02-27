@@ -87,15 +87,23 @@ export class UserService {
       .execute();
   }
 
-
   // 이메일 인증이 정상적으로 끝난 경우, 회원 상태 활성화하기
   async activateUser(pendingUser: UserDTO): Promise<any> {
     return await this.userRepository
       .createQueryBuilder()
       .update(Users)
-      .set({ status: 'ACTIVE' })
+      .set({ status: 'ACTIVE', access_token: null })
       .where('email=:email', { email: pendingUser.email })
       .execute();
+  }
+
+  async checkActiveUser(email: string): Promise<any> {
+    return await this.userRepository.findOne({
+      where: {
+        email: email,
+        status: 'ACTIVE',
+      },
+    });
   }
 
   // 이메일+비밀번호 로 회원을 DB에 저장하기

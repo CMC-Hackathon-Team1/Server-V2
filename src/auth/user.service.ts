@@ -77,6 +77,16 @@ export class UserService {
       .where('email=:email', { email: pendingUser.email })
       .execute();
   }
+  // 이메일 인증이 완료되지 않으면 임시 유저 삭제하기
+  async deleteTempUser(pendingUser: UserDTO): Promise<any> {
+    return await this.userRepository
+      .createQueryBuilder()
+      .delete()
+      .from(Users)
+      .where('email=:email', { email: pendingUser.email })
+      .execute();
+  }
+
 
   // 이메일 인증이 정상적으로 끝난 경우, 회원 상태 활성화하기
   async activateUser(pendingUser: UserDTO): Promise<any> {

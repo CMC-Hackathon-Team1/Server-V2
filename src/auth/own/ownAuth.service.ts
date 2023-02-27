@@ -24,27 +24,41 @@ export class OwnAuthService {
     // ---
 
     // [인증 절차]
-    // // 이메일에 보낼 인증 코드 생성 (랜덤 문자열)
-    // // TODO: 토큰으로 바꿔서 보안을 더 강화할 수 있음.
-    // const randomAuthCode = String(Math.random().toString(36).slice(2));
-    // // console.log(randomAuthCode);
-    //
-    // // 아예 없는 유저면, 유저 임시 생성 (status = 'PENDING') - setTimeOut
-    // if (!userFind) {
-    //   const pendingUser = await this.userService.tempSave(user, randomAuthCode);
-    // }
-    // // PENDING 상태이면, 이메일 다시 보내기
-    // else if (userFind && userFind.status == 'PENDING') {
-    //   const updatePendingUser = await this.userService.tempUpdate(userFind, randomAuthCode);
-    // }
+    // 이메일에 보낼 인증 코드 생성 (랜덤 문자열)
+    // TODO: 토큰으로 바꿔서 보안을 더 강화할 수 있음.
+    const randomAuthCode = String(Math.random().toString(36).slice(2));
+    console.log(`인증 코드 발급됨 : ${randomAuthCode}`);
 
-    // setTimeout(async () => {
-    //   console.log('이메일 인증 코드 보냄. 유효기간 - 1시간 ');
-    //
+    // 아예 없는 유저면, 유저를 인증 코드와 함께 임시 생성 (status = 'PENDING') - setTimeOut
+    if (!userFind) {
+      const pendingUser = await this.userService.tempSave(user, randomAuthCode);
+      console.log(`임시 유저 생성 됨: ${pendingUser.userId}`);
+    }
+    // PENDING 상태이면, 인증 코드 업데이트 -> 이메일 다시 보내기
+    else if (userFind && userFind.status == 'PENDING') {
+      const updatePendingUser = await this.userService.tempUpdate(userFind, randomAuthCode);
+      console.log(`임시 유저 코드 재발급 됨`);
+    }
+
+    setTimeout(async () => {
+      console.log('이메일 인증 코드 보냄. 유효기간 - 1시간 ');
+      await this.userService.findByEmail(user.email).then(async (userInfo) => {
+        if (userInfo) {
+          const foundAuthCode = userInfo.access_token;
+          if (foundAuthCode != randomAuthCode) {
+            await this.userService.deleteTempUser(user);
+            console.log(`임시 유저 삭제 됨`);
+          }
+          else {
+            console.log('임시 유저 인증 됨!');
+          }
+        }
+      });
+    }, 15 * 1000); // 시간 제한 -> 15초
     // }, 60 * 60 * 1000); // 시간 제한 -> 1시간
 
     // 이메일 보내기
-    const emailAuthResult = this.sendEmailAuth(user.email, user.password);
+    const emailAuthResult = this.sendEmailAuth(user.email, randomAuthCode);
     // ---
 
     return sucResponse(baseResponse.SUCCESS, {
@@ -72,6 +86,7 @@ export class OwnAuthService {
       return errResponse(baseResponse.USER_AUTH_WRONG);
     }
     // ---
+
     // 회원 인증 상태 확정 (PENDING -> ACTIVE)
     else {
       const confirmedUser = await this.userService.activateUser(userFind);
@@ -80,65 +95,35 @@ export class OwnAuthService {
     return sucResponse(baseResponse.SUCCESS);
   }
 
-  // async registerUser(newUser: UserDTO, loginType: string): Promise<object> {
-  //   // 이미 있는 계정인지 체크
-  //   const userFind = await this.userService.findByFields({
-  //     where: { email: newUser.email },
-  //   });
-  //   console.log(userFind);
-  //
-  //   // [Validation 처리]
-  //   // 이미 있는 계정인 경우
-  //   if (userFind && userFind.status == 'ACTIVE') {
-  //     return errResponse(baseResponse.USER_ALREADY_EXISTS);
-  //   }
-  //   // ---
-  //   // [인증 절차]
-  //   // 아직 인증 미완료된 경우
-  //   if (userFind && userFind.status == 'PENDING') {
-  //     console.log('PENDING CUSTOMER ACTION (EMAIL NOTIFICATION)');
-  //     return errResponse(baseResponse.EMAIL_NOTIFICATION_FAILED);
-  //   }
-  //   // 나머지는 새로 만드는 계정인 경우
-  //
-  //   // 인증 완료된 경우 -> 회원 추가
-  //   const addedUser = await this.userService.save(newUser, loginType, null);
-  //   const result = {
-  //     userId: addedUser.userId,
-  //   };
-  //
-  //   return sucResponse(baseResponse.SUCCESS, result);
-  // }
-
-  async sendEmailAuth(email: string, password: string) {
+  async sendEmailAuth(email: string, authCode: string) {
     // [TEST ACCOUNT]
-    const testAccount = await nodemailer.createTestAccount();
-    const transporter = nodemailer.createTransport({
-      host: 'smtp.ethereal.email',
-      port: 587,
-      secure: false, // true for 465, false for other ports
-      auth: {
-        user: testAccount.user, // generated ethereal user
-        pass: testAccount.pass, // generated ethereal password
-      },
-    });
-    // ---
-
-    // TODO: NEED GOOGLE ACCOUNT SETTING!
+    // const testAccount = await nodemailer.createTestAccount();
     // const transporter = nodemailer.createTransport({
-    //   service: 'gmail',
-    //   host: 'smtp.gmail.com',
-    //   // port: 465,
-    //   // secure: true, // true for 465, false for other ports
+    //   host: 'smtp.ethereal.email',
     //   port: 587,
+    //   secure: false, // true for 465, false for other ports
     //   auth: {
-    //     user: String(process.env.MASTER_ACCOUNT_EMAIL),
-    //     pass: String(process.env.MASTER_ACCOUNT_PASSWORD),
-    //   },
-    //   tls: {
-    //     rejectUnauthorized: false,
+    //     user: testAccount.user, // generated ethereal user
+    //     pass: testAccount.pass, // generated ethereal password
     //   },
     // });
+    // ---
+
+    // [DONE] NEED GOOGLE ACCOUNT SETTING! - 구글 계정 2단계 인증 + 앱 비밀번호 설정
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true, // true for 465, false for other ports (587)
+      // port: 587,
+      auth: {
+        user: String(process.env.MASTER_ACCOUNT_EMAIL),
+        pass: String(process.env.MASTER_ACCOUNT_PASSWORD),
+      },
+      tls: {
+        rejectUnauthorized: false,
+      },
+    });
 
     const mailOptions = {
       from: `온앤오프팀 <hackathonerss@gmail.com>`,
@@ -153,7 +138,7 @@ export class OwnAuthService {
         if (error) {
           console.log(`error occurred: ${error}`);
         } else {
-          console.log(`email success`);
+          console.log(`email sent successfully`);
           console.log(info);
         }
         transporter.close();

@@ -13,7 +13,6 @@ export default () => ({
     transport: {
       service: `${process.env.GOOGLE_EMAIL_SERVICE}`,
       host: `${process.env.GOOGLE_EMAIL_HOST}`,
-      // port: 587,
       port: 465,
       secure: true, // true for 465, false for other ports (587)
       auth: {
@@ -27,5 +26,8 @@ export default () => ({
     mailOptions: {
       from: `${process.env.MASTER_ACCOUNT_NAME} <${process.env.MASTER_ACCOUNT_EMAIL}>`,
     },
+    // default:{
+    //   from:`"${process.env.EMAIL_FROM_USER_NAME}"<${process.env.EMAIL_AUTH_EMAIL}>`,
+    // },
   },
 });

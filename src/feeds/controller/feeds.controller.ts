@@ -154,7 +154,7 @@ export class FeedsController {
   @ApiQuery({
     name: 'month',
     required: true,
-    description: '검색하고싶은 달 "mm"형식으로 제공되어야한다.(2자리수) ex) 01',
+    description: '검색하고싶은 달 "mm"형식으로 제공되어야한다.(2자리수) ex) 02',
   })
   @ApiQuery({
     name: 'day',
@@ -181,7 +181,7 @@ export class FeedsController {
   RetreiveMyFeedByMonth(
     @Query('profileId') profileId: number,
     @Query('year') year: number,
-    @Query('month') month: number,
+    @Query('month') month: string,
     @Query('day') day: number,
     @Query('page') pageNumber: number,
   ) {

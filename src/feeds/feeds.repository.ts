@@ -173,7 +173,7 @@ export class FeedRepository {
   retrieveMyFeedByMonth(
     profileId: number,
     year: number,
-    month: number,
+    month: string,
     day: number,
     pageNumber: number,
   ) {

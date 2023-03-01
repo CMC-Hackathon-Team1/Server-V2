@@ -457,14 +457,24 @@ export class FeedsService {
     // 해시태그가 있는 경우
     const hashTagId = hashTagEntity[0].hashTagId;
     // 2. 해시태그 ID를 통해 게시글 검색
+    console.log("뭐야 여기서 에러남?");
+    const rawListForFeedId=await this.feedRepsitory.getFeedByhashTagId(profileId,pageNumber,categoryId,hashTagId,onlyFollowing);
+    const feedIdList=new Array<number>();
+    for(let i=0; i<rawListForFeedId.length; i++)
+      feedIdList.push(rawListForFeedId.at(i).feedId);
+    
+  
+    console.log(feedIdList);
+      
     const rawFeedList = await this.feedRepsitory.retrieveOtherFeedsByHashtag(
+      feedIdList,
       profileId,
-      pageNumber,
-      categoryId,
-      hashTagId,
-      onlyFollowing,
+      onlyFollowing
     );
-    // console.log(rawFeedList);
+    // for(let i=0; i<rawFeedList.length; i++){
+    //   if(rawFeedList.at(i).feedId=60)
+    //     console.log(rawFeedList.at(i).feedHashTagMappings)
+    // }
 
     // 원하는 정보들만 가공해서 보여주기
     const feedListDTO: retrieveFeedListDto = new retrieveFeedListDto(

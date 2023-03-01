@@ -26,7 +26,9 @@ export class MyFeed{
     private createdAt: String; // 언제 생성된 게시글인지 확인해줘야한다.
     @ApiProperty({description:"피드 이미지의 경우 최대 5개까지 보내집니다. 이미지없이 단순 줄글인경우 빈 배열이 전송됩니다."})
     private feedImgList: Array<String>=new Array();
-
+    private isLike: boolean=false;
+    private likeNum: number;
+    
 	constructor(feedEnitty: any) {
         this.feedId=feedEnitty.feedId;
         this.feedContent=feedEnitty.content;
@@ -34,5 +36,8 @@ export class MyFeed{
         for(let i =0; i<feedEnitty.feedImgs.length; i++){
             this.feedImgList.push(feedEnitty.feedImgs.at(i).feedImgUrl);
         }
-	}
+        if (feedEnitty.isLike)
+            this.isLike = true;
+        this.likeNum=feedEnitty.likeNum;
+	}   
 }

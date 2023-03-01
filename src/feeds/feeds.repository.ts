@@ -201,6 +201,13 @@ export class FeedRepository {
       });
     }
 
+    query.leftJoinAndMapOne(
+      'Feeds.isLike',
+      Likes,
+      'isLike',
+      'isLike.profileId = :profileId and Feeds.feedId = isLike.feedId',
+      { profileId: profileId },
+    );
     return query.getMany();
   }
 

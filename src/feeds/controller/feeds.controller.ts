@@ -528,6 +528,9 @@ export class FeedsController {
       isFollowing = false;
     }
 
+    if (pageNumber<1){
+      return errResponse(baseResponse.PAGE_UPPER_ZERO);
+    }
     return this.feedsService.searchFeedsByHashtag(profileId, pageNumber, categoryId, isFollowing, hashtags);
   }
 }

@@ -70,7 +70,7 @@ const baseResponse = {
   FEED_CAN_HAVE_20_HASHTAGS:{statusCode:2204,message:'게시글은 최대 20개까지 해시태그를 가질 수 있습니다.'},
   FEED_IMG_COUNT_OVER:{statusCode:2205,message:'게시글이미지는 최대 5개로 제한됩니다.'},
   FEED_HAVE_CONTENT_OR_IMAGE:{statusCode:2206,message:'게시글은 내용 OR 이미지 중 적어도 하나는 가져야 합니다.'},
-
+  PAGE_UPPER_ZERO:{statusCode:2206,message:'페이지 넘버는 1이상이여야 합니다.'},
   // 검색 관련
   HASHTAG_NOT_FOUND: { statusCode: 2500, message: '해시태그를 입력해주세요.' },
 

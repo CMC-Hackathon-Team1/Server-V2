@@ -160,7 +160,7 @@ export class FeedsController {
     name: 'day',
     required: false,
     description:
-      '프로필 (게시글모아보기) API 3.1.2 에선 사용되지 않는다. 기능명세서 1.4(1).1 해당일 게시글 모아보기에서만 사용된다.',
+      '프로필 (게시글모아보기) API 3.1.2 에선 사용되지 않는다. 기능명세서 1.4(1).1 해당일 게시글 모아보기에서만 사용된다. ex)01',
   })
   @ApiQuery({
     name: 'page',

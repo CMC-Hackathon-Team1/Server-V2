@@ -37,6 +37,9 @@ import configEmail from '../config/email';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { EjsAdapter } from '@nestjs-modules/mailer/dist/adapters/ejs.adapter';
 import path = require('path');
+import { Reports } from './common/entities/Reports';
+import { ReportContent } from './common/entities/ReportContent';
+import { ReportCategory } from './common/entities/ReportCategory';
 
 @Module({
   imports: [
@@ -88,6 +91,9 @@ import path = require('path');
         QuestionContent,
         Questions,
         Users,
+        Reports,
+        ReportContent,
+        ReportCategory,
       ],
       synchronize: false,
       logging: true,

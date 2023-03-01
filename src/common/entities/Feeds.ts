@@ -13,6 +13,7 @@ import { Profiles } from "./Profiles";
 import { Likes } from "./Likes";
 import { PostFeedRequestDTO } from "../../feeds/dto/post-feed-request.dto";
 import { Categories } from "./Categories";
+import { Reports } from './Reports';
 
 @Index("FK_Feeds_profileId_Profiles_profileId", ["profileId"], {})
 @Entity("Feeds", { schema: "devDB" })
@@ -82,5 +83,6 @@ export class Feeds {
   @OneToMany(() => Likes, (likes) => likes.feed)
   likes: Likes[];
 
-
+  @OneToMany(() => Reports, (reports) => reports.feed)
+  reports: Reports[];
 }

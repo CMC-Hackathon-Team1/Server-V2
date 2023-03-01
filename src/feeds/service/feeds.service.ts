@@ -289,6 +289,7 @@ export class FeedsService {
       return errResponse(baseResponse.DB_ERROR);
     }
 
+    console.log(feedEntity);
     try {
       const foundDTO: RetreiveMyFeedByMonthReturnDTO =
         new RetreiveMyFeedByMonthReturnDTO(feedEntity);
@@ -488,7 +489,5 @@ export class FeedsService {
     } else {
       return sucResponse(baseResponse.SUCCESS, feedListDTO.feedArray);
     }
-
-    return undefined;
   }
 }

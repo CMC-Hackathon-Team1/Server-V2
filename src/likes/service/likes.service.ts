@@ -35,12 +35,15 @@ export class LikesService {
             const isExist=await this.likeRepository.isExist(likesEntity);
             if(isExist.length==0){
                 console.log("like");
+                isExistFeed.likeNum += 1;
                 await this.likeRepository.postLike(likesEntity);
+                await this.feedRepository.save(isExistFeed);
                 return sucResponse(baseResponse.POST_LIKE);
             }else{
                 console.log("didn't like");
-    
+                isExistFeed.likeNum -= 1;
                 await this.likeRepository.deleteLike(likesEntity);
+                await this.feedRepository.save(isExistFeed);
                 return sucResponse(baseResponse.DELETE_LIKE);
             }
         }catch(err){

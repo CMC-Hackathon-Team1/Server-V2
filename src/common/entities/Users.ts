@@ -1,6 +1,7 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Profiles } from './Profiles';
 import { ApiProperty } from '@nestjs/swagger';
+import { Reports } from './Reports';
 
 @Entity("Users", { schema: "devDB" })
 export class Users {
@@ -53,12 +54,26 @@ export class Users {
   })
   status: string | null;
 
-  @Column("varchar", { name: "follow_alarm_status", nullable: false, length: 20 })
-  followAlarmStatus: string;
+  @Column("varchar", {
+    name: "follow_alarm_status",
+    nullable: true,
+    comment: "팔로우 알림 설정 여부",
+    length: 20,
+    default: () => "'ACTIVE'",
+  })
+  followAlarmStatus: string | null;
 
-  @Column("varchar", { name: "notice_alarm_status", nullable: false, length: 20 })
+  @Column("varchar", {
+    name: "notice_alarm_status",
+    comment: "공지사항 알림 설정 여부",
+    length: 20,
+    default: () => "'ACTIVE'",
+  })
   noticeAlarmStatus: string;
 
   @OneToMany(() => Profiles, (profiles) => profiles.user)
   profiles: Profiles[];
+
+  @OneToMany(() => Reports, (reports) => reports.user)
+  reports: Reports[];
 }

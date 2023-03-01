@@ -79,13 +79,13 @@ export class Feed {
   private hashTagList: Array<string> = [];
 
   constructor(profileId: number, feedEntity: any) {
+    let feedContentHashTag='';
     this.feedId = feedEntity.feedId;
     this.profileId = feedEntity.profileId;
     this.profileName = feedEntity.profile.profileName;
     this.profileImg = feedEntity.profile.profileImgUrl;
     // this.personaId = feedEntity.profile.personaId;
     this.personaName = feedEntity.profile.persona.personaName;
-    this.feedContent = feedEntity.content;
     this.createdAt = this.transformFromDateToFormat(feedEntity.createdAt);
     // 게시글 사진 목록
     for (let i = 0; i < feedEntity.feedImgs.length; i++) {
@@ -98,8 +98,10 @@ export class Feed {
         this.hashTagList.push(
           feedEntity.feedHashTagMappings.at(i).hashTag.hashTagName,
         );
+        feedContentHashTag+='#'+feedEntity.feedHashTagMappings.at(i).hashTag.hashTagName+' ';
       }
     }
+    this.feedContent = feedContentHashTag+'\n'+feedEntity.content;
     // 좋아요 표시
     // this.isLike = isLike;
     if (feedEntity.likeInfo != null) {

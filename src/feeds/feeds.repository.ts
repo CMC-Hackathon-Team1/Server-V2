@@ -11,6 +11,7 @@ import { FollowFromTo } from '../common/entities/FollowFromTo';
 
 @Injectable()
 export class FeedRepository {
+  
   constructor(
     @InjectRepository(Feeds)
     private feedTable: Repository<Feeds>, // @InjectRepository(FollowFromTo) // private followTable: Repository<FollowFromTo>,
@@ -244,36 +245,20 @@ export class FeedRepository {
     return await this.feedTable.update(feedId, { status: 'REPORTED' });
   }
 
-  async retrieveOtherFeedsByHashtag(
-    profileId: number,
-    pageNumber: number,
-    categoryId: number,
-    hashTagId: number,
-    onlyFollowing: any,
-  ) {
+  async getFeedByhashTagId(profileId: number, pageNumber: number, categoryId: number, hashTagId: number,onlyFollowing: any,) {
     const foundQuery = this.feedTable
-      .createQueryBuilder('Feeds')
+      .createQueryBuilder()
+      .leftJoin('Feeds.profile', 'profiles')
+      .leftJoin('Feeds.feedHashTagMappings', 'feedHashTagMapping')
+      .leftJoin('feedHashTagMapping.hashTag', 'hashTag')
+      .select(['Feeds.feedId', 'Feeds.createdAt'])
       .where('Feeds.isSecret=:isSecret', { isSecret: 'PUBLIC' })
       .andWhere('Feeds.status=:status', { status: 'ACTIVE' })
       .andWhere('Feeds.profileId!=:ownProfileId', { ownProfileId: profileId })  // 본인 게시글 제외
-      .leftJoinAndSelect('Feeds.profile', 'profiles')
-      .leftJoinAndSelect('profiles.persona', 'persona')
-      .leftJoinAndSelect('Feeds.feedImgs', 'feedImg')
-      .leftJoinAndSelect('Feeds.categories', 'category')
-      // .leftJoinAndSelect('Feeds.likes', 'likes')
-      .leftJoinAndSelect('Feeds.feedHashTagMappings', 'feedHashTagMapping')
-      .leftJoinAndSelect('feedHashTagMapping.hashTag', 'hashTag')
       .andWhere('feedHashTagMapping.hashTagId=:hashTagId', { hashTagId: hashTagId })
       .orderBy({ 'Feeds.createdAt': 'DESC', 'Feeds.feedId': 'DESC' })
     ;
-    // 좋아요 여부
-    foundQuery.leftJoinAndMapOne(
-      'Feeds.likeInfo',
-      Likes,
-      'likes',
-      'likes.profileId = :profileId and Feeds.feedId = likes.feedId',
-      { profileId: profileId },
-    );
+    
     // 팔로우 여부
     if (onlyFollowing == 'false' || onlyFollowing == false) {
       foundQuery.leftJoinAndMapOne(
@@ -302,6 +287,51 @@ export class FeedRepository {
     } else {
       //0일때는 categoryId를 통한 필터링 적용 x
       foundQuery.skip(10 * (pageNumber - 1)).take(10);
+    }
+
+    return foundQuery.getMany();
+  }
+  async retrieveOtherFeedsByHashtag(
+    feedIdList: Array<number>,
+    profileId:number,
+    onlyFollowing: any
+  ) {
+    const foundQuery = this.feedTable
+      .createQueryBuilder('Feeds')
+      .leftJoinAndSelect('Feeds.profile', 'profiles')
+      .leftJoinAndSelect('profiles.persona', 'persona')
+      .leftJoinAndSelect('Feeds.feedImgs', 'feedImg')
+      .leftJoinAndSelect('Feeds.categories', 'category')
+      .leftJoinAndSelect('Feeds.feedHashTagMappings', 'feedHashTagMapping')
+      .leftJoinAndSelect('feedHashTagMapping.hashTag', 'hashTag')
+      .whereInIds(feedIdList)
+      .orderBy({ 'Feeds.createdAt': 'DESC', 'Feeds.feedId': 'DESC' })
+    ;
+    // 좋아요 여부
+    foundQuery.leftJoinAndMapOne(
+      'Feeds.likeInfo',
+      Likes,
+      'likes',
+      'likes.profileId = :profileId and Feeds.feedId = likes.feedId',
+      { profileId: profileId },
+    );
+    // 팔로우 여부
+    if (onlyFollowing == 'false' || onlyFollowing == false) {
+      foundQuery.leftJoinAndMapOne(
+        'Feeds.followInfo',
+        FollowFromTo,
+        'followFromTo',
+        'followFromTo.fromUserId = :profileId and followFromTo.toUserId = profiles.profileId',
+        { profileId: profileId },
+      );
+    } else {
+      foundQuery.innerJoinAndMapOne(
+        'Feeds.followInfo',
+        FollowFromTo,
+        'followFromTo',
+        'followFromTo.fromUserId = :profileId and followFromTo.toUserId = profiles.profileId',
+        { profileId: profileId },
+      );
     }
 
     return foundQuery.getMany();

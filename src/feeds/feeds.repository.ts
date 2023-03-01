@@ -344,4 +344,14 @@ export class FeedRepository {
   async reportFeeds(feedId: number) {
     return await this.feedTable.update(feedId, { status: 'REPORTED' });
   }
+
+  // 게시글 신고용 feed를 통한 userId 가져오기
+  async getUserIdByFeedId(feedId: number) {
+    return await this.feedTable
+      .createQueryBuilder('Feeds')
+      .leftJoinAndSelect('Feeds.profile', 'Profiles')
+      .select('Profiles.userId AS userId')
+      .where('Feeds.feedId=:feedId', { feedId: feedId })
+      .getRawOne();
+  }
 }

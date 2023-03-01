@@ -2,7 +2,7 @@ import { ApiProperty } from "@nestjs/swagger";
 
 export class ReportFeedsDto {
   @ApiProperty()
-  reportCategoryId: number;
+  reportedCategoryId: number;
 
   @ApiProperty()
   feedId: number;

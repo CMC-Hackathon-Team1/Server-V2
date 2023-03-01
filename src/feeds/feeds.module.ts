@@ -17,6 +17,7 @@ import { FeedImgsRepository } from './feedImgs.repository';
 import { FeedImgs } from '../common/entities/FeedImgs';
 import { FollowingRepository } from '../following/following.repository';
 import { FollowFromTo } from '../common/entities/FollowFromTo';
+import { ReportContent } from '../common/entities/ReportContent';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { FollowFromTo } from '../common/entities/FollowFromTo';
       FeedHashTagMapping,
       FeedImgs,
       FollowFromTo,
+      ReportContent,
     ]),
   ],
   controllers: [FeedsController],

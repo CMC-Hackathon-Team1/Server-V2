@@ -39,6 +39,7 @@ import { DeleteFeedDTO } from '../dto/delete-feed-request.dto';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { AwsService } from '../../aws/aws.service';
 import { Feed, retrieveFeedListDto } from '../dto/retrieve-feedList.dto';
+import { ReportFeedsDto } from '../dto/reportFeeds.dto';
 
 @Controller('feeds')
 @ApiTags('Feed API')
@@ -433,8 +434,8 @@ export class FeedsController {
   })
   @UseGuards(JWTAuthGuard)
   @Post('/report')
-  reportFeeds(@Body('feedId', ParseIntPipe) feedId: number) {
-    return this.feedsService.reportFeeds(feedId);
+  reportFeeds(@Body() reportFeedsDto: ReportFeedsDto) {
+    return this.feedsService.reportFeeds(reportFeedsDto);
   }
 
   // API No. 2.3.1, 2.3.2 해시태그 검색 (전체, 팔로잉)

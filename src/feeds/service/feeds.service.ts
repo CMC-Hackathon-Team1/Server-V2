@@ -24,6 +24,7 @@ import { FeedImgsRepository } from '../feedImgs.repository';
 import { retrieveFeedListDto } from '../dto/retrieve-feedList.dto';
 import { GetFeedByIdResDTO } from '../dto/get-feed-byId.dto';
 import { FollowFromTo } from '../../common/entities/FollowFromTo';
+import { ReportFeedsDto } from '../dto/reportFeeds.dto';
 
 const util = require('util');
 
@@ -330,9 +331,17 @@ export class FeedsService {
     }
   }
 
-  async reportFeeds(feedId: number) {
+  // 게시글 신고하기
+  async reportFeeds(reportFeedsDto: ReportFeedsDto) {
     try {
-      const reportResult = await this.feedRepsitory.reportFeeds(feedId);
+      const targetFeedId = reportFeedsDto.feedId;
+      const reportCategoryId = reportFeedsDto.reportCategoryId;
+      const reportContent = reportFeedsDto.content;
+
+      if (reportContent) {
+        // TODO: ReportContent에 report 저장
+      }
+      const reportResult = await this.feedRepsitory.reportFeeds(targetFeedId);
 
       console.log(reportResult);
 

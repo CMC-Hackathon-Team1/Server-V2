@@ -452,9 +452,7 @@ export class FeedsService {
     // console.log(hashTagEntity);
     // 해시태그가 없는 경우 (검색 결과 없음)
     if (hashTagEntity.length <= 0) {
-      return sucResponse(baseResponse.SUCCESS, {
-        empty: '게시물이 없습니다.',
-      });
+      return sucResponse(baseResponse.SUCCESS, []);
     }
     // 해시태그가 있는 경우
     const hashTagId = hashTagEntity[0].hashTagId;

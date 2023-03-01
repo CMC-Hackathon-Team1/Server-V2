@@ -493,6 +493,11 @@ export class FeedsController {
     description: '검색어를 입력하지 않음',
     schema: { example: baseResponse.HASHTAG_NOT_FOUND },
   })
+  @ApiResponse({
+    status: baseResponse.PAGE_UPPER_ZERO.statusCode,
+    description: baseResponse.PAGE_UPPER_ZERO.message,
+    schema: { example: baseResponse.PAGE_UPPER_ZERO },
+  })
   @ApiBearerAuth('Authorization')
   @UseGuards(JWTAuthGuard)
   @Get('/feedlist/:profileId/search')

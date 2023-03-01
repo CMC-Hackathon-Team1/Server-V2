@@ -248,10 +248,6 @@ export class FeedRepository {
     return found;
   }
 
-  async reportFeeds(feedId: number) {
-    return await this.feedTable.update(feedId, { status: 'REPORTED' });
-  }
-
   async getFeedByhashTagId(profileId: number, pageNumber: number, categoryId: number, hashTagId: number,onlyFollowing: any,) {
     const foundQuery = this.feedTable
       .createQueryBuilder()
@@ -342,5 +338,10 @@ export class FeedRepository {
     }
 
     return foundQuery.getMany();
+  }
+
+  // 게시글 신고하기 (게시글 상태 변경)
+  async reportFeeds(feedId: number) {
+    return await this.feedTable.update(feedId, { status: 'REPORTED' });
   }
 }

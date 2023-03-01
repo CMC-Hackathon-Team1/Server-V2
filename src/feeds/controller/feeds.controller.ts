@@ -39,7 +39,7 @@ import { DeleteFeedDTO } from '../dto/delete-feed-request.dto';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { AwsService } from '../../aws/aws.service';
 import { Feed, retrieveFeedListDto } from '../dto/retrieve-feedList.dto';
-import { ReportFeedsDto } from '../dto/reportFeeds.dto';
+import { ReportFeedsDto } from '../../reports/dto/reportFeeds.dto';
 
 @Controller('feeds')
 @ApiTags('Feed API')
@@ -397,45 +397,6 @@ export class FeedsController {
     @Query('month') month: number,
   ) {
     return this.feedsService.RetriveMyFeedInCalender(profileId, year, month);
-  }
-
-  // API No. 2.5 게시글 신고하기
-  @ApiOperation({
-    summary: '게시글 신고하기',
-    description:
-      'API No. 2.5 게시글 신고하기에 해당하는 API이며 요청 Body에 있는 feedId를 이용해 해당 게시글의 status를 REPORTED 상태로 변경한다.',
-  })
-  @ApiBearerAuth('Authorization')
-  @ApiBody({ schema: { example: { feedId: 1 } } })
-  @ApiResponse({
-    status: 100,
-    description: 'SUCCESS',
-    schema: { example: baseResponse.SUCCESS },
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Parameter 오류',
-    schema: { example: baseResponse.PIPE_ERROR_EXAMPLE },
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'JWT 오류',
-    schema: { example: baseResponse.JWT_UNAUTHORIZED },
-  })
-  @ApiResponse({
-    status: 501,
-    description: 'DB 오류',
-    schema: { example: baseResponse.DB_ERROR },
-  })
-  @ApiResponse({
-    status: 2200,
-    description: '해당 Feed가 존재하지 않는 경우',
-    schema: { example: baseResponse.FEED_NOT_FOUND },
-  })
-  @UseGuards(JWTAuthGuard)
-  @Post('/report')
-  reportFeeds(@Body() reportFeedsDto: ReportFeedsDto) {
-    return this.feedsService.reportFeeds(reportFeedsDto);
   }
 
   // API No. 2.3.1, 2.3.2 해시태그 검색 (전체, 팔로잉)

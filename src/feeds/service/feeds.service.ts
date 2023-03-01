@@ -24,7 +24,7 @@ import { FeedImgsRepository } from '../feedImgs.repository';
 import { retrieveFeedListDto } from '../dto/retrieve-feedList.dto';
 import { GetFeedByIdResDTO } from '../dto/get-feed-byId.dto';
 import { FollowFromTo } from '../../common/entities/FollowFromTo';
-import { ReportFeedsDto } from '../dto/reportFeeds.dto';
+import { ReportFeedsDto } from '../../reports/dto/reportFeeds.dto';
 
 const util = require('util');
 
@@ -327,26 +327,6 @@ export class FeedsService {
 
       return sucResponse(baseResponse.SUCCESS, feedEntities);
     } catch (err) {
-      return errResponse(baseResponse.DB_ERROR);
-    }
-  }
-
-  // 게시글 신고하기
-  async reportFeeds(reportFeedsDto: ReportFeedsDto) {
-    try {
-      const targetFeedId = reportFeedsDto.feedId;
-      const reportCategoryId = reportFeedsDto.reportCategoryId;
-      const reportContent = reportFeedsDto.content;
-
-      if (reportContent) {
-        // TODO: ReportContent에 report 저장
-      }
-      const reportResult = await this.feedRepsitory.reportFeeds(targetFeedId);
-
-      console.log(reportResult);
-
-      return sucResponse(baseResponse.SUCCESS);
-    } catch (error) {
       return errResponse(baseResponse.DB_ERROR);
     }
   }

@@ -88,8 +88,8 @@ export class UsersController {
   @Post('/send-mail')
   async sendMail(@Body() sendMailDTO: SendMailDTO, @Request() req:any){
     const requestUserId = req.user.userId;
-    const toEmail = `${process.env.MASTER_ACCOUNT_EMAIL}`;
-    return await this.emailService.sendMail(toEmail,requestUserId,sendMailDTO.content);
+    const mailTo=`${process.env.GOOGLE_EMAIL_SERVICE}`;
+    return await this.emailService.sendMail(mailTo,requestUserId,sendMailDTO.content);
   }
 
   // 계정 공개상태 설정

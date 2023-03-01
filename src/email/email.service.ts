@@ -14,7 +14,7 @@ export class EmailService {
         subject: string,
         templateName:string,
         context:any={},
-    ):Promise<boolean>{0
+    ):Promise<boolean>{
         await this.mailerService.sendMail({
             to:tos.join(', '),
             subject,

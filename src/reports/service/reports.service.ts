@@ -18,6 +18,22 @@ export class ReportsService {
   async reportFeeds(reportFeedsDto: ReportFeedsDto) {
     try {
       const feedId = reportFeedsDto.feedId;
+
+      const targetFeed = await this.feedRepository.checkFeedReported(feedId);
+
+      if (!targetFeed) {
+        return errResponse(baseResponse.FEED_NOT_FOUND);
+      }
+      const targetFeedStatus = targetFeed.status;
+
+      if (targetFeedStatus === 'REPORTED') {
+        return errResponse(baseResponse.FEED_ALREADY_REPORTED);
+      }
+
+      if (reportFeedsDto.reportedCategoryId < 1 || 6 < reportFeedsDto.reportedCategoryId) {
+        return errResponse(baseResponse.INVALID_REPORT_CATEGORY);
+      }
+
       const getUserIdByFeedIdResult = await this.feedRepository.getUserIdByFeedId(feedId);
       const userId = getUserIdByFeedIdResult.userId;
       const reportedCategoryId = reportFeedsDto.reportedCategoryId;
@@ -27,7 +43,6 @@ export class ReportsService {
         const saveReportContentResult = await this.reportsRepository.saveReportContent(reportContent);
         const contentId = saveReportContentResult.contentId;
         const saveReportsDto = new SaveReportsDto(reportedCategoryId, userId, feedId, contentId);
-        console.log(saveReportsDto)
 
         const changeFeedStatus = await this.feedRepository.reportFeeds(feedId);
         const reportResult = await this.reportsRepository.saveReport(saveReportsDto);
@@ -36,7 +51,6 @@ export class ReportsService {
       }
       
       const saveReportsDto = new SaveReportsDto(reportedCategoryId, userId, feedId);
-      console.log(saveReportsDto)
 
       const changeFeedStatus = await this.feedRepository.reportFeeds(feedId);
       const reportResult = await this.reportsRepository.saveReport(saveReportsDto);

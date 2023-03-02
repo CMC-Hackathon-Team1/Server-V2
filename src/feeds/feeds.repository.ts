@@ -354,4 +354,13 @@ export class FeedRepository {
       .where('Feeds.feedId=:feedId', { feedId: feedId })
       .getRawOne();
   }
+
+  // 게시글이 이미 신고된 상태인지 확인
+  async checkFeedReported(feedId: number) {
+    return await this.feedTable
+      .createQueryBuilder('Feeds')
+      .select('Feeds.status AS status')
+      .where('Feeds.feedId=:feedId', { feedId: feedId })
+      .getRawOne();
+  }
 }

@@ -75,6 +75,10 @@ const baseResponse = {
   HASHTAG_NOT_FOUND: { statusCode: 2500, message: '해시태그를 입력해주세요.' },
 
   // 수치화 관련
+
+  // 신고 관련
+  FEED_ALREADY_REPORTED: { statusCode: 3000, message: '이미 신고된 게시글 입니다.' },
+  INVALID_REPORT_CATEGORY: { statusCode: 3001, message: '올바르지 않은 신고 분류 입니다.' },
 };
 
 export default baseResponse;

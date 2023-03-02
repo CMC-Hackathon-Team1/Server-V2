@@ -16,7 +16,7 @@ export class ReportsController {
   @ApiOperation({
     summary: '게시글 신고하기',
     description:
-      'API No. 2.5 게시글 신고하기에 해당하는 API이며 요청 Body에 있는 feedId를 이용해 해당 게시글의 status를 REPORTED 상태로 변경한다.',
+      'API No. 2.5 게시글 신고하기에 해당하는 API이며 요청 Body에 있는 feedId를 이용해 해당 게시글의 status를 REPORTED 상태로 변경한다.\n\nreportedCategoryId 목록\n\n1. 스팸 및 홍보글\n\n2. 음란성이 포함된 글\n\n3. 욕설/생명경시/혐오/차별적인 글\n\n4. 게시글 도배\n\n5. 개인정보 노출 및 불법 정보\n\n6. 기타 부적절한 글\n\n각 신고 내용에 맞는 숫자(1~6)을 reportedCategoryId에 담아서 보내주시면 됩니다.\n\n6번에 해당하는 경우 content를 꼭 보내주시기 바랍니다.\n\n6을 제외한 reportedCategoryId와 content가 함께 전송된다면 content는 무시되므로 1 ~ 5에 해당하는 경우 content 필드는 보내주지 않으셔도 됩니다.'
   })
   @ApiBearerAuth('Authorization')
   @ApiBody({ schema: { example: { feedId: 1 } } })

@@ -40,6 +40,10 @@ export class ReportsService {
       const reportContent = reportFeedsDto.content;
 
       if (reportedCategoryId === 6) {
+        if (!reportContent) {
+          return errResponse(baseResponse.REPORT_CONTENT_EMPTY);
+        }
+        
         const saveReportContentResult = await this.reportsRepository.saveReportContent(reportContent);
         const contentId = saveReportContentResult.contentId;
         const saveReportsDto = new SaveReportsDto(reportedCategoryId, userId, feedId, contentId);

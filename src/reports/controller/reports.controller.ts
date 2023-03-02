@@ -55,6 +55,11 @@ export class ReportsController {
     description: '신고 분류가 올바르지 않은 경우 (1 ~ 6의 범위를 벗어나는 경우)',
     schema: { example: baseResponse.INVALID_REPORT_CATEGORY },
   })
+  @ApiResponse({
+    status: 3002,
+    description: '신고 사유가 (6. 기타 부적절한 글)이지만 기타 신고 사유를 작성하지 않은 경우.',
+    schema: { example: baseResponse.REPORT_CONTENT_EMPTY },
+  })
   @UseGuards(JWTAuthGuard)
   @Post()
   reportFeeds(@Body() reportFeedsDto: ReportFeedsDto) {

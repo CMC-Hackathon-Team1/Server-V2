@@ -79,6 +79,7 @@ const baseResponse = {
   // 신고 관련
   FEED_ALREADY_REPORTED: { statusCode: 3000, message: '이미 신고된 게시글 입니다.' },
   INVALID_REPORT_CATEGORY: { statusCode: 3001, message: '올바르지 않은 신고 분류 입니다.' },
+  REPORT_CONTENT_EMPTY: { statusCode: 3002, message: '신고 사유가 (6. 기타 부적절한 글)인 경우 기타 신고 사유를 입력해야 합니다.' },
 };
 
 export default baseResponse;

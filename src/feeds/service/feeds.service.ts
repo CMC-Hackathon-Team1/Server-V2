@@ -24,6 +24,7 @@ import { FeedImgsRepository } from '../feedImgs.repository';
 import { retrieveFeedListDto } from '../dto/retrieve-feedList.dto';
 import { GetFeedByIdResDTO } from '../dto/get-feed-byId.dto';
 import { FollowFromTo } from '../../common/entities/FollowFromTo';
+import { ReportFeedsDto } from '../../reports/dto/reportFeeds.dto';
 
 const util = require('util');
 
@@ -326,18 +327,6 @@ export class FeedsService {
 
       return sucResponse(baseResponse.SUCCESS, feedEntities);
     } catch (err) {
-      return errResponse(baseResponse.DB_ERROR);
-    }
-  }
-
-  async reportFeeds(feedId: number) {
-    try {
-      const reportResult = await this.feedRepsitory.reportFeeds(feedId);
-
-      console.log(reportResult);
-
-      return sucResponse(baseResponse.SUCCESS);
-    } catch (error) {
       return errResponse(baseResponse.DB_ERROR);
     }
   }

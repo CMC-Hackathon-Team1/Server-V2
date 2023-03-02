@@ -248,10 +248,6 @@ export class FeedRepository {
     return found;
   }
 
-  async reportFeeds(feedId: number) {
-    return await this.feedTable.update(feedId, { status: 'REPORTED' });
-  }
-
   async getFeedByhashTagId(profileId: number, pageNumber: number, categoryId: number, hashTagId: number,onlyFollowing: any,) {
     const foundQuery = this.feedTable
       .createQueryBuilder()
@@ -342,5 +338,29 @@ export class FeedRepository {
     }
 
     return foundQuery.getMany();
+  }
+
+  // 게시글 신고하기 (게시글 상태 변경)
+  async reportFeeds(feedId: number) {
+    return await this.feedTable.update(feedId, { status: 'REPORTED' });
+  }
+
+  // 게시글 신고용 feed를 통한 userId 가져오기
+  async getUserIdByFeedId(feedId: number) {
+    return await this.feedTable
+      .createQueryBuilder('Feeds')
+      .leftJoinAndSelect('Feeds.profile', 'Profiles')
+      .select('Profiles.userId AS userId')
+      .where('Feeds.feedId=:feedId', { feedId: feedId })
+      .getRawOne();
+  }
+
+  // 게시글이 이미 신고된 상태인지 확인
+  async checkFeedReported(feedId: number) {
+    return await this.feedTable
+      .createQueryBuilder('Feeds')
+      .select('Feeds.status AS status')
+      .where('Feeds.feedId=:feedId', { feedId: feedId })
+      .getRawOne();
   }
 }

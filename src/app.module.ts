@@ -40,6 +40,7 @@ import path = require('path');
 import { Reports } from './common/entities/Reports';
 import { ReportContent } from './common/entities/ReportContent';
 import { ReportCategory } from './common/entities/ReportCategory';
+import { ReportsModule } from './reports/reports.module';
 
 @Module({
   imports: [
@@ -111,6 +112,7 @@ import { ReportCategory } from './common/entities/ReportCategory';
     CategoriesModule,
     AlarmsModule,
     EmailModule,
+    ReportsModule,
   ],
   controllers: [AppController],
   providers: [AppService, AwsService],

@@ -35,4 +35,9 @@ export class UsersRepository {
   async setUsersAlarmToken(userId: number, alarmToken: string) {
     return await this.usersTable.update(userId, { alarmToken: alarmToken });
   }
+
+  // 회원 이메일 정보 가져오기
+  async getUserEmailById(userId: number) {
+    return await this.usersTable.findOne({ select: ['email'], where: { userId: userId }});
+  }
 }

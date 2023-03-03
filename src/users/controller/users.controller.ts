@@ -1,4 +1,14 @@
-import { Body, Controller, Delete, Get, Patch, Post, Request, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Patch,
+  Post,
+  Req,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -18,7 +28,44 @@ import { UsersService } from '../service/users.service';
 @ApiTags('Users')
 @Controller('users')
 export class UsersController {
-  constructor(private usersService: UsersService,private emailService:EmailService) {}
+  constructor(
+    private usersService: UsersService,
+    private emailService: EmailService,
+  ) {}
+
+  @ApiOperation({
+    summary: '로그인한 회원의 이메일 확인',
+    description: `로그인 한 회원의 이메일을 불러오는 API.\n
+      JWT 토큰에 들어있는 사용자의 ID를 통해 이메일을 불러옴`,
+  })
+  @ApiBearerAuth('Authorization')
+  @ApiResponse({
+    status: 100,
+    description: 'SUCCESS',
+    schema: { example: baseResponse.SUCCESS },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'JWT 오류',
+    schema: { example: baseResponse.JWT_UNAUTHORIZED },
+  })
+  @ApiResponse({
+    status: 501,
+    description: 'DB 오류',
+    schema: { example: baseResponse.DB_ERROR },
+  })
+  @ApiResponse({
+    status: 1101,
+    description: '이미 만료된 JWT(이미 탈퇴된 회원의 JWT)를 보내는 경우 또는 이메일 정보를 불러올 수 없는 경우',
+    schema: { example: baseResponse.USER_NOT_FOUND },
+  })
+  @UseGuards(JWTAuthGuard)
+  @Get('/email')
+  async isAuthenticated(@Request() req: any): Promise<any> {
+    const userInfo = await this.usersService.getUserEmailInfo(req);
+
+    return userInfo;
+  }
 
   // API No. 1.8.7 회원 탈퇴
   @ApiOperation({
@@ -86,21 +133,24 @@ export class UsersController {
   @ApiBearerAuth('Authorization')
   @UseGuards(JWTAuthGuard)
   @Post('/send-mail')
-  async sendMail(@Body() sendMailDTO: SendMailDTO, @Request() req:any){
+  async sendMail(@Body() sendMailDTO: SendMailDTO, @Request() req: any) {
     const requestUserId = req.user.userId;
-    const mailTo=`${process.env.GOOGLE_EMAIL_SERVICE}`;
-    return await this.emailService.sendMail(mailTo,requestUserId,sendMailDTO.content);
+    const mailTo = `${process.env.GOOGLE_EMAIL_SERVICE}`;
+    return await this.emailService.sendMail(
+      mailTo,
+      requestUserId,
+      sendMailDTO.content,
+    );
   }
 
   // 계정 공개상태 설정
   @ApiOperation({
     summary: '계정 공개상태 변경',
-    description:
-      'ACTIVE / HIDDEN으로 구분되며 각각 공개 / 비공개 입니다.',
+    description: 'ACTIVE / HIDDEN으로 구분되며 각각 공개 / 비공개 입니다.',
   })
   @ApiBearerAuth('Authorization')
   @ApiBody({
-    schema: { example: { userStatus: 'ACTIVE 또는 HIDDEN' }}
+    schema: { example: { userStatus: 'ACTIVE 또는 HIDDEN' } },
   })
   @ApiResponse({
     status: 100,
@@ -124,7 +174,10 @@ export class UsersController {
   })
   @UseGuards(JWTAuthGuard)
   @Patch('/status')
-  async changeUserStatus(@Body() changeUserStatusDto: ChangeUserStatusDto, @Request() req: any) {
+  async changeUserStatus(
+    @Body() changeUserStatusDto: ChangeUserStatusDto,
+    @Request() req: any,
+  ) {
     return await this.usersService.changeUserStatus(changeUserStatusDto, req);
   }
 }

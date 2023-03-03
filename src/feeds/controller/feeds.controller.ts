@@ -142,9 +142,14 @@ export class FeedsController {
                       B: 기능명세서 1.4(1).1 해당일 게시글 모아보기 기능이다. 홈화면 달력에서 날짜를 클릭시 동작한다. year,month,day를 통해 해당일에 등록된 게시글을 조회한다.',
   })
   @ApiQuery({
-    name: 'profileId',
+    name: 'baseProfileId',
     required: true,
     description: '현재 유저의 profileId ex)29',
+  })
+  @ApiQuery({
+    name: 'targetProfileId',
+    required: true,
+    description: '대상 유저의 profileId ex)123',
   })
   @ApiQuery({
     name: 'year',
@@ -180,14 +185,16 @@ export class FeedsController {
   @Get('/my-feeds/by-month')
   @UseGuards(JWTAuthGuard)
   RetreiveMyFeedByMonth(
-    @Query('profileId') profileId: number,
+    @Query('baseProfileId') baseProfileId: number,
+    @Query('targetProfileId') targetProfileId: number,
     @Query('year') year: number,
     @Query('month') month: string,
     @Query('day') day: number,
     @Query('page') pageNumber: number,
   ) {
     return this.feedsService.RetreiveMyFeedByMonth(
-      profileId,
+      baseProfileId,
+      targetProfileId,
       year,
       month,
       day,

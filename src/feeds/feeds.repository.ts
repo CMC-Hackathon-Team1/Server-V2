@@ -172,7 +172,8 @@ export class FeedRepository {
   }
 
   retrieveMyFeedByMonth(
-    profileId: number,
+    baseProfileId: number,
+    targetProfileId: number,
     year: number,
     month: string,
     day: number,
@@ -181,7 +182,7 @@ export class FeedRepository {
     const query = this.feedTable
       .createQueryBuilder('Feeds')
       .leftJoinAndSelect('Feeds.feedImgs', 'feedImg')
-      .where('Feeds.profileId=:profileId', { profileId: profileId })
+      .where('Feeds.profileId=:targetProfileId', { targetProfileId: targetProfileId })
       .andWhere('Feeds.status=:status', { status: 'ACTIVE' })
       .skip(10 * (pageNumber - 1))
       .take(10);
@@ -205,8 +206,8 @@ export class FeedRepository {
       'Feeds.isLike',
       Likes,
       'isLike',
-      'isLike.profileId = :profileId and Feeds.feedId = isLike.feedId',
-      { profileId: profileId },
+      'isLike.profileId = :baseProfileId and Feeds.feedId = isLike.feedId',
+      { baseProfileId: baseProfileId },
     );
     return query.getMany();
   }

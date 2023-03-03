@@ -272,7 +272,8 @@ export class FeedsService {
   }
 
   async RetreiveMyFeedByMonth(
-    profileId: number,
+    baseProfileId: number,
+    targetProfileId: number,
     year: number,
     month: string,
     day: number,
@@ -281,7 +282,8 @@ export class FeedsService {
     let feedEntity: Feeds[];
     try {
       feedEntity = await this.feedRepsitory.retrieveMyFeedByMonth(
-        profileId,
+        baseProfileId,
+        targetProfileId,
         year,
         month,
         day,

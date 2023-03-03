@@ -50,4 +50,19 @@ export class UsersService {
       return errResponse(baseResponse.DB_ERROR);
     }
   }
+
+  async getUserEmailInfo(req: any) {
+    const userId = req.user.userId;
+    if (!userId) {
+      return errResponse(baseResponse.USER_NOT_FOUND);
+    }
+
+    const userEmailResult = await this.usersRepository.getUserEmailById(userId);
+
+    if (!userEmailResult) {
+      return errResponse(baseResponse.USER_NOT_FOUND);
+    }
+
+    return sucResponse(baseResponse.SUCCESS, userEmailResult);
+  }
 }

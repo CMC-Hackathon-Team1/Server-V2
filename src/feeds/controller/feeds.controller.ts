@@ -220,7 +220,7 @@ export class FeedsController {
     schema: { example: errResponse(baseResponse.MONTHLY_EMPTY_PAGE) },
   })
   @ApiBearerAuth('Authorization')
-  @Get('/my-feeds/by-month')
+  @Get('/monthly')
   @UseGuards(JWTAuthGuard)
   RetreiveMyFeedByMonth(
     @Query('baseProfileId') baseProfileId: number,

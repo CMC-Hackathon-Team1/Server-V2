@@ -17,10 +17,11 @@ export class EmailService {
     ): Promise<boolean>{
         console.log(__filename);
         console.log(__dirname);
+        console.log(process.env.PWD);
         await this.mailerService.sendMail({
             to:tos.join(', '),
             subject,
-            template:`./${templateName}`,
+            template:`./templates/${templateName}`,
             context,
         });
 

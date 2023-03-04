@@ -25,6 +25,7 @@ import { retrieveFeedListDto } from '../dto/retrieve-feedList.dto';
 import { GetFeedByIdResDTO } from '../dto/get-feed-byId.dto';
 import { FollowFromTo } from '../../common/entities/FollowFromTo';
 import { ReportFeedsDto } from '../../reports/dto/reportFeeds.dto';
+import { FollowingRepository } from '../../following/following.repository';
 
 const util = require('util');
 
@@ -38,6 +39,7 @@ export class FeedsService {
     private hashTagFeedMappingRepository: hashTagFeedMappingRepository,
     private feedImgRepository: FeedImgsRepository,
     private dataSource: DataSource,
+    private followRepository:FollowingRepository,
     private readonly AwsService: AwsService,
   ) {}
 
@@ -218,7 +220,7 @@ export class FeedsService {
     profileId: number,
     pageNumber: number,
     categoryId: number,
-    onlyFollowing: boolean,
+    onlyFollowing: any,
   ): Promise<any> {
     // [REFACTORED]
     // return this.feeds;
@@ -247,7 +249,10 @@ export class FeedsService {
     // // console.log(util.inspect(foundDTO, {showHidden: false, depth: null}));
     // return foundDTO;
     // ---
-
+    const hasFollow = await this.followRepository.getFollow(profileId);
+    if ((onlyFollowing == 'true' || onlyFollowing== true)&& hasFollow.length==0) {
+      return errResponse(baseResponse.FOLLOWER_NOT_EXIST);
+    }
     const rawFeedList = await this.feedRepsitory.retrieveOtherFeeds(
       profileId,
       pageNumber,

@@ -272,16 +272,39 @@ export class FeedsService {
   }
 
   async RetreiveMyFeedByMonth(
-    profileId: number,
+    baseProfileId: number,
+    targetProfileId: number,
     year: number,
     month: string,
     day: number,
     pageNumber: number,
   ) {
     let feedEntity: Feeds[];
+
+    if (!baseProfileId) {
+      return errResponse(baseResponse.MONTHLY_EMPTY_BASE_PROFILE_ID);
+    }
+
+    if (!targetProfileId) {
+      return errResponse(baseResponse.MONTHLY_EMPTY_TARGET_PROFILE_ID);
+    }
+
+    if (!year) {
+      return errResponse(baseResponse.MONTHLY_EMPTY_YEAR);
+    }
+
+    if (!month) {
+      return errResponse(baseResponse.MONTHLY_EMPTY_MONTH);
+    }
+
+    if (!pageNumber) {
+      return errResponse(baseResponse.MONTHLY_EMPTY_PAGE);
+    }
+
     try {
       feedEntity = await this.feedRepsitory.retrieveMyFeedByMonth(
-        profileId,
+        baseProfileId,
+        targetProfileId,
         year,
         month,
         day,

@@ -139,12 +139,20 @@ export class FeedsController {
     description:
       'A: 프로필 (게시글모아보기) API 3.1.2: 마이페이지에서 월별 게시글 모아보기 기능이다. year과 month를 통해 그달에 포스팅한 게시글들을 모아볼 수 있다.\n\
                       pagination으로 동작한다.\
-                      B: 기능명세서 1.4(1).1 해당일 게시글 모아보기 기능이다. 홈화면 달력에서 날짜를 클릭시 동작한다. year,month,day를 통해 해당일에 등록된 게시글을 조회한다.',
+                      \nB: 기능명세서 1.4(1).1 해당일 게시글 모아보기 기능이다. 홈화면 달력에서 날짜를 클릭시 동작한다. year,month,day를 통해 해당일에 등록된 게시글을 조회한다.\n\
+                      \n\nbaseProfileId: 조회 주체의 profileId\n\
+                      \ntargetProfileId: 조회 대상의 profileId\n\
+                      \n(baseProfile)이 (targetProfile)의 월별 게시글을 조회할 수 있음. 자기 자신의 월별 게시글을 조회하는 경우 baseProfileId와 targetProfileId는 모두 자기 자신의 profileId를 입력하면 됨',
   })
   @ApiQuery({
-    name: 'profileId',
+    name: 'baseProfileId',
     required: true,
-    description: '현재 유저의 profileId ex)29',
+    description: '현재 유저의 profileId ex)1761',
+  })
+  @ApiQuery({
+    name: 'targetProfileId',
+    required: true,
+    description: '대상 유저의 profileId ex)29',
   })
   @ApiQuery({
     name: 'year',
@@ -176,18 +184,55 @@ export class FeedsController {
     isArray: true,
     description: '성공했을때 response',
   })
+  @ApiResponse({
+    status: 401,
+    description: 'JWT 오류',
+    schema: { example: errResponse(baseResponse.JWT_UNAUTHORIZED) },
+  })
+  @ApiResponse({
+    status: 501,
+    description: 'DB 오류',
+    schema: { example: errResponse(baseResponse.DB_ERROR) },
+  })
+  @ApiResponse({
+    status: 2301,
+    description: 'baseProfileId 오류',
+    schema: { example: errResponse(baseResponse.MONTHLY_EMPTY_BASE_PROFILE_ID) },
+  })
+  @ApiResponse({
+    status: 2302,
+    description: 'targetProfileId 오류',
+    schema: { example: errResponse(baseResponse.MONTHLY_EMPTY_TARGET_PROFILE_ID) },
+  })
+  @ApiResponse({
+    status: 2303,
+    description: 'year 오류',
+    schema: { example: errResponse(baseResponse.MONTHLY_EMPTY_YEAR) },
+  })
+  @ApiResponse({
+    status: 2304,
+    description: 'month 오류',
+    schema: { example: errResponse(baseResponse.MONTHLY_EMPTY_MONTH) },
+  })
+  @ApiResponse({
+    status: 2305,
+    description: 'pageNumber 오류',
+    schema: { example: errResponse(baseResponse.MONTHLY_EMPTY_PAGE) },
+  })
   @ApiBearerAuth('Authorization')
-  @Get('/my-feeds/by-month')
+  @Get('/monthly')
   @UseGuards(JWTAuthGuard)
   RetreiveMyFeedByMonth(
-    @Query('profileId') profileId: number,
+    @Query('baseProfileId') baseProfileId: number,
+    @Query('targetProfileId') targetProfileId: number,
     @Query('year') year: number,
     @Query('month') month: string,
     @Query('day') day: number,
     @Query('page') pageNumber: number,
   ) {
     return this.feedsService.RetreiveMyFeedByMonth(
-      profileId,
+      baseProfileId,
+      targetProfileId,
       year,
       month,
       day,

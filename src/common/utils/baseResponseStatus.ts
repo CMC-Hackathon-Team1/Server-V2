@@ -45,7 +45,7 @@ const baseResponse = {
   USER_STATUS_ERROR: { statusCode: 1103, message: '요청 Body가 잘못되었습니다.' },
 
   // 프로필 관련
-  PROFILE_COUNT_OVER: { statusCode: 1500, message: '사용자 프로필은 3개까지 생성 가능합니다.' },
+  PROFILE_COUNT_OVER: { statusCode: 1500, message: '사용자 프로필은 5개까지 생성 가능합니다.' },
   PROFILE_SAME_PERSONA: { statusCode: 1501, message: '사용자에게 해당 페르소나가 이미 존재합니다.' },
   PROFILE_NOT_EXIST: { statusCode: 1502, message: '해당 프로필은 존재하지 않습니다.' },
   USER_NO_PROFILE: { statusCode: 1503, message: '해당 사용자는 프로필이 존재하지 않습니다.' },
@@ -71,6 +71,14 @@ const baseResponse = {
   FEED_IMG_COUNT_OVER:{statusCode:2205,message:'게시글이미지는 최대 5개로 제한됩니다.'},
   FEED_HAVE_CONTENT_OR_IMAGE:{statusCode:2206,message:'게시글은 내용 OR 이미지 중 적어도 하나는 가져야 합니다.'},
   PAGE_UPPER_ZERO:{statusCode:2206,message:'페이지 넘버는 1이상이여야 합니다.'},
+
+  // 월별 게시글 조회 관련
+  MONTHLY_EMPTY_BASE_PROFILE_ID: { statusCode: 2301, message: 'baseProfileId는 필수로 입력하여야 합니다.' },
+  MONTHLY_EMPTY_TARGET_PROFILE_ID: { statusCode: 2302, message: 'targetProfileId는 필수로 입력하여야 합니다.' },
+  MONTHLY_EMPTY_YEAR: { statusCode: 2303, message: 'year는 필수로 입력하여야 합니다.' },
+  MONTHLY_EMPTY_MONTH: { statusCode: 2304, message: 'month는 필수로 입력하여야 합니다.' },
+  MONTHLY_EMPTY_PAGE: { statusCode: 2305, message: 'page는 필수로 입력하여야 합니다.' },
+
   // 검색 관련
   HASHTAG_NOT_FOUND: { statusCode: 2500, message: '해시태그를 입력해주세요.' },
 

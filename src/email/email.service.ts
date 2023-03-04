@@ -18,14 +18,21 @@ export class EmailService {
         console.log(__filename);
         console.log(__dirname);
         console.log(process.env.PWD);
-        await this.mailerService.sendMail({
-            to:tos.join(', '),
-            subject,
-            template:`./templates/${templateName}`,
-            context,
-        });
+        try {
+            await this.mailerService.sendMail({
+                to:tos.join(', '),
+                subject,
+                template:`./templates/${templateName}`,
+                context,
+            });    
+            return true;
+        } catch (err) {
+            console.log(err);
+            return false;
+        }
+        
 
-        return true;
+        
     }
 
     async sendMail(to:string,userId:number,content:string){

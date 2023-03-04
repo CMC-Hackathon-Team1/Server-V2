@@ -18,18 +18,14 @@ export class EmailService {
         console.log(__filename);
         console.log(__dirname);
         console.log(process.env.PWD);
-        try {
-            await this.mailerService.sendMail({
-                to:tos.join(', '),
-                subject,
-                template:`./templates/${templateName}`,
-                context,
-            });    
-            return true;
-        } catch (err) {
-            console.log(err);
-            return false;
-        }
+        await this.mailerService.sendMail({
+            to:tos.join(', '),
+            subject,
+            template:`../../templates/${templateName}`,
+            context,
+        });    
+        return true;
+        
         
 
         
@@ -50,7 +46,8 @@ export class EmailService {
                 }
             );
             return sucResponse(baseResponse.SUCCESS);
-        }catch(err){
+        } catch (err) {
+            console.log(err);
             return errResponse(baseResponse.DB_ERROR);
         }
         

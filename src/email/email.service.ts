@@ -29,6 +29,7 @@ export class EmailService {
         try{
             const user=await this.usersRepository.getUserByUserId(userId);
             const fromEmail: String = user.email;
+            console.log(to, userId, content, user, fromEmail);
             await this._send(
                 [to],
                 '[On&Off 고객 문의사항]',

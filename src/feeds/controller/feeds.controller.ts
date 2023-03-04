@@ -95,6 +95,11 @@ export class FeedsController {
     status:baseResponse.DB_ERROR.statusCode,
     description:baseResponse.DB_ERROR.message,
   })
+  @ApiResponse({
+    status: baseResponse.FOLLOWER_NOT_EXIST.statusCode,
+    description: baseResponse.FOLLOWER_NOT_EXIST.message,
+    schema: { example: baseResponse.FOLLOWER_NOT_EXIST },
+  })
   @ApiBearerAuth('Authorization')
   @Get('/feedlist/:profileId')
   @UseGuards(JWTAuthGuard)
@@ -499,6 +504,11 @@ export class FeedsController {
     status: 2500,
     description: '검색어를 입력하지 않음',
     schema: { example: baseResponse.HASHTAG_NOT_FOUND },
+  })
+  @ApiResponse({
+    status: baseResponse.FOLLOWER_NOT_EXIST.statusCode,
+    description: baseResponse.FOLLOWER_NOT_EXIST.message,
+    schema: { example: baseResponse.FOLLOWER_NOT_EXIST },
   })
   @ApiResponse({
     status: baseResponse.PAGE_UPPER_ZERO.statusCode,

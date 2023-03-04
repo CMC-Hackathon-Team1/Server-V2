@@ -35,5 +35,10 @@ export class FollowingRepository{
         return result;
     }
     
+    async getFollow(profileId: number) {
+        return await this.followingTable.find({where: { 
+            fromUserId: profileId,
+        }})
+    }
 
 }

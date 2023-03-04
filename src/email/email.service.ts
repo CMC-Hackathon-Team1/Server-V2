@@ -14,7 +14,9 @@ export class EmailService {
         subject: string,
         templateName:string,
         context:any={},
-    ):Promise<boolean>{
+    ): Promise<boolean>{
+        console.log(__filename);
+        console.log(__dirname);
         await this.mailerService.sendMail({
             to:tos.join(', '),
             subject,

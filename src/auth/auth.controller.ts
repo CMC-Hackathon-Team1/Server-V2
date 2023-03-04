@@ -231,25 +231,6 @@ export class AuthController {
     );
   }
 
-  @ApiOperation({
-    summary: '※ 자체 로그인 - 유저 정보 확인',
-    description: '(사용할 일 없음)',
-  })
-  @ApiBearerAuth('Authorization')
-  @UseGuards(JWTAuthGuard)
-  @Get('/user-info')
-  async isAuthenticated(@Req() req: Request): Promise<any> {
-    const user: any = req.user;
-    // console.log(user);
-    const userId: number = user.userId;
-    // console.log(userId);
-    // const email: string = user.email;
-
-    const userInfo = await this.userService.getUserInfo(userId);
-
-    return userInfo;
-  }
-
   // 쿠키 가져오기 - DEPRECATED
   // @Get('/cookies')
   // getCookies(@Req() req: Request, @Res() res: Response): any {

@@ -32,7 +32,7 @@ export class ProfilesService {
       
       console.log('--프로필 갯수 확인 시작--');
       // 프로필 갯수 validation
-      if (userProfilePersonaList.length >= 3) {
+      if (userProfilePersonaList.length >= 5) {
         return errResponse(baseResponse.PROFILE_COUNT_OVER, {
           currentProfileCount: userProfilePersonaList.length,
         });

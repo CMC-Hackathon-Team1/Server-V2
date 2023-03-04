@@ -78,7 +78,7 @@ export class FeedsService {
       patchFeedRequestDTO.feedId,
     );
     if (!feedEntity) {
-      console.log(feedEntity);
+    console.log(feedEntity);
       return errResponse(baseResponse.FEED_NOT_FOUND);
     }
     if (feedEntity.profileId != patchFeedRequestDTO.profileId) {
@@ -139,13 +139,14 @@ export class FeedsService {
           await this.hashTagFeedMappingRepository.save(feedHashTagMapping);
         }
       }
+      return sucResponse(baseResponse.SUCCESS);
     } catch (err) {
       console.log(err);
       return errResponse(baseResponse.DB_ERROR);
     } finally {
       await queryRunner.release();
     }
-    return sucResponse(baseResponse.SUCCESS);
+    
   }
   async hashTagPatch(
     originHashTagMappingEntityList: FeedHashTagMapping[],

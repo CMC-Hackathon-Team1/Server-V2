@@ -135,7 +135,8 @@ export class UsersController {
   @Post('/send-mail')
   async sendMail(@Body() sendMailDTO: SendMailDTO, @Request() req: any) {
     const requestUserId = req.user.userId;
-    const mailTo = `${process.env.GOOGLE_EMAIL_SERVICE}`;
+    const mailTo = `${process.env.MASTER_ACCOUNT_EMAIL}`;
+    console.log(mailTo);
     return await this.emailService.sendMail(
       mailTo,
       requestUserId,

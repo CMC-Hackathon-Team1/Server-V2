@@ -27,7 +27,7 @@ export default () => ({
       from: `${process.env.MASTER_ACCOUNT_NAME} <${process.env.MASTER_ACCOUNT_EMAIL}>`,
     },
     // default:{
-    //   from:`"${process.env.EMAIL_FROM_USER_NAME}"<${process.env.EMAIL_AUTH_EMAIL}>`,
+    //   from:`"${process.env.MASTER_ACCOUNT_NAME}"<${process.env.MASTER_ACCOUNT_EMAIL}>`,
     // },
   },
 });

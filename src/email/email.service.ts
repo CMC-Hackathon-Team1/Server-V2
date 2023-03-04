@@ -28,7 +28,7 @@ export class EmailService {
     async sendMail(to:string,userId:number,content:string){
         try{
             const user=await this.usersRepository.getUserByUserId(userId);
-            const fromEmail:String=user.email;
+            const fromEmail: String = user.email;
             await this._send(
                 [to],
                 '[On&Off 고객 문의사항]',

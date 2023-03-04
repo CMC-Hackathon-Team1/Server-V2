@@ -463,7 +463,7 @@ export class FeedsService {
     profileId: number,
     pageNumber: number,
     categoryId: number,
-    onlyFollowing: boolean,
+    onlyFollowing: any,
     hashtag: string,
   ): Promise<any> {
     // 1. 해시태그가 있는지 검색
@@ -473,6 +473,11 @@ export class FeedsService {
     if (hashTagEntity.length <= 0) {
       return sucResponse(baseResponse.SUCCESS, []);
     }
+    const hasFollow = await this.followRepository.getFollow(profileId);
+    if ((onlyFollowing == 'true' || onlyFollowing== true)&& hasFollow.length==0) {
+      return errResponse(baseResponse.FOLLOWER_NOT_EXIST);
+    }
+
     // 해시태그가 있는 경우
     const hashTagId = hashTagEntity[0].hashTagId;
     // 2. 해시태그 ID를 통해 게시글 검색

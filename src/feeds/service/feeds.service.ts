@@ -480,6 +480,7 @@ export class FeedsService {
 
     // 해시태그가 있는 경우
     const hashTagId = hashTagEntity[0].hashTagId;
+    console.log("뚜뚠!!! " + hashTagId);
     // 2. 해시태그 ID를 통해 게시글 검색
     const rawListForFeedId=await this.feedRepsitory.getFeedByhashTagId(profileId,pageNumber,categoryId,hashTagId,onlyFollowing);
     const feedIdList=new Array<number>();
@@ -488,7 +489,7 @@ export class FeedsService {
     
   
     console.log(feedIdList);
-      
+    console.log("feedQuery")
     const rawFeedList = await this.feedRepsitory.retrieveOtherFeedsByHashtag(
       feedIdList,
       profileId,

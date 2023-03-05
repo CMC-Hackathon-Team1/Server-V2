@@ -417,7 +417,7 @@ export class FeedsController {
   @ApiQuery({
     name: 'profileId',
     required: true,
-    description: '현재 유저의 profileId ex)29',
+    description: '조회하고자하는 유저의 profileId ex)29',
   })
   @ApiQuery({
     name: 'year',

@@ -11,6 +11,7 @@ import { jwtConfig } from '../../config/jwt.config';
 import { KakaoService } from './kakao/kakao.service';
 import { GoogleService } from './google/google.service';
 import { OwnAuthService } from './own/ownAuth.service';
+import { AppleService } from './apple/apple.service';
 
 @Module({
   imports: [
@@ -20,6 +21,6 @@ import { OwnAuthService } from './own/ownAuth.service';
   ],
   exports: [AuthService],
   controllers: [AuthController],
-  providers: [AuthService, UserService, OwnAuthService, JwtStrategy, KakaoService, GoogleService],
+  providers: [AuthService, UserService, OwnAuthService, JwtStrategy, KakaoService, GoogleService, AppleService],
 })
 export class AuthModule {}

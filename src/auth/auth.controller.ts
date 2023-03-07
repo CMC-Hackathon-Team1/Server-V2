@@ -23,15 +23,17 @@ import {
   ApiBearerAuth,
   ApiBody,
   ApiHeader,
-  ApiOperation, ApiParam,
+  ApiOperation,
+  ApiParam,
   ApiQuery,
   ApiResponse,
-  ApiTags
-} from "@nestjs/swagger";
+  ApiTags,
+} from '@nestjs/swagger';
 import { KakaoService } from './kakao/kakao.service';
 import { GoogleService } from './google/google.service';
 import { AuthGuard } from '@nestjs/passport';
 import { OwnAuthService } from './own/ownAuth.service';
+import { AppleService } from './apple/apple.service';
 
 @ApiTags('로그인, 인증 API')
 @Controller('auth')
@@ -42,6 +44,7 @@ export class AuthController {
     private ownAuthService: OwnAuthService,
     private kakaoService: KakaoService,
     private googleService: GoogleService,
+    private appleService: AppleService,
   ) {}
 
   // API No. 4.1.4.1. 자체로그인 - 회원가입
@@ -674,29 +677,82 @@ export class AuthController {
   // }
 
   // API No. 4.1.3.1. 애플 로그인 - 회원가입/로그인
-  // @Post('/apple-login')
-  // async appleLogin(@Body('id_token') id_token: any, @Res() res: Response): Promise<any> {
-  //   // 1. 클라이언트로부터 토큰 전달 받기 (request body)
-  //   if (!_token) {
-  //     return errResponse(baseResponse._TOKEN_EMPTY);
-  //   }
-  //
-  //   const appleResult = await this.appleService.appleLogin(_token);
-  //
-  //   // [Validation 처리]
-  //   // jwt 토큰이 없으면 에러메시지 반환
-  //   if (!appleResult.serviceJwt) {
-  //     return res.send(appleResult);
-  //   }
-  //   // ---
-  //
-  //   // 최종. 서비스 로그인 토큰 반환(발급)
-  //   return res.send(
-  //     sucResponse(baseResponse.SUCCESS, {
-  //       state: appleResult.message,
-  //       jwt: appleResult.serviceJwt,
-  //       // userId: appleResult.socialUserId,
-  //     }),
-  //   );
-  // }
+  @ApiOperation({
+    summary: '4.1.3.1. 애플 로그인 - 회원가입/로그인',
+    description: `애플 계정을 통해 로그인/회원가입 한다. (이때, 애플 계정과 연동된 애플 이메일로 가입되도록 한다. 이때, 실제 이메일이 아닌, 애플 고유의 재조합된 이메일로 가입된다.) \n
+        [Response Body] - response에서 다음 2개 값이 넘어옵니다.\n
+        1. state : '회원가입인지, 로그인인지'
+        2. jwt= '{서비스 jwt값}'`,
+  })
+  @ApiBody({
+    required: true,
+    description: '클라이언트에서 받은 애플 identity token',
+    schema: { example: { id_token: 'eyJhbGciOiJS...' } },
+  })
+  @ApiResponse({
+    status: 100,
+    description: 'SUCCESS',
+    schema: {
+      example: sucResponse(baseResponse.SUCCESS, {
+        state: '로그인 완료 or 회원가입 완료',
+        // userId: 555,
+        jwt: 'eyJhbGciOiJI...',
+      }),
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Body 오류',
+    schema: { example: baseResponse.PIPE_ERROR_EXAMPLE },
+  })
+  @ApiResponse({
+    status: 500,
+    description: '서버 오류',
+    schema: { example: errResponse(baseResponse.SERVER_ERROR) },
+  })
+  @ApiResponse({
+    status: 1030,
+    description: '애플 로그인 실패',
+    schema: { example: errResponse(baseResponse.APPLE_LOGIN_FAILED) },
+  })
+  @ApiResponse({
+    status: 1031,
+    description: '애플 인증 토큰을 request에서 넘겨주지 않음',
+    schema: { example: errResponse(baseResponse.APPLE_ID_TOKEN_EMPTY) },
+  })
+  @ApiResponse({
+    status: 1032,
+    description: '애플 인증 토큰 검증에 실패함',
+    schema: { example: errResponse(baseResponse.APPLE_ID_TOKEN_INVALID) },
+  })
+  @ApiResponse({
+    status: 1102,
+    description: '다른 로그인 방식으로 가입한 회원임.',
+    schema: { example: errResponse(baseResponse.WRONG_LOGIN) },
+  })
+  @Post('/apple-login')
+  async appleLogin(@Body('identity_token') identity_token: any, @Res() res: Response): Promise<any> {
+    // 1. 클라이언트로부터 토큰 전달 받기 (request body)
+    if (!identity_token) {
+      return errResponse(baseResponse.APPLE_ID_TOKEN_EMPTY);
+    }
+
+    const appleResult = await this.appleService.appleLogin(identity_token);
+
+    // [Validation 처리]
+    // jwt 토큰이 없으면 에러메시지 반환
+    if (!appleResult.serviceJwt) {
+      return res.send(appleResult);
+    }
+    // ---
+
+    // 최종. 서비스 로그인 토큰 반환(발급)
+    return res.send(
+      sucResponse(baseResponse.SUCCESS, {
+        state: appleResult.message,
+        jwt: appleResult.serviceJwt,
+        // userId: appleResult.socialUserId,
+      }),
+    );
+  }
 }

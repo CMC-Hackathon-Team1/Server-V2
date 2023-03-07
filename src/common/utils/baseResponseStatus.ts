@@ -38,6 +38,10 @@ const baseResponse = {
   GOOGLE_AUTH_FAILED: { statusCode: 1023, message: '구글 인증에 실패했습니다.' },
   GOOGLE_AUTH_USER_FAILED: { statusCode: 1024, message: '구글 사용자 정보 확인에 실패했습니다.' },
 
+  APPLE_LOGIN_FAILED: { statusCode: 1030, message: '애플 로그인에 실패했습니다.' },
+  APPLE_ID_TOKEN_EMPTY: { statusCode: 1031, message: '애플 인증토큰이 없습니다.' },
+  APPLE_ID_TOKEN_INVALID: { statusCode: 1032, message: '애플 인증토큰 검증에 실패했습니다.' },
+
   // 회원, 계정 관련
   USER_ALREADY_EXISTS: { statusCode: 1100, message: '이미 가입된 회원입니다.' },
   USER_NOT_FOUND: { statusCode: 1101, message: '회원 정보가 없습니다.' },

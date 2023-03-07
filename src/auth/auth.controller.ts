@@ -250,55 +250,6 @@ export class AuthController {
   // }
   // ---
 
-  // API No. 4.1.4.3. 자체로그인 - 로그아웃 (쿠키의 jwt 값 삭제, 유효기간: 0 으로 변경)
-  @ApiOperation({
-    summary: '4.1.4.3. 자체 로그인 - 로그아웃',
-    description: `헤더에 jwt 정보를 함께 보내 로그아웃 한다. \n
-      로그아웃 성공 이후, 헤더에 보내던 jwt 정보를 클라이언트에서 지워주세요`,
-  })
-  @ApiBearerAuth('Authorization')
-  @ApiResponse({
-    status: 100,
-    description: 'SUCCESS',
-    schema: {
-      example: sucResponse(baseResponse.SUCCESS, {
-        TODO: '클라이언트에서 jwt를 지워주세요',
-      }),
-    },
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Body 오류',
-    schema: { example: baseResponse.PIPE_ERROR_EXAMPLE },
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'JWT 오류',
-    schema: { example: errResponse(baseResponse.JWT_UNAUTHORIZED) },
-  })
-  @ApiResponse({
-    status: 500,
-    description: '서버 오류',
-    schema: { example: errResponse(baseResponse.SERVER_ERROR) },
-  })
-  @UseGuards(JWTAuthGuard)
-  @Post('/logout')
-  logout(@Res() res: Response): any {
-    // [쿠키를 지우는 방법] - DEPRECATED
-    // res.cookie('jwt', '', {
-    //   maxAge: 0,
-    // });
-    // ---
-
-    // TODO: 자체로그인, 소셜로그인 구분하여 소셜로그인의 경우 소셜계정 연결까지 끊기
-
-    return res.send(
-      sucResponse(baseResponse.SUCCESS, {
-        TODO: '클라이언트에서 jwt를 지워주세요',
-      }),
-    );
-  }
-
   // API No. 4.1.1.1. 카카오 로그인 - 회원가입/로그인
   @ApiOperation({
     summary: '4.1.1.1. 카카오 로그인 - 회원가입/로그인',
@@ -752,6 +703,95 @@ export class AuthController {
         state: appleResult.message,
         jwt: appleResult.serviceJwt,
         // userId: appleResult.socialUserId,
+      }),
+    );
+  }
+
+  // API No. 1.8.6. 로그아웃 (쿠키의 jwt 값 삭제, 유효기간: 0 으로 변경)
+  @ApiOperation({
+    summary: '1.8.6. 로그아웃',
+    description: `헤더에 jwt 정보를 함께 보내 로그아웃 한다. \n
+      로그아웃은 로그인 경로에 상관없이, 알아서 로그아웃 처리를 해줍니다.
+      로그아웃 성공 이후, 헤더에 보내던 jwt 정보를 클라이언트에서 지워주세요`,
+  })
+  @ApiBearerAuth('Authorization')
+  @ApiResponse({
+    status: 100,
+    description: 'SUCCESS',
+    schema: {
+      example: sucResponse(baseResponse.SUCCESS, {
+        TODO: '클라이언트에서 jwt를 지워주세요',
+      }),
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Body 오류',
+    schema: { example: baseResponse.PIPE_ERROR_EXAMPLE },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'JWT 오류',
+    schema: { example: errResponse(baseResponse.JWT_UNAUTHORIZED) },
+  })
+  @ApiResponse({
+    status: 500,
+    description: '서버 오류',
+    schema: { example: errResponse(baseResponse.SERVER_ERROR) },
+  })
+  @ApiResponse({
+    status: 1104,
+    description: '로그아웃 실패 (로그 확인 필요)',
+    schema: { example: errResponse(baseResponse.USER_LOGOUT_FAILED) },
+  })
+  @UseGuards(JWTAuthGuard)
+  @Post('/logout')
+  async logout(@Req() req: Request, @Res() res: Response): Promise<any> {
+    // [쿠키를 지우는 방법] - DEPRECATED
+    // res.cookie('jwt', '', {
+    //   maxAge: 0,
+    // });
+    // ---
+
+    const user: any = req.user;
+    // if (!user || !user.userId) {
+    //   return errResponse(baseResponse.USER_AUTH_WRONG);
+    // }
+    const userId = user.userId;
+    // console.log(userId);
+
+    const loginTypeInfo = await this.authService.identifyLoginTypeInfo(userId);
+    // console.log(loginTypeInfo);
+    if (!loginTypeInfo || loginTypeInfo == undefined) {
+      return res.send(errResponse(baseResponse.USER_LOGOUT_FAILED));
+    }
+
+    // TODO: 소셜 로그인의 경우, 소셜 계정 로그아웃까지 진행
+    const logoutType = loginTypeInfo.login_type;
+    let logoutResult;
+    // 카카오
+    // if (logoutType == 'kakao') {
+    //   const acces_token = logoutType.access_token;
+    //   logoutResult = await this.kakaoService.kakaoLogout(userId, acces_token);
+    // }
+    // // 구글
+    // else if (logoutType == 'google') {
+    //   const id_token = logoutType.provider_token;
+    //   logoutResult = await this.googleService.googleLogout(userId, id_token);
+    // }
+    // // 애플
+    // else if (logoutType == 'apple') {
+    //   const identity_token = logoutType.provider_token;
+    //   logoutResult = await this.appleService.appleLogout(userId, identity_token);
+    // }
+    // console.log(logoutResult);
+
+    // 토큰 정보 초기화
+    const resetTokenResult = await this.authService.resetTokens(userId);
+
+    return res.send(
+      sucResponse(baseResponse.SUCCESS, {
+        TODO: '클라이언트에서 jwt를 지워주세요',
       }),
     );
   }

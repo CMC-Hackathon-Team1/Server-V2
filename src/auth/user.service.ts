@@ -162,4 +162,14 @@ export class UserService {
       .where('userId = :userId', { userId: userId })
       .execute();
   }
+
+  async getUserLoginInfo(userId: number) {
+    const loginInfo = await this.userRepository
+      .createQueryBuilder('user')
+      .select(['user.login_type, user.access_token, user.provider_token'])
+      .where('user.userId = :id', { id: userId })
+      .getOne();
+
+    return loginInfo;
+  }
 }

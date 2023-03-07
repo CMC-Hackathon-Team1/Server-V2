@@ -687,7 +687,7 @@ export class AuthController {
   @ApiBody({
     required: true,
     description: '클라이언트에서 받은 애플 identity token',
-    schema: { example: { id_token: 'eyJhbGciOiJS...' } },
+    schema: { example: { identity_token: 'eyJhbGciOiJS...' } },
   })
   @ApiResponse({
     status: 100,

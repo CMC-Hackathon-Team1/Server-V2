@@ -129,4 +129,12 @@ export class AuthService {
   async resetTokens(userId: number): Promise<any> {
     return await this.userService.deleteTokens(userId);
   }
+
+  async identifyLoginTypeInfo(userId: number): Promise<any> {
+    // 어느 경로로 로그인한 사용자인가 - login_type, access_token, provider_token 정보
+    const loginTypeUserInfo = await this.userService.getUserLoginInfo(userId);
+    // console.log(loginTypeUserInfo);
+
+    return loginTypeUserInfo;
+  }
 }

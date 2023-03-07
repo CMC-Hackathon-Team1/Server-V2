@@ -47,6 +47,7 @@ const baseResponse = {
   USER_NOT_FOUND: { statusCode: 1101, message: '회원 정보가 없습니다.' },
   WRONG_LOGIN: { statusCode: 1102, message: '다른 플랫폼으로 가입된 회원입니다.' },
   USER_STATUS_ERROR: { statusCode: 1103, message: '요청 Body가 잘못되었습니다.' },
+  USER_LOGOUT_FAILED: { statusCode: 1104, message: '로그아웃에 실패했습니다.' },
 
   // 프로필 관련
   PROFILE_COUNT_OVER: { statusCode: 1500, message: '사용자 프로필은 5개까지 생성 가능합니다.' },

@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Request } from 'express';
 import baseResponse from '../../common/utils/baseResponseStatus';
 import { errResponse, sucResponse } from '../../common/utils/response';
 import { FollowingRepository } from '../../following/following.repository';
@@ -16,10 +17,10 @@ export class AlarmsService {
   ) {}
 
   // 푸시알림용 토큰 받기
-  async getPushAlarmToken(alarmTokenDto: AlarmTokenDto) {
+  async getPushAlarmToken(alarmTokenDto: AlarmTokenDto, req: any) {
     try {
-        const userAlarmToken = alarmTokenDto.alarmToken;
-      const userId = alarmTokenDto.userId;
+      const userAlarmToken = alarmTokenDto.alarmToken;
+      const userId = req.user.userId;
 
       const result = await this.usersRepository.setUsersAlarmToken(userId, userAlarmToken);
 

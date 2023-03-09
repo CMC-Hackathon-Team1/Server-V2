@@ -8,6 +8,7 @@ import { LikesRepository } from '../../likes/likes.repository';
 import { ProfilesRepository } from '../../profiles/profiles.repository';
 import { UsersRepository } from '../../users/users.repository';
 import { AlarmTokenDto } from '../dto/alarmToken.dto';
+import { SetAlarmDto } from '../dto/setAlarm.dto';
 import AlarmContents from '../utils/alarm_contents';
 
 @Injectable()
@@ -125,6 +126,18 @@ export class AlarmsService {
       const message = AlarmContents.LIKE(fromProfileName, toProfileName);
       
       return this.requestPushAlarmToFCM(message, FCMToken);
+    }
+  }
+
+  // 팔로잉 알림 수신 허용/거부
+  async setFollowingAlarm(setAlarmDto: SetAlarmDto, req: any) {
+    const alarmStatusCode = setAlarmDto.statusCode;
+    const userId = req.user.userId;
+
+    if (alarmStatusCode == 0) {
+      await this.usersRepository.setFollowingAlarmAllow(userId);
+    } else if (alarmStatusCode == 1) {
+      await this.usersRepository.setFollowingAlarmDisallow(userId);
     }
   }
 }

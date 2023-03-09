@@ -1,8 +1,9 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { JWTAuthGuard } from '../../auth/security/auth.guard.jwt';
 import { AlarmTokenDto } from '../dto/alarmToken.dto';
+import { SetAlarmDto } from '../dto/setAlarm.dto';
 import { AlarmsService } from '../service/alarms.service';
 
 @ApiTags('Alarms')
@@ -42,5 +43,17 @@ export class AlarmsController {
   @Get('/test')
   pushAlarmTest() {
     return this.alarmService.likeAlarm(29, 29);
+  }
+
+  // 팔로잉 알림 수신/미수신 설정
+  @ApiOperation({
+    summary: '팔로잉 알림 설정을 변경할 수 있는 API',
+    description: '0: 알림 수신 거부 / 1: 알림 수신 허용 (Type: number)'
+  })
+  @ApiBearerAuth('Authorization')
+  @UseGuards(JWTAuthGuard)
+  @Patch('/following')
+  setFollowingAlarm(@Body() setAlarmDto: SetAlarmDto, @Req() req: any) {
+    return this.alarmService.setFollowingAlarm(setAlarmDto, req);
   }
 }

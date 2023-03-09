@@ -40,4 +40,14 @@ export class UsersRepository {
   async getUserEmailById(userId: number) {
     return await this.usersTable.findOne({ select: ['email'], where: { userId: userId }});
   }
+
+  // 팔로잉 알림 수신 설정
+  async setFollowingAlarmAllow(userId: number) {
+    return await this.usersTable.update(userId, { likeAlarmStatus: 'ACTIVE' });
+  }
+  
+  // 팔로잉 알림 수신 거부
+  async setFollowingAlarmDisallow(userId: number) {
+    return await this.usersTable.update(userId, { likeAlarmStatus: 'INACTIVE' });
+  }
 }

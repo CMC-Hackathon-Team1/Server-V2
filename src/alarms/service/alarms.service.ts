@@ -3,6 +3,7 @@ import { Request } from 'express';
 import baseResponse from '../../common/utils/baseResponseStatus';
 import { errResponse, sucResponse } from '../../common/utils/response';
 import { FollowingRepository } from '../../following/following.repository';
+import { LikesRepository } from '../../likes/likes.repository';
 import { ProfilesRepository } from '../../profiles/profiles.repository';
 import { UsersRepository } from '../../users/users.repository';
 import { AlarmTokenDto } from '../dto/alarmToken.dto';
@@ -12,7 +13,6 @@ import AlarmContents from '../utils/alarm_contents';
 export class AlarmsService {
   constructor(
     private profilesRepository: ProfilesRepository,
-    private followingRepository: FollowingRepository,
     private usersRepository: UsersRepository,
   ) {}
 
@@ -69,7 +69,7 @@ export class AlarmsService {
   // 팔로잉 알림 설정
   async followingAlarm(fromProfileId: number, toProfileId: number) {
     const targetProfile = await this.profilesRepository.getProfileByProfileId(toProfileId);
-    const targetUserId = targetProfile.userId
+    const targetUserId = targetProfile.userId;
 
     const targetUser = await this.usersRepository.getUserByUserId(targetUserId);
     
@@ -98,5 +98,26 @@ export class AlarmsService {
     const message = AlarmContents.NOTICE();
 
     return this.requestPushAlarmToFCM(message, targetTokenList);
+  }
+
+  async likeAlarm(fromProfileId: number, toProfileId: number) {
+    const targetProfile = await this.profilesRepository.getProfileByProfileId(toProfileId);
+    const targetUserId = targetProfile.userId;
+
+    const targetUser = await this.usersRepository.getUserByUserId(targetUserId);
+    
+    if (targetUser.likeAlarmStatus == 'ACTIVE') {
+      const fromProfile = await this.profilesRepository.getProfileByProfileId(fromProfileId);
+      const fromProfileName = fromProfile.profileName;
+      const toProfileName = targetProfile.profileName;
+
+      const FCMToken = [targetUser.alarmToken];
+
+      // console.log(`${fromProfileName}님이 ${targetProfile.profileName}님을 팔로우 하였습니다.`);
+
+      const message = AlarmContents.LIKE(fromProfileName, toProfileName);
+      
+      return this.requestPushAlarmToFCM(message, FCMToken);
+    }
   }
 }

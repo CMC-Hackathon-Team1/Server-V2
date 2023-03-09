@@ -61,7 +61,7 @@ import { ReportsModule } from './reports/reports.module';
         return {
           ...config.get('email'),
           template: {
-            dir: path.join(__dirname, '/templates'),
+            dir: path.join(__dirname, '../templates/'),
             adapter: new EjsAdapter(),
             options: {
               strict: true,

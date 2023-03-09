@@ -1,0 +1,11 @@
+<html>
+<body style="padding: 0; margin: 0; box-sizing: border-box; width: 920px;">
+    <div style="font-size: 50px; font-weight: bold; margin: 10px 10px;">On and Off</div>
+    <form id="post_form" action="<%= locals.redirectUrl %>?email=<%= locals.email %>" method="post">
+<!--        <a href="<%= locals.redirectUrl %>?email=<%= locals.email %>&code=<%= locals.authCode %>" style="margin: 5px 10px; font-size: 16px;">이곳을 눌러 회원가입을 완료해주세요</a>-->
+        <input type="hidden" name="code" value="<%= locals.authCode %>"/>
+        <button type="submit" style="margin: 5px 10px; text_decoration: underline; color: #0000ff; font-size: 16px;">이곳을 눌러 회원가입을 완료해주세요</button>
+        <p style="color:gray; margin: 5px 10px">위 링크는 10분 후에 만료됩니다.</p>
+    </form>
+</body>
+</html>

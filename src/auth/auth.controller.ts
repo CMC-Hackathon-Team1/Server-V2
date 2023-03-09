@@ -123,7 +123,12 @@ export class AuthController {
   @ApiResponse({
     status: 100,
     description: 'SUCCESS',
-    schema: { example: sucResponse(baseResponse.SUCCESS, { userId: 5 }) },
+    schema: { example: '회원가입이 완료되었습니다.' },
+  })
+  @ApiResponse({
+    status: 1008,
+    description: '이메일 인증 링크로 이미 인증을 완료됨.',
+    schema: { example: '이미 인증이 확인되었습니다.' },
   })
   @ApiResponse({
     status: 400,
@@ -139,31 +144,40 @@ export class AuthController {
     status: 1002,
     description: '인증코드가 잘못됨',
     schema: {
-      example: errResponse(baseResponse.USER_AUTH_WRONG),
+      example: '회원가입에 실패하였습니다. 다시 시도하시거나, 관리자에게 문의 주세요.'
     },
   })
   @ApiResponse({
     status: 1003,
     description: '현재 이메일 인증 중이던 회원에 문제가 발생함',
     schema: {
-      example: errResponse(baseResponse.USER_WRONG_STATUS),
+      example: '회원가입에 실패하였습니다. 다시 시도하시거나, 관리자에게 문의 주세요.'
     },
   })
   @ApiResponse({
     status: 1005,
     description: '이메일 인증 기한이 만료됨. 처음부터 다시 회원가입 하세요.',
     schema: {
-      example: errResponse(baseResponse.EMAIL_NOTIFICATION_EXPIRED),
+      example: '회원가입에 실패하였습니다. 다시 시도하시거나, 관리자에게 문의 주세요.'
     },
   })
-  @Get('/signup-callback')
+  @Post('/signup-callback')
   async validateEmail(
-    // @Body() email: string,
     @Query('email') email: string,
-    @Query('code') authCode: string,
+    // @Query('code') authCode: string,
+    @Body('code') authCode: string,
+    @Res() res: Response,
   ): Promise<any> {
     console.log(email, authCode);
-    return await this.ownAuthService.authenticateAccount(email, authCode);
+    const activateUserResult = await this.ownAuthService.authenticateAccount(email, authCode);
+
+    if (activateUserResult == baseResponse.SUCCESS) {
+      res.send('회원가입이 완료되었습니다.');
+    } else if (activateUserResult == baseResponse.USER_AUTH_ALREADY_FINISHED) {
+      res.send('이미 인증이 확인되었습니다.');
+    } else {
+      res.send('회원가입에 실패하였습니다. 다시 시도하시거나, 관리자에게 문의 주세요.');
+    }
   }
 
   // async registerAccount(@Body() userDTO: UserDTO): Promise<any> {

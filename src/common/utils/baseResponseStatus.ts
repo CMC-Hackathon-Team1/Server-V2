@@ -24,6 +24,7 @@ const baseResponse = {
   EMAIL_NOTIFICATION_EXPIRED: { statusCode: 1005, message: '이메일 인증이 만료되었습니다. 다시 요청하세요.' },
   EMAIL_AUTH_RENDER_FAILED: { statusCode: 1006, message: '이메일 폼 오류' },
   EMAIL_SEND_FAILED: { statusCode: 1007, message: '이메일 인증 메일 보내기 실패' },
+  USER_AUTH_ALREADY_FINISHED : { statusCode: 1008, message: '이미 회원 인증이 완료된 상태입니다.' },
 
   KAKAO_LOGIN_FAILED: { statusCode: 1010, message: '카카오 로그인에 실패했습니다.' },
   KAKAO_AUTH_CODE_EMPTY: { statusCode: 1011, message: '카카오 인가코드가 없습니다.' },

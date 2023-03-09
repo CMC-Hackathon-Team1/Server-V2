@@ -21,7 +21,7 @@ export class EmailService {
         await this.mailerService.sendMail({
             to:tos.join(', '),
             subject,
-            template:`../../templates/${templateName}`,
+            template:`${templateName}`,
             context,
         });    
         return true;
@@ -39,7 +39,7 @@ export class EmailService {
             await this._send(
                 [to],
                 '[On&Off 고객 문의사항]',
-                'mailTemplate.ejs',
+                'emailCustomerServiceForm.ejs',
                 {
                     fromEmail,
                     content

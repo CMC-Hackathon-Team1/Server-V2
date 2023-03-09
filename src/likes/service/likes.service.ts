@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { AlarmsService } from '../../alarms/service/alarms.service';
 import { Likes } from '../../common/entities/Likes';
 import baseResponse from '../../common/utils/baseResponseStatus';
 import { errResponse, sucResponse } from '../../common/utils/response';
@@ -12,7 +13,8 @@ export class LikesService {
     constructor(
         private likeRepository:LikesRepository,
         private profilesRepository:ProfilesRepository,
-        private feedRepository:FeedRepository
+        private feedRepository:FeedRepository,
+        private alarmService: AlarmsService
     ){};
 
     async postLikes(feedId: number,profileId:number): Promise<any> {//고쳐야함.
@@ -38,6 +40,7 @@ export class LikesService {
                 isExistFeed.likeNum += 1;
                 await this.likeRepository.postLike(likesEntity);
                 await this.feedRepository.save(isExistFeed);
+                await this.alarmService.likeAlarm(profileId, feedId);
                 return sucResponse(baseResponse.POST_LIKE);
             }else{
                 console.log("didn't like");

@@ -40,4 +40,34 @@ export class UsersRepository {
   async getUserEmailById(userId: number) {
     return await this.usersTable.findOne({ select: ['email'], where: { userId: userId }});
   }
+
+  // 팔로잉 알림 수신 설정
+  async setFollowingAlarmAllow(userId: number) {
+    return await this.usersTable.update(userId, { likeAlarmStatus: 'ACTIVE' });
+  }
+  
+  // 팔로잉 알림 수신 거부
+  async setFollowingAlarmDisallow(userId: number) {
+    return await this.usersTable.update(userId, { likeAlarmStatus: 'INACTIVE' });
+  }
+
+  // 공지사항 알림 수신 설정
+  async setNoticeAlarmAllow(userId: number) {
+    return await this.usersTable.update(userId, { noticeAlarmStatus: 'ACTIVE' });
+  }
+  
+  // 공지사항 알림 수신 거부
+  async setNoticeAlarmDisallow(userId: number) {
+    return await this.usersTable.update(userId, { noticeAlarmStatus: 'INACTIVE' });
+  }
+
+  // 좋아요 알림 수신 설정
+  async setLikeAlarmAllow(userId: number) {
+    return await this.usersTable.update(userId, { likeAlarmStatus: 'ACTIVE' });
+  }
+  
+  // 좋아요 알림 수신 거부
+  async setLikeAlarmDisallow(userId: number) {
+    return await this.usersTable.update(userId, { likeAlarmStatus: 'INACTIVE' });
+  }
 }

@@ -2,18 +2,21 @@ import { Injectable } from '@nestjs/common';
 import { Request } from 'express';
 import baseResponse from '../../common/utils/baseResponseStatus';
 import { errResponse, sucResponse } from '../../common/utils/response';
+import { FeedRepository } from '../../feeds/feeds.repository';
 import { FollowingRepository } from '../../following/following.repository';
+import { LikesRepository } from '../../likes/likes.repository';
 import { ProfilesRepository } from '../../profiles/profiles.repository';
 import { UsersRepository } from '../../users/users.repository';
 import { AlarmTokenDto } from '../dto/alarmToken.dto';
+import { SetAlarmDto } from '../dto/setAlarm.dto';
 import AlarmContents from '../utils/alarm_contents';
 
 @Injectable()
 export class AlarmsService {
   constructor(
     private profilesRepository: ProfilesRepository,
-    private followingRepository: FollowingRepository,
     private usersRepository: UsersRepository,
+    private likesRepository: LikesRepository,
   ) {}
 
   // 푸시알림용 토큰 받기
@@ -69,7 +72,7 @@ export class AlarmsService {
   // 팔로잉 알림 설정
   async followingAlarm(fromProfileId: number, toProfileId: number) {
     const targetProfile = await this.profilesRepository.getProfileByProfileId(toProfileId);
-    const targetUserId = targetProfile.userId
+    const targetUserId = targetProfile.userId;
 
     const targetUser = await this.usersRepository.getUserByUserId(targetUserId);
     
@@ -98,5 +101,79 @@ export class AlarmsService {
     const message = AlarmContents.NOTICE();
 
     return this.requestPushAlarmToFCM(message, targetTokenList);
+  }
+
+  // 좋아요 알림 설정
+  async likeAlarm(fromProfileId: number, feedId: number) {
+    const targetFeed = await this.likesRepository.findProfileIdByFeedId(feedId);
+    const toProfileId = targetFeed.profileId;
+
+    const targetProfile = await this.profilesRepository.getProfileByProfileId(toProfileId);
+    const targetUserId = targetProfile.userId;
+
+    const targetUser = await this.usersRepository.getUserByUserId(targetUserId);
+
+    
+    if (targetUser.likeAlarmStatus == 'ACTIVE') {
+      const fromProfile = await this.profilesRepository.getProfileByProfileId(fromProfileId);
+      const fromProfileName = fromProfile.profileName;
+      const toProfileName = targetProfile.profileName;
+
+      const FCMToken = [targetUser.alarmToken];
+
+      // console.log(`${fromProfileName}님이 ${targetProfile.profileName}님을 팔로우 하였습니다.`);
+
+      const message = AlarmContents.LIKE(fromProfileName, toProfileName);
+      
+      return this.requestPushAlarmToFCM(message, FCMToken);
+    }
+  }
+
+  // 팔로잉 알림 수신 허용/거부
+  async setFollowingAlarm(setAlarmDto: SetAlarmDto, req: any) {
+    const alarmStatusCode = setAlarmDto.statusCode;
+    const userId = req.user.userId;
+
+    if (alarmStatusCode == 0) {
+      await this.usersRepository.setFollowingAlarmAllow(userId);
+      return sucResponse(baseResponse.SET_ALARM_ALLOW_SUCCESS);
+    } else if (alarmStatusCode == 1) {
+      await this.usersRepository.setFollowingAlarmDisallow(userId);
+      return sucResponse(baseResponse.SET_ALARM_DISALLOW_SUCCESS);
+    } else {
+      return errResponse(baseResponse.STATUSCODE_NOT_VALID);
+    }
+  }
+
+  // 공지사항 알림 수신 허용/거부
+  async setNoticeAlarm(setAlarmDto: SetAlarmDto, req: any) {
+    const alarmStatusCode = setAlarmDto.statusCode;
+    const userId = req.user.userId;
+
+    if (alarmStatusCode == 0) {
+      await this.usersRepository.setNoticeAlarmAllow(userId);
+      return sucResponse(baseResponse.SET_ALARM_ALLOW_SUCCESS);
+    } else if (alarmStatusCode == 1) {
+      await this.usersRepository.setNoticeAlarmDisallow(userId);
+      return sucResponse(baseResponse.SET_ALARM_DISALLOW_SUCCESS);
+    } else {
+      return errResponse(baseResponse.STATUSCODE_NOT_VALID);
+    }
+  }
+
+  // 좋아요 알림 수신 허용/거부
+  async setLikeAlarm(setAlarmDto: SetAlarmDto, req: any) {
+    const alarmStatusCode = setAlarmDto.statusCode;
+    const userId = req.user.userId;
+
+    if (alarmStatusCode == 0) {
+      await this.usersRepository.setLikeAlarmAllow(userId);
+      return sucResponse(baseResponse.SET_ALARM_ALLOW_SUCCESS);
+    } else if (alarmStatusCode == 1) {
+      await this.usersRepository.setLikeAlarmDisallow(userId);
+      return sucResponse(baseResponse.SET_ALARM_DISALLOW_SUCCESS);
+    } else {
+      return errResponse(baseResponse.STATUSCODE_NOT_VALID);
+    }
   }
 }

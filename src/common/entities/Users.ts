@@ -72,7 +72,7 @@ export class Users {
   noticeAlarmStatus: string;
 
   @Column("varchar", {
-    name: "notice_alarm_status",
+    name: "like_alarm_status",
     comment: "좋아요 알림 설정 여부",
     length: 20,
     default: () => "'ACTIVE'",

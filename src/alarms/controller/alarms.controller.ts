@@ -1,7 +1,8 @@
 import { Body, Controller, Get, Patch, Post, Req, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { JWTAuthGuard } from '../../auth/security/auth.guard.jwt';
+import baseResponse from '../../common/utils/baseResponseStatus';
 import { AlarmTokenDto } from '../dto/alarmToken.dto';
 import { SetAlarmDto } from '../dto/setAlarm.dto';
 import { AlarmsService } from '../service/alarms.service';
@@ -49,6 +50,16 @@ export class AlarmsController {
   @ApiOperation({
     summary: '팔로잉 알림 설정을 변경할 수 있는 API',
     description: '0: 알림 수신 거부 / 1: 알림 수신 허용 (Type: number)'
+  })
+  @ApiResponse({
+    status: 3501,
+    description: '알림 수신 설정 완료',
+    schema: { example: baseResponse.SET_ALARM_ALLOW_SUCCESS },
+  })
+  @ApiResponse({
+    status: 3502,
+    description: '알림 수신 거부 완료',
+    schema: { example: baseResponse.SET_ALARM_DISALLOW_SUCCESS },
   })
   @ApiBearerAuth('Authorization')
   @UseGuards(JWTAuthGuard)

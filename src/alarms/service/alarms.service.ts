@@ -136,8 +136,12 @@ export class AlarmsService {
 
     if (alarmStatusCode == 0) {
       await this.usersRepository.setFollowingAlarmAllow(userId);
+      return sucResponse(baseResponse.SET_ALARM_ALLOW_SUCCESS);
     } else if (alarmStatusCode == 1) {
       await this.usersRepository.setFollowingAlarmDisallow(userId);
+      return sucResponse(baseResponse.SET_ALARM_DISALLOW_SUCCESS);
+    } else {
+      return errResponse(baseResponse.STATUSCODE_NOT_VALID);
     }
   }
 }

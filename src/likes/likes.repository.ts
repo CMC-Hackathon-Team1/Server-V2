@@ -42,9 +42,11 @@ export class LikesRepository{
     }
     
     async findProfileIdByFeedId(feedId: number) {
-        return await this.likeTable.createQueryBuilder('Likes')
-            .leftJoinAndSelect('Feeds.profileId', 'profileId')
-            .where('Feeds.id=:feedId', {feedId: feedId})
+        return await this.likeTable
+            .createQueryBuilder('Likes')
+            .leftJoinAndSelect('Likes.feed', 'Feeds')
+            .select(['Feeds.profileId AS profileId'])
+            .where('Likes.feedId=:feedId', { feedId: feedId })
             .getRawOne();
     }
 }

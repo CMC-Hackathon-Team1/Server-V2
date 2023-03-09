@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Request } from 'express';
 import baseResponse from '../../common/utils/baseResponseStatus';
 import { errResponse, sucResponse } from '../../common/utils/response';
+import { FeedRepository } from '../../feeds/feeds.repository';
 import { FollowingRepository } from '../../following/following.repository';
 import { LikesRepository } from '../../likes/likes.repository';
 import { ProfilesRepository } from '../../profiles/profiles.repository';
@@ -14,6 +15,7 @@ export class AlarmsService {
   constructor(
     private profilesRepository: ProfilesRepository,
     private usersRepository: UsersRepository,
+    private likesRepository: LikesRepository,
   ) {}
 
   // 푸시알림용 토큰 받기
@@ -100,11 +102,16 @@ export class AlarmsService {
     return this.requestPushAlarmToFCM(message, targetTokenList);
   }
 
-  async likeAlarm(fromProfileId: number, toProfileId: number) {
+  // 좋아요 알림 설정
+  async likeAlarm(fromProfileId: number, feedId: number) {
+    const targetFeed = await this.likesRepository.findProfileIdByFeedId(feedId);
+    const toProfileId = targetFeed.profileId;
+
     const targetProfile = await this.profilesRepository.getProfileByProfileId(toProfileId);
     const targetUserId = targetProfile.userId;
 
     const targetUser = await this.usersRepository.getUserByUserId(targetUserId);
+
     
     if (targetUser.likeAlarmStatus == 'ACTIVE') {
       const fromProfile = await this.profilesRepository.getProfileByProfileId(fromProfileId);

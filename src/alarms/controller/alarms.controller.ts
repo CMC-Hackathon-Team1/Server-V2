@@ -41,6 +41,6 @@ export class AlarmsController {
   })
   @Get('/test')
   pushAlarmTest() {
-    return this.alarmService.likeAlarm(1, 2);
+    return this.alarmService.likeAlarm(29, 29);
   }
 }

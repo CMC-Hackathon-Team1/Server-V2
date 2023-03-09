@@ -22,8 +22,8 @@ export class AlarmsController {
   }
 
   @ApiOperation({
-    summary: '(개발 중 사용 X)',
-    description: '(개발 중 사용 X)'
+    summary: '관리자 전용 API',
+    description: '관리자가 해당 URI로 GET 요청을 보내면 공지사항이 추가되었다는 푸시 알림이 일괄 전송되는 기능'
   })
   @Get('/notice')
   noticeAlarm() {

@@ -67,4 +67,49 @@ export class AlarmsController {
   setFollowingAlarm(@Body() setAlarmDto: SetAlarmDto, @Req() req: any) {
     return this.alarmService.setFollowingAlarm(setAlarmDto, req);
   }
+
+  // 공지사항 알림 수신/미수신 설정
+  @ApiOperation({
+    summary: '공지사항 알림 설정을 변경할 수 있는 API',
+    description: '0: 알림 수신 거부 / 1: 알림 수신 허용 (Type: number)'
+  })
+  @ApiResponse({
+    status: 3501,
+    description: '알림 수신 설정 완료',
+    schema: { example: baseResponse.SET_ALARM_ALLOW_SUCCESS },
+  })
+  @ApiResponse({
+    status: 3502,
+    description: '알림 수신 거부 완료',
+    schema: { example: baseResponse.SET_ALARM_DISALLOW_SUCCESS },
+  })
+  @ApiBearerAuth('Authorization')
+  @UseGuards(JWTAuthGuard)
+  @Patch('/notice')
+  setNoticeAlarm(@Body() setAlarmDto: SetAlarmDto, @Req() req: any) {
+    return this.alarmService.setNoticeAlarm(setAlarmDto, req);
+  }
+
+  // 좋아요 알림 수신/미수신 설정
+  @ApiOperation({
+    summary: '좋아요 알림 설정을 변경할 수 있는 API',
+    description: '0: 알림 수신 거부 / 1: 알림 수신 허용 (Type: number)'
+  })
+  @ApiResponse({
+    status: 3501,
+    description: '알림 수신 설정 완료',
+    schema: { example: baseResponse.SET_ALARM_ALLOW_SUCCESS },
+  })
+  @ApiResponse({
+    status: 3502,
+    description: '알림 수신 거부 완료',
+    schema: { example: baseResponse.SET_ALARM_DISALLOW_SUCCESS },
+  })
+  @ApiBearerAuth('Authorization')
+  @UseGuards(JWTAuthGuard)
+  @Patch('/like')
+  setLikeAlarm(@Body() setAlarmDto: SetAlarmDto, @Req() req: any) {
+    return this.alarmService.setLikeAlarm(setAlarmDto, req);
+  }
+
 }

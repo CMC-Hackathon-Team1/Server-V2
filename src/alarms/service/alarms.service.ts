@@ -144,4 +144,36 @@ export class AlarmsService {
       return errResponse(baseResponse.STATUSCODE_NOT_VALID);
     }
   }
+
+  // 공지사항 알림 수신 허용/거부
+  async setNoticeAlarm(setAlarmDto: SetAlarmDto, req: any) {
+    const alarmStatusCode = setAlarmDto.statusCode;
+    const userId = req.user.userId;
+
+    if (alarmStatusCode == 0) {
+      await this.usersRepository.setNoticeAlarmAllow(userId);
+      return sucResponse(baseResponse.SET_ALARM_ALLOW_SUCCESS);
+    } else if (alarmStatusCode == 1) {
+      await this.usersRepository.setNoticeAlarmDisallow(userId);
+      return sucResponse(baseResponse.SET_ALARM_DISALLOW_SUCCESS);
+    } else {
+      return errResponse(baseResponse.STATUSCODE_NOT_VALID);
+    }
+  }
+
+  // 좋아요 알림 수신 허용/거부
+  async setLikeAlarm(setAlarmDto: SetAlarmDto, req: any) {
+    const alarmStatusCode = setAlarmDto.statusCode;
+    const userId = req.user.userId;
+
+    if (alarmStatusCode == 0) {
+      await this.usersRepository.setLikeAlarmAllow(userId);
+      return sucResponse(baseResponse.SET_ALARM_ALLOW_SUCCESS);
+    } else if (alarmStatusCode == 1) {
+      await this.usersRepository.setLikeAlarmDisallow(userId);
+      return sucResponse(baseResponse.SET_ALARM_DISALLOW_SUCCESS);
+    } else {
+      return errResponse(baseResponse.STATUSCODE_NOT_VALID);
+    }
+  }
 }

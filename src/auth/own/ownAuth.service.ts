@@ -4,12 +4,16 @@ import { errResponse, sucResponse } from '../../common/utils/response';
 import baseResponse from '../../common/utils/baseResponseStatus';
 import { UserService } from '../user.service';
 import * as nodemailer from 'nodemailer';
+import { MailerService } from '@nestjs-modules/mailer';
 
-const ejs = require('ejs');
+// const ejs = require('ejs');
 
 @Injectable()
 export class OwnAuthService {
-  constructor(private userService: UserService) {}
+  constructor(
+    private userService: UserService,
+    private mailService: MailerService,
+  ) {}
 
   async signUp(user: UserDTO): Promise<any> {
     // 이미 있는 계정인지 체크
@@ -35,21 +39,23 @@ export class OwnAuthService {
     if (!userFind) {
       const pendingUser = await this.userService.tempSave(user, randomAuthCode);
       console.log(`임시 유저 생성 됨`);
-      // 시간 안에 인증 완료하기 (1시간 - 60*60*1000, 10분 - 10*60*1000, 15초 - 15*1000)
-      console.log('이메일 인증 코드 보냄. 유효기간 - 15초 ');
-      this.setTimerForAuth(user, 10 * 60 * 1000);
     }
     // 2. PENDING 상태이면, 인증 코드 업데이트 -> 이메일 다시 보내기
     else if (userFind && userFind.status == 'PENDING') {
       const updatePendingUser = await this.userService.tempUpdate(userFind, randomAuthCode);
       console.log(`임시 유저 코드 재발급 됨`);
-      // 시간 안에 인증 완료하기 (1시간 - 60*60*1000, 10분 - 10*60*1000, 15초 - 15*1000)
-      console.log('이메일 인증 코드 보냄. 유효기간 - 15초 ');
-      this.setTimerForAuth(user, 10 * 60 * 1000);
     }
 
     // 이메일 보내기
     const emailAuthResult = this.sendEmailAuth(user.email, randomAuthCode);
+
+    // 시간 안에 인증 완료하기
+    const timeLimit = 10 * 60 * 1000;
+    // 15 * 1000 -> 15초
+    // 10 * 60 * 1000 -> 10분
+    // 60 * 60 * 1000 -> 1시간
+    console.log('이메일 인증 코드 보냄. 유효기간 - 10분 ');
+    this.setTimerForAuth(user, timeLimit);
     // ---
 
     return sucResponse(baseResponse.SUCCESS, {
@@ -64,30 +70,77 @@ export class OwnAuthService {
     // [Validation 처리]
     // 회원이 없는 경우 (인증 요청이 만료되어 사라진 경우)
     if (!userFind) {
-      return errResponse(baseResponse.EMAIL_NOTIFICATION_EXPIRED);
+      // return errResponse(baseResponse.EMAIL_NOTIFICATION_EXPIRED);
+      console.log(errResponse(baseResponse.EMAIL_NOTIFICATION_EXPIRED));
+      return baseResponse.EMAIL_NOTIFICATION_EXPIRED;
     }
     // 현재 인증 중인 회원이 아닌 경우
-    if (userFind.status != 'PENDING') {
-      return errResponse(baseResponse.USER_WRONG_STATUS);
+    if (userFind.status != 'PENDING' && userFind.status != 'ACTIVE') {
+      // return errResponse(baseResponse.USER_WRONG_STATUS);
+      console.log(errResponse(baseResponse.USER_WRONG_STATUS));
+      return baseResponse.USER_WRONG_STATUS;
+    }
+    // 이미 인증이 끝난 회원인 경우
+    if (userFind.status == 'ACTIVE') {
+      // return errResponse(baseResponse.USER_WRONG_STATUS);
+      console.log(errResponse(baseResponse.USER_AUTH_ALREADY_FINISHED));
+      return baseResponse.USER_AUTH_ALREADY_FINISHED;
     }
     // 인증 코드가 잘못 된 경우
     if (userFind.access_token != authCode) {
-      return errResponse(baseResponse.USER_AUTH_WRONG);
+      // return errResponse(baseResponse.USER_AUTH_WRONG);
+      console.log(errResponse(baseResponse.USER_AUTH_WRONG));
+      return baseResponse.USER_AUTH_WRONG;
     }
     // ---
 
     // 회원 인증 상태 확정 (PENDING -> ACTIVE)
     else {
-      const confirmedUser = await this.userService.activateUser(userFind);
-      console.log('User Activated');
+      try {
+        const confirmedUser = await this.userService.activateUser(userFind);
+        console.log(
+          sucResponse(baseResponse.SUCCESS, {
+            state: 'User Activated',
+          }),
+        );
+        return baseResponse.SUCCESS;
+      } catch (e) {
+        console.log(e);
+        return baseResponse.USER_AUTH_WRONG;
+      }
     }
 
-    return sucResponse(baseResponse.SUCCESS, {
-      state: '회원가입이 완료되었습니다.',
-    });
+    return baseResponse.USER_AUTH_WRONG;
+    // return sucResponse(baseResponse.SUCCESS, {
+    //   state: '회원가입이 완료되었습니다.',
+    // });
   }
 
   async sendEmailAuth(email: string, authCode: string) {
+    // 보내는 사람 (이메일)
+    const hostSender = `${process.env.MASTER_ACCOUNT_NAME} <${process.env.MASTER_ACCOUNT_EMAIL}>`;
+    // 리다이렉트 주소
+    const redirectUrl = process.env.CLIENT_EMAIL_REDIRECT || 'http://localhost:5050/auth/signup-callback';
+    // const redirectUrl = 'http://localhost:5050/auth/signup-callback';
+
+    // [Nest Mailer]
+    // 이메일 보내기
+    const sendEmailResult = await this.mailService
+      .sendMail({
+        to: email,
+        subject: 'On-and-Off 회원가입',
+        template: 'emailAuthForm.ejs',
+        context: { redirectUrl, email, authCode },
+      })
+      .then(() => {
+        console.log('이메일 보내기 성공');
+      })
+      .catch((e) => {
+        console.log(e);
+        return errResponse(baseResponse.EMAIL_SEND_FAILED);
+      });
+    // ---
+
     // [TEST ACCOUNT]
     // const testAccount = await nodemailer.createTestAccount();
     // const transporter = nodemailer.createTransport({
@@ -101,63 +154,60 @@ export class OwnAuthService {
     // });
     // ---
 
-    // [DONE] NEED GOOGLE ACCOUNT SETTING! - 구글 계정 2단계 인증 + 앱 비밀번호 설정
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      host: 'smtp.gmail.com',
-      port: 465,
-      secure: true, // true for 465, false for other ports (587)
-      // port: 587,
-      auth: {
-        user: process.env.MASTER_ACCOUNT_EMAIL,
-        pass: process.env.GOOGLE_EMAIL_PASSWORD,
-      },
-      tls: {
-        rejectUnauthorized: false,
-      },
-    });
-
-    // 보내는 사람 (이메일)
-    const hostSender = `${process.env.MASTER_ACCOUNT_NAME} <${process.env.MASTER_ACCOUNT_EMAIL}>`;
-    // 리다이렉트 주소
-    const redirectUrl = process.env.CLIENT_EMAIL_REDIRECT || 'http://localhost:5050/auth/signup-callback';
-    // const redirectUrl = 'http://localhost:5050/auth/signup-callback';
-    // 이메일 폼
-    let authEmailForm;
-    ejs.renderFile(
-      process.env.PWD + '/config/emailAuthForm.ejs',
-      { redirectUrl, email, authCode },
-      (err, data) => {
-        if (err) {
-          console.log(err);
-          return errResponse(baseResponse.EMAIL_AUTH_RENDER_FAILED);
-        }
-        authEmailForm = data;
-        // console.log(authEmailForm);
-      },
-    );
-
-    const mailOptions = {
-      from: hostSender,
-      to: email,
-      subject: 'On-and-Off 회원가입',
-      // text: '내용',
-      html: authEmailForm,
-    };
-    // console.log(mailOptions);
-
-    const sendEmailInfo = await transporter.sendMail(mailOptions,
-      (error, info) => {
-        if (error) {
-          console.log(`error occurred: ${error}`);
-          return errResponse(baseResponse.EMAIL_SEND_FAILED);
-        } else {
-          console.log(`email sent successfully`);
-          // console.log(info);
-        }
-        transporter.close();
-      },
-    );
+    // [Nodemailer]
+    // // [DONE] NEED GOOGLE ACCOUNT SETTING! - 구글 계정 2단계 인증 + 앱 비밀번호 설정
+    // const transporter = nodemailer.createTransport({
+    //   service: 'gmail',
+    //   host: 'smtp.gmail.com',
+    //   port: 465,
+    //   secure: true, // true for 465, false for other ports (587)
+    //   // port: 587,
+    //   auth: {
+    //     user: process.env.MASTER_ACCOUNT_EMAIL,
+    //     pass: process.env.GOOGLE_EMAIL_PASSWORD,
+    //   },
+    //   tls: {
+    //     rejectUnauthorized: false,
+    //   },
+    // });
+    //
+    // // 이메일 폼
+    // let authEmailForm;
+    // ejs.renderFile(
+    //   process.env.PWD + '/config/emailAuthForm.ejs',
+    //   { redirectUrl, email, authCode },
+    //   (err, data) => {
+    //     if (err) {
+    //       console.log(err);
+    //       return errResponse(baseResponse.EMAIL_AUTH_RENDER_FAILED);
+    //     }
+    //     authEmailForm = data;
+    //     // console.log(authEmailForm);
+    //   },
+    // );
+    //
+    // const mailOptions = {
+    //   from: hostSender,
+    //   to: email,
+    //   subject: 'On-and-Off 회원가입',
+    //   // text: '내용',
+    //   html: authEmailForm,
+    // };
+    // // console.log(mailOptions);
+    //
+    // const sendEmailInfo = await transporter.sendMail(mailOptions,
+    //   (error, info) => {
+    //     if (error) {
+    //       console.log(`error occurred: ${error}`);
+    //       return errResponse(baseResponse.EMAIL_SEND_FAILED);
+    //     } else {
+    //       console.log(`email sent successfully`);
+    //       // console.log(info);
+    //     }
+    //     transporter.close();
+    //   },
+    // );
+    // ---
   }
 
   setTimerForAuth(user, timeLimit) {
@@ -174,8 +224,5 @@ export class OwnAuthService {
         }
       });
     }, timeLimit); // 시간 제한
-    // }, 15 * 1000); // 시간 제한 -> 15초
-    // }, 10 * 60 * 1000); // 시간 제한 -> 10분
-    // }, 60 * 60 * 1000); // 시간 제한 -> 1시간
   }
 }

@@ -670,6 +670,11 @@ export class AuthController {
     schema: { example: errResponse(baseResponse.SERVER_ERROR) },
   })
   @ApiResponse({
+    status: 1002,
+    description: '회원 인증이 실패함 (잘못된 jwt)',
+    schema: { example: errResponse(baseResponse.USER_AUTH_WRONG) },
+  })
+  @ApiResponse({
     status: 1104,
     description: '로그아웃 실패 (로그 확인 필요)',
     schema: { example: errResponse(baseResponse.USER_LOGOUT_FAILED) },
@@ -684,9 +689,9 @@ export class AuthController {
     // ---
 
     const user: any = req.user;
-    // if (!user || !user.userId) {
-    //   return errResponse(baseResponse.USER_AUTH_WRONG);
-    // }
+    if (!user || !user.userId) {
+      return errResponse(baseResponse.USER_AUTH_WRONG);
+    }
     const userId = user.userId;
     // console.log(userId);
 

@@ -8,12 +8,38 @@ import { FollowingRepository } from '../following.repository';
 
 @Injectable()
 export class FollowingService {
+    
     constructor(
         private followingRepository:FollowingRepository,
         private profilesRepository:ProfilesRepository,
         private alarmsService: AlarmsService
     ){};
 
+    async postTestFollow(fromProfileId: number, toProfileId: number) {
+        try{
+            const isExistFromProfile=await this.profilesRepository.getProfileByProfileId(fromProfileId);
+            if(!isExistFromProfile){
+                console.log(isExistFromProfile);
+                return errResponse(baseResponse.FROM_PROFILE_ID_NOT_FOUND);
+            }
+            const isExistToProfile=await this.profilesRepository.getProfileByProfileId(toProfileId);
+            if(!isExistToProfile){
+                console.log(isExistToProfile);
+                return errResponse(baseResponse.TO_PROFILE_ID_NOT_FOUND);
+            }
+
+            const follow=new FollowFromTo(fromProfileId,toProfileId);
+            const isExist=await this.followingRepository.isExist(follow);
+            
+            if(isExist.length==0){
+                return sucResponse(baseResponse.DELETE_FOLLOW);
+            }else{
+                return sucResponse(baseResponse.POST_FOLLOW);
+            }
+        }catch(err){
+            return errResponse(baseResponse.DB_ERROR);
+        }
+      }
     async postFollow(fromProfileId: number,toProfileId: number): Promise<any> {//고쳐야함.
         try{
             const isExistFromProfile=await this.profilesRepository.getProfileByProfileId(fromProfileId);

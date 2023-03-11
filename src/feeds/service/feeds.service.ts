@@ -49,6 +49,7 @@ export class FeedsService {
         feedId,
         profileId,
       );
+      console.log(feedEntity);
       if (!feedEntity) {
         return errResponse(baseResponse.FEED_NOT_FOUND);
       }
@@ -56,8 +57,10 @@ export class FeedsService {
         [feedId],
         profileId,
       );
-      let isLike = false;
+      const likeList=await this.likeRepository.getLikeList(feedId);
 
+      let isLike = false;
+      console.log(likeList);
       if (isLikeQueryResult.length > 0) {
         isLike = true;
       } else if (isLikeQueryResult.length == 0) {
@@ -67,6 +70,7 @@ export class FeedsService {
       const getFeedByIdResDTO: GetFeedByIdResDTO = new GetFeedByIdResDTO(
         feedEntity,
         isLike,
+        likeList.length
       ); //isLike처리해야함.
       return getFeedByIdResDTO;
     } catch (err) {

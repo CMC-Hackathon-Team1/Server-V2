@@ -26,6 +26,8 @@ export class GetFeedByIdResDTO{
     private categoryId:number;
     @ApiProperty()
     private likeNum:number;
+    @ApiProperty()
+    private isSecret:String;
 
 	constructor(feedEntity: any,isLike: Boolean,likeNum:number) {
         this.feedId=feedEntity.feedId;
@@ -50,6 +52,7 @@ export class GetFeedByIdResDTO{
             this.isFollowing = false;
         }
         this.categoryId=feedEntity.categories.categoryId;
+        this.isSecret=feedEntity.isSecret;
 	}
 
     transformFromDateToFormat(createdAt:Date){

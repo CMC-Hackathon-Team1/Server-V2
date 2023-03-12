@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { getDataSourceName, InjectRepository } from '@nestjs/typeorm';
 import { profile } from 'console';
-import { Repository } from 'typeorm';
+import { Brackets, Repository } from 'typeorm';
 import { FeedHashTagMapping } from '../common/entities/FeedHashTagMapping';
 import { FeedImgs } from '../common/entities/FeedImgs';
 import { Feeds } from '../common/entities/Feeds';
@@ -35,7 +35,13 @@ export class FeedRepository {
       )
       .where('Feeds.feedId=:feedId', { feedId: feedId })
       .andWhere('Feeds.status=:status', { status: 'ACTIVE' })
-      .andWhere('Feeds.isSecret=:isSecret', { isSecret: "PUBLIC" });
+      .andWhere(new Brackets(qb => {
+        qb.where('Feeds.isSecret=:isSecret1', { isSecret1: "PUBLIC" })
+          .orWhere(new Brackets(qb => {
+            qb.where('Feeds.isSecret=:isSecret2', { isSecret2: "PRIAVATE" })
+              .andWhere('Feeds.profileId=:profileId', { profileId:profileId })}))
+    }))
+
     return foundQuery.getOne();
   }
   async save(feedEntity: Feeds) {

@@ -5,6 +5,11 @@ import { Likes } from "../common/entities/Likes";
 
 @Injectable()
 export class LikesRepository{
+    async getLikeList(feedId: number) {
+        return await this.likeTable.createQueryBuilder()
+                    .andWhere("feedId =:feedId",{feedId:feedId})
+                    .getMany()
+    }
     async isLike(feedIdList: number[],profileId: number) {
         return await this.likeTable.createQueryBuilder()
                     .where("profileId=:profileId",{profileId:profileId})

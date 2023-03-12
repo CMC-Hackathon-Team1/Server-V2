@@ -22,8 +22,12 @@ export class GetFeedByIdResDTO{
     private isFollowing: Boolean;
     @ApiProperty()
     private hashTagList:Array<String>=new Array();
+    @ApiProperty()
+    private categoryId:number;
+    @ApiProperty()
+    private likeNum:number;
 
-	constructor(feedEntity: any,isLike: Boolean) {
+	constructor(feedEntity: any,isLike: Boolean,likeNum:number) {
         this.feedId=feedEntity.feedId;
         this.personaName=feedEntity.profile.persona.personaName;
         this.profileName=feedEntity.profile.profileName;
@@ -39,11 +43,13 @@ export class GetFeedByIdResDTO{
             }  
           }
         this.isLike = isLike;
+        this.likeNum=likeNum;
         if (feedEntity['followInfo']) {
             this.isFollowing = true;
         } else {
             this.isFollowing = false;
         }
+        this.categoryId=feedEntity.categories.categoryId;
 	}
 
     transformFromDateToFormat(createdAt:Date){

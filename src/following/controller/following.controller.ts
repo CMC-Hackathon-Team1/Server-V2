@@ -64,4 +64,21 @@ export class FollowingController {
       postFollowRequestDTO.toProfileId,
     );
   }
+
+  @ApiOperation({
+    summary:
+      'Follow 여부 Test API입니다.',
+    description:
+      '포도님 건의로 만들어진 Test API입니다. postFollow와 같은 방식으로 요청하되 실제로 follow를 직접 진행하지는 않고 follow여부만 리턴됩니다.',
+  })
+  @ApiBearerAuth('Authorization')
+  @UseGuards(JWTAuthGuard)
+  @Post("/test")
+  testFollow(@Body() postFollowRequestDTO: PostFollowRequestDTO){
+
+    return this.followingService.postTestFollow(
+      postFollowRequestDTO.fromProfileId,
+      postFollowRequestDTO.toProfileId,
+    );
+  }
 }

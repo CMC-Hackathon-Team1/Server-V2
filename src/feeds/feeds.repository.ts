@@ -188,6 +188,8 @@ export class FeedRepository {
     const query = this.feedTable
       .createQueryBuilder('Feeds')
       .leftJoinAndSelect('Feeds.feedImgs', 'feedImg')
+      .leftJoinAndSelect('Feeds.feedHashTagMappings', 'feedHashTagMapping')
+      .leftJoinAndSelect('feedHashTagMapping.hashTag', 'hashTag')
       .where('Feeds.profileId=:targetProfileId', { targetProfileId: targetProfileId })
       .andWhere('Feeds.status=:status', { status: 'ACTIVE' })
       .skip(10 * (pageNumber - 1))

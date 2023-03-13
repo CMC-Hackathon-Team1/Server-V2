@@ -1,4 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { FeedHashTagMapping } from "../../common/entities/FeedHashTagMapping";
 import { FeedImgs } from "../../common/entities/FeedImgs";
 import { Feeds } from "../../common/entities/Feeds";
 import { Likes } from "../../common/entities/Likes";
@@ -28,16 +29,22 @@ export class MyFeed{
     private feedImgList: Array<String>=new Array();
     private isLike: boolean=false;
     private likeNum: number;
-    
-	constructor(feedEnitty: any) {
-        this.feedId=feedEnitty.feedId;
-        this.feedContent=feedEnitty.content;
-        this.createdAt=feedEnitty.createdAt;
-        for(let i =0; i<feedEnitty.feedImgs.length; i++){
-            this.feedImgList.push(feedEnitty.feedImgs.at(i).feedImgUrl);
+    @ApiProperty()
+    private hashTagList:Array<String>=new Array();
+	constructor(feedEntity: any) {
+        console.log(feedEntity.feedHashTagMappings)
+        for(let i=0; i<feedEntity.feedHashTagMappings.length; i++){
+            let hashTagMapping=feedEntity.feedHashTagMappings.at(i)
+            this.hashTagList.push(hashTagMapping.hashTag.hashTagName);
         }
-        if (feedEnitty.isLike)
+        this.feedId=feedEntity.feedId;
+        this.feedContent=feedEntity.content;
+        this.createdAt=feedEntity.createdAt;
+        for(let i =0; i<feedEntity.feedImgs.length; i++){
+            this.feedImgList.push(feedEntity.feedImgs.at(i).feedImgUrl);
+        }
+        if (feedEntity.isLike)
             this.isLike = true;
-        this.likeNum=feedEnitty.likeNum;
+        this.likeNum=feedEntity.likeNum;
 	}   
 }

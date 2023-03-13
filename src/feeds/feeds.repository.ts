@@ -203,7 +203,7 @@ export class FeedRepository {
     day: number,
     pageNumber: number,
   ) {
-    let target_date = year + '-' + month;
+    
     const query = this.feedTable
       .createQueryBuilder('Feeds')
       .leftJoinAndSelect('Feeds.feedImgs', 'feedImg')
@@ -211,10 +211,7 @@ export class FeedRepository {
       .leftJoinAndSelect('feedHashTagMapping.hashTag', 'hashTag')
       .where('Feeds.profileId=:targetProfileId', { targetProfileId: targetProfileId })
       .andWhere('Feeds.status=:status', { status: 'ACTIVE' })
-      .andWhere('DATE_FORMAT(`Feeds`.`createdAt`, "%Y-%m")=:target', {
-        target: target_date,
-      })
-      .orderBy({'Feeds.createdAt':'ASC'})
+      
       
 
     console.log(day);
@@ -223,7 +220,13 @@ export class FeedRepository {
       const target_date = year + '-' + month + '-' + day;
       query.andWhere('DATE_FORMAT(`Feeds`.`createdAt`, "%Y-%m-%d")=:target', {
         target: target_date,
-      });
+      }).orderBy({'Feeds.createdAt':'ASC'});
+    } else {
+      let target_date = year + '-' + month;
+      query.andWhere('DATE_FORMAT(`Feeds`.`createdAt`, "%Y-%m")=:target', {
+        target: target_date,
+      })
+      .orderBy({'Feeds.createdAt':'ASC'})
     }
     query.skip(10 * (pageNumber - 1))
          .take(10);

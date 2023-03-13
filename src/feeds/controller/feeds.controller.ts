@@ -320,7 +320,7 @@ export class FeedsController {
     if (!postFeedRequestDTO.content && !images) {
       return errResponse(baseResponse.FEED_HAVE_CONTENT_OR_IMAGE);
     }
-    if (images && images.length > 5) {
+    if (images && images.length > 1) {
       return errResponse(baseResponse.FEED_IMG_COUNT_OVER);
     }
     return this.feedsService.postFeed(postFeedRequestDTO, images);

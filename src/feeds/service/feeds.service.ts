@@ -324,9 +324,11 @@ export class FeedsService {
     }
 
     console.log(feedEntity);
+    console.log("이거맞나?000");
     try {
       const foundDTO: RetreiveMyFeedByMonthReturnDTO =
         new RetreiveMyFeedByMonthReturnDTO(feedEntity);
+      console.log("마무리 직전")
       return sucResponse(baseResponse.SUCCESS, foundDTO);
     } catch (err) {
       return errResponse(baseResponse.SERVER_ERROR);

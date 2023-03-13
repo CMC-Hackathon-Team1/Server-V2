@@ -101,6 +101,7 @@ export class Feed {
         feedContentHashTag+='#'+feedEntity.feedHashTagMappings.at(i).hashTag.hashTagName+' ';
       }
     }
+    console.log(feedEntity.content);
     this.feedContent = feedContentHashTag+'\n'+feedEntity.content;
     // 좋아요 표시
     // this.isLike = isLike;

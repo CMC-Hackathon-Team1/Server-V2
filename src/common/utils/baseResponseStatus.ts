@@ -78,7 +78,7 @@ const baseResponse = {
   FEED_IMG_COUNT_OVER:{statusCode:2205,message:'게시글이미지는 최대 1개로 제한됩니다.'},
   FEED_HAVE_CONTENT_OR_IMAGE:{statusCode:2206,message:'게시글은 내용 OR 이미지 중 적어도 하나는 가져야 합니다.'},
   PAGE_UPPER_ZERO:{statusCode:2206,message:'페이지 넘버는 1이상이여야 합니다.'},
-
+  ALREADY_WRITE_FEED:{statusCode:2208,message:'게시글은 하루에 하나만 작성 가능합니다.'},
   // 월별 게시글 조회 관련
   MONTHLY_EMPTY_BASE_PROFILE_ID: { statusCode: 2301, message: 'baseProfileId는 필수로 입력하여야 합니다.' },
   MONTHLY_EMPTY_TARGET_PROFILE_ID: { statusCode: 2302, message: 'targetProfileId는 필수로 입력하여야 합니다.' },

@@ -8,15 +8,33 @@ import { Feeds } from '../common/entities/Feeds';
 import { Likes } from '../common/entities/Likes';
 import { PatchFeedRequestDTO } from './dto/patch-feed-request.dto';
 import { FollowFromTo } from '../common/entities/FollowFromTo';
+const moment = require('moment-timezone');
+
 
 @Injectable()
 export class FeedRepository {
+  
   
   constructor(
     @InjectRepository(Feeds)
     private feedTable: Repository<Feeds>, // @InjectRepository(FollowFromTo) // private followTable: Repository<FollowFromTo>,
   ) {}
-
+  async isExistToday(profileId: any) {
+    const getCurrentTime = () => {
+      var m = moment().tz("Asia/Seoul"); 
+      return m.format("YYYY-MM-DD");
+      };
+  
+    const today = getCurrentTime();
+    console.log(today);
+    const query = this.feedTable
+      .createQueryBuilder('Feeds')
+      .where('Feeds.profileId=:profileId', { profileId: profileId })
+      .andWhere('Feeds.status=:status', { status: "ACTIVE" })
+      .andWhere('DATE_FORMAT(Feeds.createdAt,"%Y-%m-%d")=:today', { today: today });
+    
+    return query.getOne();
+  }
   async findFeedById(feedId: number,profileId): Promise<Feeds> {
     const foundQuery = this.feedTable
       .createQueryBuilder('Feeds')

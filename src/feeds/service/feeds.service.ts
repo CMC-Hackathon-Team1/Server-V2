@@ -344,8 +344,7 @@ export class FeedsService {
           month,
         );
       // RetriveMyFeedByMonth와는 다르게 GROUP BY 를 통해 일자별로 정리되어야하며 일자에 따라 ORDER BY 되어야한다.
-      console.log('return object');
-      console.log(feedEntities);
+      
       // const foundDTOList:RetreiveMyFeedInCalendarReturnDTO[]=[];
 
       // for(let i =0; i<feedEntities.length; i++){

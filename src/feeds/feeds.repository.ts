@@ -185,6 +185,7 @@ export class FeedRepository {
     day: number,
     pageNumber: number,
   ) {
+    let target_date = year + '-' + month;
     const query = this.feedTable
       .createQueryBuilder('Feeds')
       .leftJoinAndSelect('Feeds.feedImgs', 'feedImg')
@@ -192,24 +193,22 @@ export class FeedRepository {
       .leftJoinAndSelect('feedHashTagMapping.hashTag', 'hashTag')
       .where('Feeds.profileId=:targetProfileId', { targetProfileId: targetProfileId })
       .andWhere('Feeds.status=:status', { status: 'ACTIVE' })
-      .skip(10 * (pageNumber - 1))
-      .take(10);
+      .andWhere('DATE_FORMAT(`Feeds`.`createdAt`, "%Y-%m")=:target', {
+        target: target_date,
+      })
+      .orderBy({'Feeds.createdAt':'ASC'})
+      
 
     console.log(day);
-    if (day == null) {
-      console.log('day is null');
-      const target_date = year + '-' + month;
-      query.andWhere('DATE_FORMAT(`Feeds`.`createdAt`, "%Y-%m")=:target', {
-        target: target_date,
-      });
-    } else {
+    if (day != null) {
       console.log('day is not null');
       const target_date = year + '-' + month + '-' + day;
       query.andWhere('DATE_FORMAT(`Feeds`.`createdAt`, "%Y-%m-%d")=:target', {
         target: target_date,
       });
     }
-
+    query.skip(10 * (pageNumber - 1))
+         .take(10);
     query.leftJoinAndMapOne(
       'Feeds.isLike',
       Likes,
@@ -246,13 +245,13 @@ export class FeedRepository {
                    where DATE_FORMAT(createdAt, "%Y-%m") = ?#이부분 parameter처리.
                      and profileId = ?                      #이부분도 parameter처리
                    group by DATE_FORMAT(createdAt, "%Y-%m-%d")
-                   ) AND status='ACTIVE'
+                   ) AND status='ACTIVE' AND profileId= ?
              ) as sub
         LEFT JOIN (select feedId, max(feedImgUrl) as feedImgUrl from FeedImgs group by feedId) as imgSub
                   on sub.feedId = imgSub.feedId
         where ranking = 1
         order by day asc;`,
-      [this_month, profileId],
+      [this_month, profileId,profileId],
     );
     return found;
   }

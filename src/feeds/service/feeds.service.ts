@@ -367,7 +367,7 @@ export class FeedsService {
 
   async postFeed(
     postFeedRequestDTO: PostFeedRequestDTO,
-    images: Array<Express.Multer.File>,
+    images: Array<Express.Multer.File>
   ) {
     const newHashTagList: string[] = postFeedRequestDTO.hashTagList;
     const saveHashTagIdList = [];
@@ -375,6 +375,12 @@ export class FeedsService {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     try {
+      const isExistToday = await this.feedRepsitory.isExistToday(postFeedRequestDTO.profileId);
+      console.log(isExistToday);
+      if (isExistToday) {
+        console.log("isExistToday");
+        return sucResponse(baseResponse.ALREADY_WRITE_FEED);
+      }
       const feedEntity = PostFeedRequestDTO.DTOtoEntity(postFeedRequestDTO);
 
       const savedFeedEntity = await this.feedRepsitory.save(feedEntity);

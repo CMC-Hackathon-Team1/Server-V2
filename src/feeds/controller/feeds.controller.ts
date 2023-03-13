@@ -14,6 +14,7 @@ import {
   UseInterceptors,
   UsePipes,
   ValidationPipe,
+  Request
 } from '@nestjs/common';
 import { Feeds } from '../../common/entities/Feeds';
 import { feedExploreValidationPipe } from '../validation/feeds.explore-validation-pipe';
@@ -308,9 +309,11 @@ export class FeedsController {
   @UseInterceptors(FilesInterceptor('images'))
   @UsePipes(ValidationPipe)
   PostFeed(
+    @Request() req: any,
     @Body() postFeedRequestDTO: PostFeedRequestDTO,
-    @UploadedFiles() images: Array<Express.Multer.File>,
+    @UploadedFiles() images: Array<Express.Multer.File>
   ) {
+    console.log(req);
     if (typeof postFeedRequestDTO.hashTagList == 'string') {
       postFeedRequestDTO.hashTagList = [postFeedRequestDTO.hashTagList];
     }
@@ -320,6 +323,8 @@ export class FeedsController {
     if (!postFeedRequestDTO.content && !images) {
       return errResponse(baseResponse.FEED_HAVE_CONTENT_OR_IMAGE);
     }
+    console.log(images);
+    console.log(images.length);
     if (images && images.length > 1) {
       return errResponse(baseResponse.FEED_IMG_COUNT_OVER);
     }

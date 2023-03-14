@@ -123,7 +123,7 @@ export class KakaoService {
     // 4. 서비스 회원가입 or 로그인 처리
     console.log("여기서 회원가입 진행");
     const socialUserResult = await this.authService.handleSocialUser(kakaoUserEmail, 'kakao', kakaoUserParams);
-    // console.log(socialUserResult);
+    console.log(socialUserResult);
 
     // 5. 회원가입/로그인 결과, 서비스 jwt, 회원ID(?)
     const result = {

@@ -28,12 +28,15 @@ export class AppleService {
 
     // 위 5가지 단계를 해주는 패키지 설치 (npm i verify-apple-id-token)
     try {
+      console.log(identityToken);
+      console.log(this.clientIdIOS);
       const appleVerifyTokenResponse = await verifyAppleToken({
         idToken: identityToken,
         clientId: this.clientIdIOS,
         // nounce: ,
       });
-      // console.log(appleVerifyTokenResponse);
+      console.log("verify apple token");
+      console.log(appleVerifyTokenResponse);
 
       return appleVerifyTokenResponse;
     } catch (e) {

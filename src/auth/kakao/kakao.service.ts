@@ -106,7 +106,10 @@ export class KakaoService {
     // ---
 
     // 3. 액세스 토큰으로 카카오 유저 정보 가져오기
+    console.log("service 들어옴!")
     const kakaoUserInfo = await this.getKakaoUserInfoByToken(accessToken);
+    console.log(kakaoUserInfo);
+    console.log("kakao로 부터 user정보 받아옴.");
     // [Validation 처리]
     // 응답이 잘 안 온 경우
     if (!kakaoUserInfo) {
@@ -118,6 +121,7 @@ export class KakaoService {
 
     const kakaoUserParams = { accessToken: accessToken, idToken: null };
     // 4. 서비스 회원가입 or 로그인 처리
+    console.log("여기서 회원가입 진행");
     const socialUserResult = await this.authService.handleSocialUser(kakaoUserEmail, 'kakao', kakaoUserParams);
     // console.log(socialUserResult);
 

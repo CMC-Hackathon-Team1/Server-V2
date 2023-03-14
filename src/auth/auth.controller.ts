@@ -339,7 +339,7 @@ export class AuthController {
     }
 
     const kakaoResult = await this.kakaoService.kakaoLogin(acces_token);
-
+    console.log("service 까지는 끝남.!")
     // [Validation 처리]
     // jwt 토큰이 없으면 에러메시지 반환
     if (!kakaoResult.serviceJwt) {

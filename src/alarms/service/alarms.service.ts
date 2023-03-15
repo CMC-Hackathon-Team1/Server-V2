@@ -7,6 +7,7 @@ import { FollowingRepository } from '../../following/following.repository';
 import { LikesRepository } from '../../likes/likes.repository';
 import { ProfilesRepository } from '../../profiles/profiles.repository';
 import { UsersRepository } from '../../users/users.repository';
+import { AlarmStatusResponse } from '../dto/alarmStatus.dto';
 import { AlarmTokenDto } from '../dto/alarmToken.dto';
 import { SetAlarmDto } from '../dto/setAlarm.dto';
 import AlarmContents from '../utils/alarm_contents';
@@ -175,5 +176,15 @@ export class AlarmsService {
     } else {
       return errResponse(baseResponse.STATUSCODE_NOT_VALID);
     }
+  }
+
+  // 유저 알림 설정 상태 확인
+  async getAlarmStatus(req: any) {
+    const userId = req.user.userId;
+
+    const userAlarmStatus = await this.usersRepository.getAlarmStatus(userId);
+    const userAlarmStatusResult = new AlarmStatusResponse(userAlarmStatus);
+
+    return sucResponse(baseResponse.SUCCESS, userAlarmStatusResult);
   }
 }

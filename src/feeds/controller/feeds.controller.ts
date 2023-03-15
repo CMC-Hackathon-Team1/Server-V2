@@ -314,9 +314,11 @@ export class FeedsController {
     @UploadedFiles() images: Array<Express.Multer.File>
   ) {
     console.log(req);
+    console.log(postFeedRequestDTO.hashTagList);
     if (typeof postFeedRequestDTO.hashTagList == 'string') {
       postFeedRequestDTO.hashTagList = [postFeedRequestDTO.hashTagList];
     }
+    console.log(postFeedRequestDTO.hashTagList);
     if (postFeedRequestDTO.hashTagList.length > 20) {
       return errResponse(baseResponse.FEED_CAN_HAVE_20_HASHTAGS);
     }

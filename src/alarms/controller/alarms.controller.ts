@@ -3,6 +3,8 @@ import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagg
 import { Request } from 'express';
 import { JWTAuthGuard } from '../../auth/security/auth.guard.jwt';
 import baseResponse from '../../common/utils/baseResponseStatus';
+import { sucResponse } from '../../common/utils/response';
+import { AlarmStatusResponse, AlarmStatusResponseExample } from '../dto/alarmStatus.dto';
 import { AlarmTokenDto } from '../dto/alarmToken.dto';
 import { SetAlarmDto } from '../dto/setAlarm.dto';
 import { AlarmsService } from '../service/alarms.service';
@@ -116,6 +118,16 @@ export class AlarmsController {
   @ApiOperation({
     summary: '현재 유저의 알림 설정 확인을 위한 API',
     description: '팔로잉, 좋아요, 공지사항의 알림설정 여부를 받을 수 있다'
+  })
+  @ApiResponse({
+    status: 100,
+    description: '성공',
+    schema: { example: sucResponse(baseResponse.SUCCESS, AlarmStatusResponseExample) }
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'JWT 오류',
+    schema: { example: baseResponse.JWT_UNAUTHORIZED },
   })
   @ApiBearerAuth('Authorization')
   @UseGuards(JWTAuthGuard)

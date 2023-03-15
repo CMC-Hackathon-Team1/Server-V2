@@ -185,6 +185,6 @@ export class AlarmsService {
     const userAlarmStatus = await this.usersRepository.getAlarmStatus(userId);
     const userAlarmStatusResult = new AlarmStatusResponse(userAlarmStatus);
 
-    return userAlarmStatusResult;
+    return sucResponse(baseResponse.SUCCESS, userAlarmStatusResult);
   }
 }

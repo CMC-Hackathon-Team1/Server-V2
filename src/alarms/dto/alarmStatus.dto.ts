@@ -14,19 +14,28 @@ export class AlarmStatusResponse {
     AlarmStatusDto.likeAlarmStatus == 'ACTIVE' ? this.likeAlarmStatus = true : this.likeAlarmStatus = false;
     AlarmStatusDto.noticeAlarmStatus == 'ACTIVE' ? this.noticeAlarmStatus = true : this.noticeAlarmStatus = false;
   }
-  
+
   @ApiProperty({
-    description: '팔로잉 알람 설정 여부'
+    description: '팔로잉 알람 설정 여부',
+    example: true
   })
   followAlarmStatus: boolean;
 
   @ApiProperty({
-    description: '좋아요 알람 설정 여부'
+    description: '좋아요 알람 설정 여부',
+    example: true
   })
   likeAlarmStatus: boolean;
 
   @ApiProperty({
-    description: '공지사항 알람 설정 여부'
+    description: '공지사항 알람 설정 여부',
+    example: true
   })
   noticeAlarmStatus: boolean;
+}
+
+export const AlarmStatusResponseExample = {
+  followAlarmStatus: true,
+  likeAlarmStatus: true,
+  noticeAlarmStatus: true,
 }

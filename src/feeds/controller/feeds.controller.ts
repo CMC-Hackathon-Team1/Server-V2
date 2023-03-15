@@ -321,6 +321,10 @@ export class FeedsController {
     console.log("length: " + postFeedRequestDTO.hashTagList.length);
     console.log(typeof postFeedRequestDTO.hashTagList);
     if (typeof postFeedRequestDTO.hashTagList == 'string') {
+      let hashTagStr: String = postFeedRequestDTO.hashTagList;
+      let hashTagList: Array<String> = hashTagStr.replace(/\"/, '').split(",");
+      console.log(hashTagList);
+      console.log(typeof hashTagList);
       postFeedRequestDTO.hashTagList = [postFeedRequestDTO.hashTagList];
     }
     console.log(typeof postFeedRequestDTO.hashTagList);

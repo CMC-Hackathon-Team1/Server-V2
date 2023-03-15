@@ -112,4 +112,15 @@ export class AlarmsController {
     return this.alarmService.setLikeAlarm(setAlarmDto, req);
   }
 
+  // 현재 알림 수신 여부 확인
+  @ApiOperation({
+    summary: '현재 유저의 알림 설정 확인을 위한 API',
+    description: '팔로잉, 좋아요, 공지사항의 알림설정 여부를 받을 수 있다'
+  })
+  @ApiBearerAuth('Authorization')
+  @UseGuards(JWTAuthGuard)
+  @Get('/status')
+  getAlarmStatus(@Req() req: any) {
+    return this.alarmService.getAlarmStatus(req);
+  }
 }

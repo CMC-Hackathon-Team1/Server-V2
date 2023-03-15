@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { AlarmStatusDto } from '../alarms/dto/alarmStatus.dto';
 import { Users } from '../common/entities/Users';
 import { UserStatus } from './enum/userStatus.enum';
 
@@ -43,12 +44,12 @@ export class UsersRepository {
 
   // 팔로잉 알림 수신 설정
   async setFollowingAlarmAllow(userId: number) {
-    return await this.usersTable.update(userId, { likeAlarmStatus: 'ACTIVE' });
+    return await this.usersTable.update(userId, { followAlarmStatus: 'ACTIVE' });
   }
   
   // 팔로잉 알림 수신 거부
   async setFollowingAlarmDisallow(userId: number) {
-    return await this.usersTable.update(userId, { likeAlarmStatus: 'INACTIVE' });
+    return await this.usersTable.update(userId, { followAlarmStatus: 'INACTIVE' });
   }
 
   // 공지사항 알림 수신 설정
@@ -69,5 +70,10 @@ export class UsersRepository {
   // 좋아요 알림 수신 거부
   async setLikeAlarmDisallow(userId: number) {
     return await this.usersTable.update(userId, { likeAlarmStatus: 'INACTIVE' });
+  }
+
+  // 유저 알림설정 여부
+  async getAlarmStatus(userId: number): Promise<AlarmStatusDto> {
+    return await this.usersTable.findOne({ select: ['followAlarmStatus', 'likeAlarmStatus', 'noticeAlarmStatus'], where: { userId: userId } });
   }
 }

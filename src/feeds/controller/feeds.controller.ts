@@ -313,11 +313,17 @@ export class FeedsController {
     @Body() postFeedRequestDTO: PostFeedRequestDTO,
     @UploadedFiles() images: Array<Express.Multer.File>
   ) {
-    console.log(req);
+    console.log("POST 요청 시작!!");
+    console.log("POST 요청 시작!!");
+    console.log("POST 요청 시작!!");
+    console.log("POST 요청 시작!!");
     console.log(postFeedRequestDTO.hashTagList);
+    console.log("length: " + postFeedRequestDTO.hashTagList.length);
+    console.log(typeof postFeedRequestDTO.hashTagList);
     if (typeof postFeedRequestDTO.hashTagList == 'string') {
       postFeedRequestDTO.hashTagList = [postFeedRequestDTO.hashTagList];
     }
+    console.log(typeof postFeedRequestDTO.hashTagList);
     console.log(postFeedRequestDTO.hashTagList);
     if (postFeedRequestDTO.hashTagList.length > 20) {
       return errResponse(baseResponse.FEED_CAN_HAVE_20_HASHTAGS);
@@ -325,8 +331,6 @@ export class FeedsController {
     if (!postFeedRequestDTO.content && !images) {
       return errResponse(baseResponse.FEED_HAVE_CONTENT_OR_IMAGE);
     }
-    console.log(images);
-    console.log(images.length);
     if (images && images.length > 1) {
       return errResponse(baseResponse.FEED_IMG_COUNT_OVER);
     }

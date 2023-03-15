@@ -376,7 +376,6 @@ export class FeedsService {
     await queryRunner.connect();
     try {
       const isExistToday = await this.feedRepsitory.isExistToday(postFeedRequestDTO.profileId);
-      console.log(isExistToday);
       if (isExistToday) {
         console.log("isExistToday");
         return sucResponse(baseResponse.ALREADY_WRITE_FEED);
@@ -385,8 +384,7 @@ export class FeedsService {
 
       const savedFeedEntity = await this.feedRepsitory.save(feedEntity);
 
-      console.log('자 여기서 시작');
-      console.log(images);
+      
       if (images) {
         // 사용자가 이미지를 전달한 경우
         console.log('들어와따!!!');

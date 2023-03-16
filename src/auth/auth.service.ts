@@ -85,12 +85,14 @@ export class AuthService {
     // return await this.userService.findByFields({
     //   where: { userId: payload.userId },
     // });
+    // console.log(payload);
+    // console.log(payload.userId);
     return await this.userService.getUserInfo(payload.userId);
   }
 
   async handleSocialUser(email: string, loginType: string, socialParams: any): Promise<any> {
     console.log(email);
-    console.log("회원가입 진행 2");
+    // console.log("소셜 회원가입 진행");
     const checkUser = await this.userService.findByEmail(email);
     console.log(checkUser);
 
@@ -98,16 +100,16 @@ export class AuthService {
     let message: string;
 
     if (!checkUser || checkUser === undefined) {
-      console.log("회원 없음으로 판별");
+      // console.log("회원 없음으로 판별");
       // 회원가입하기
       const newUser: UserDTO = { email: email, password: null };
       const addedUser = await this.userService.save(newUser, loginType, socialParams);
-      console.log(`추가된 회원 id: ${addedUser.userId}`);
+      // console.log(`추가된 회원 id: ${addedUser.identifiers[0].userId}`);
 
-      socialUserId = addedUser.userId;
+      socialUserId = addedUser.identifiers[0].userId;
       message = '회원가입 완료';
     } else {
-      console.log("회원 있음?");
+      // console.log("회원 있음?");
       // [Validation 처리]
       // 다른 플랫폼으로 가입한 계정인 경우
       if (checkUser.login_type != loginType) {
@@ -124,7 +126,7 @@ export class AuthService {
       message = '로그인 완료';
     }
 
-    console.log("회원가입 정상적으로 진행됨");
+    // console.log("회원가입 정상적으로 진행됨");
     const payload: Payload = { userId: socialUserId, email: email };
     const jwtToken = this.jwtService.sign(payload);
 

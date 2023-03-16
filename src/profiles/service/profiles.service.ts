@@ -21,12 +21,13 @@ export class ProfilesService {
   async createProfile(image: Express.Multer.File, req: any, createProfileDto: CreateProfileDto): Promise<any> {
     try {
       console.log('--요청 데이터 확인 시작--');
-      console.log(image);
-      console.log(req);
-      console.log(createProfileDto);
+      // console.log(image);
+      // console.log(req);
+      // console.log(createProfileDto);
       console.log('--요청 데이터 확인 완료--');
       
       const requestUserId = req.user.userId;
+      console.log(requestUserId);
       const userProfilePersonaList = await this.profileRepository.getUserProfilePersonaIdList(requestUserId);
       const newProfilePersonaName = createProfileDto.personaName;
       

@@ -121,7 +121,7 @@ export class UserService {
     // 소셜로그인
     else {
       const { accessToken, idToken } = socialParams;
-      return await this.userRepository
+      const userSaveResult = await this.userRepository
         .createQueryBuilder()
         .insert()
         .into(Users)
@@ -135,6 +135,9 @@ export class UserService {
           },
         ])
         .execute();
+
+      // console.log(`추가된 회원 정보: ${userSaveResult}`);
+      return userSaveResult;
     }
   }
 

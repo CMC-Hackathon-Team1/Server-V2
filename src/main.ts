@@ -3,11 +3,13 @@ import { AppModule } from './app.module';
 import * as expressBasicAuth from 'express-basic-auth';
 import { SwaggerModule, DocumentBuilder, OpenAPIObject } from '@nestjs/swagger';
 import * as cookieParser from 'cookie-parser';
+import * as bodyParser from 'body-parser';
 import { BaseAPIDocument } from '../config/swagger.document.config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.use(cookieParser());
+  app.use(bodyParser.urlencoded({ extended: true }));
   app.use(
     ['/docs', '/docs-json'],
     expressBasicAuth({

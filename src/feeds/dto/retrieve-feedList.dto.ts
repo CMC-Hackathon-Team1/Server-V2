@@ -1,14 +1,27 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { UserBlock } from '../../common/entities/UserBlock';
 import DateFormatter from '../../common/utils/dateFormatter';
 
 export class retrieveFeedListDto {
   @ApiProperty({ description: 'feedArray' })
   feedArray: Feed[] = [];
 
-  constructor(profileId: number, rawFeedList: any[], onlyFollowing: any) {
+  constructor(loginedUserId : number,profileId: number, rawFeedList: any[], onlyFollowing: any) {
     // let cnt = 0;
     // 데이터 가공하기
     for (let i = 0; i < rawFeedList.length; i++) {
+      console.log(loginedUserId)
+      let userBlockList: Array<UserBlock> = rawFeedList.at(i).profile.user.toUserBlocked;
+      let contain = false;
+      for (let i = 0; i < userBlockList.length;i++) {
+        if (userBlockList.at(i).fromUserId == loginedUserId) {
+          contain = true;
+        }
+      }
+      if (contain) {
+        continue;
+      }
+      
       // 탐색 게시글 목록
       if (onlyFollowing == 'false' || onlyFollowing == false) {
         // console.log('not only following');

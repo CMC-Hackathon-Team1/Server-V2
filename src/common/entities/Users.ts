@@ -85,8 +85,8 @@ export class Users {
   reports: Reports[];
 
   @OneToMany(() => UserBlock, (userBlock) => userBlock.fromUser)
-  userBlocks: UserBlock[];
+  fromUserBlocked: UserBlock[];
 
   @OneToMany(() => UserBlock, (userBlock) => userBlock.toUser)
-  userBlocks2: UserBlock[];
+  toUserBlocked: UserBlock[];
 }

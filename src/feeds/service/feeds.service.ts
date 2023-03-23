@@ -221,6 +221,7 @@ export class FeedsService {
     }
   }
   async RetrieveFeeds(
+    loginedUserId:number,
     profileId: number,
     pageNumber: number,
     categoryId: number,
@@ -267,6 +268,7 @@ export class FeedsService {
 
     // 원하는 정보들만 가공해서 보여주기
     const feedListDTO: retrieveFeedListDto = new retrieveFeedListDto(
+      loginedUserId,
       profileId,
       rawFeedList,
       onlyFollowing,
@@ -469,6 +471,7 @@ export class FeedsService {
   }
 
   async searchFeedsByHashtag(
+    loginedUserId:number,
     profileId: number,
     pageNumber: number,
     categoryId: number,
@@ -511,6 +514,7 @@ export class FeedsService {
 
     // 원하는 정보들만 가공해서 보여주기
     const feedListDTO: retrieveFeedListDto = new retrieveFeedListDto(
+      loginedUserId,
       profileId,
       rawFeedList,
       onlyFollowing,

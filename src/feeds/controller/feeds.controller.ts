@@ -110,33 +110,15 @@ export class FeedsController {
     @Query('page') pageNumber: number,
     @Query('categoryId') categoryId: number,
     @Query('fResult') isFollowing: boolean,
+    @Request() req: any
   ): Promise<retrieveFeedListDto> {
-    // TODO: parameter validation 필수.
-    // [Validation 처리]
-    // profileId 가 있는가
-    // if (!profileId) {
-    //   return errResponse(baseResponse.PROFILE_ID_NOT_FOUND);
-    // }
-    // console.log(profileId);
-
-    // jwt 토큰 유저 정보와 profileId 가 맞게 매칭되어 있는가
-    // const checkProfileMatch = await this.profilesService.checkProfile(user.userId, profileId);
-    // console.log(checkProfileMatch);
-
-    // pageNumber가 유효한 number인지?
-    // console.log(pageNumber);
-    // category는 유효한지?
-    // console.log(categoryId);
-    // fResult는 유효한지?
-    // console.log(isFollowing);
-    // ---
-
+    const loginedUserId = req.user.userId;
     if (!isFollowing || isFollowing == undefined) {
       isFollowing = false;
     }
     // console.log(isFollowing);
 
-    return this.feedsService.RetrieveFeeds(profileId, pageNumber, categoryId, isFollowing);
+    return this.feedsService.RetrieveFeeds(loginedUserId,profileId, pageNumber, categoryId, isFollowing);
   }
 
   @ApiOperation({
@@ -544,7 +526,9 @@ export class FeedsController {
     @Query('categoryId') categoryId: number,
     @Query('fResult') isFollowing: boolean,
     @Query('query') hashtags: string,
+    @Request() req: any
   ) {
+    const loginedUserId = req.user.userId;
     // [Validation 처리]
     // profileId 가 있는가
     if (!profileId) {
@@ -573,6 +557,6 @@ export class FeedsController {
     if (pageNumber<1){
       return errResponse(baseResponse.PAGE_UPPER_ZERO);
     }
-    return this.feedsService.searchFeedsByHashtag(profileId, pageNumber, categoryId, isFollowing, hashtags);
+    return this.feedsService.searchFeedsByHashtag(loginedUserId,profileId, pageNumber, categoryId, isFollowing, hashtags);
   }
 }

@@ -21,14 +21,14 @@ export class UserBlock {
   @Column("int", { name: "to_user_id", unsigned: true })
   toUserId: number;
 
-  @ManyToOne(() => Users, (users) => users.userBlocks, {
+  @ManyToOne(() => Users, (users) => users.fromUserBlocked, {
     onDelete: "CASCADE",
     onUpdate: "CASCADE",
   })
   @JoinColumn([{ name: "from_user_id", referencedColumnName: "userId" }])
   fromUser: Users;
 
-  @ManyToOne(() => Users, (users) => users.userBlocks2, {
+  @ManyToOne(() => Users, (users) => users.toUserBlocked, {
     onDelete: "CASCADE",
     onUpdate: "CASCADE",
   })

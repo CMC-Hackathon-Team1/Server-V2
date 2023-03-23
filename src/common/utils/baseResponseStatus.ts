@@ -100,6 +100,12 @@ const baseResponse = {
   STATUSCODE_NOT_VALID: { statusCode: 3500, message: '전송 형식이 올바르지 않습니다.' },
   SET_ALARM_ALLOW_SUCCESS: { statusCode: 3501, message: '수신설정 완료.' },
   SET_ALARM_DISALLOW_SUCCESS: { statusCode: 3502, message: '수신거부 완료.' },
+
+  // 차단 관련
+  FROM_USER_ID_NOT_FOUND: { statusCode: 3701, message: 'From User Id가 존재하지 않는 id입니다.' },
+  TO_USER_ID_NOT_FOUND: { statusCode: 3702, message: 'To User Id가 존재하지 않는 id입니다.' },
+  BLCOK: { statusCode: 3703, message: '차단 했습니다.' },
+  UN_BLCOK:{statusCode: 3704, message: '차단 해제 했습니다.'},
 };
 
 export default baseResponse;

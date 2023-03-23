@@ -34,4 +34,9 @@ export class UserBlock {
   })
   @JoinColumn([{ name: "to_user_id", referencedColumnName: "userId" }])
   toUser: Users;
+
+  constructor(fromUserId: number, toUserId: number) {
+    this.fromUserId=fromUserId;
+    this.toUserId=toUserId;
+  }
 }

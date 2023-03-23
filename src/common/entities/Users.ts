@@ -20,21 +20,21 @@ export class Users {
     length: 50,
     default: () => "'own'",
   })
-  loginType: string;
+  login_type: string;
 
   @Column("text", {
     name: "access_token",
     nullable: true,
     comment: "소셜 로그인 API 사용을 위한 access token",
   })
-  accessToken: string | null;
+  access_token: string | null;
 
   @Column("text", {
     name: "provider_token",
     nullable: true,
     comment: "소셜 로그인 사용자 인증 id token",
   })
-  providerToken: string | null;
+  provider_token: string | null;
 
   @Column("text", { name: "alarm_token", nullable: true })
   alarmToken: string | null;

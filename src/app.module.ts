@@ -41,8 +41,8 @@ import { Reports } from './common/entities/Reports';
 import { ReportContent } from './common/entities/ReportContent';
 import { ReportCategory } from './common/entities/ReportCategory';
 import { ReportsModule } from './reports/reports.module';
-import { UserBlock } from './common/entities/UserBlock';
-import { UserBlockModule } from './user-block/user-block.module';
+import { ProfileBlock } from './common/entities/ProfileBlock';
+import { ProfileBlockModule } from './profile-block/profile-block.module';
 
 @Module({
   imports: [
@@ -80,7 +80,7 @@ import { UserBlockModule } from './user-block/user-block.module';
       password: String(process.env.DB_PASS),
       database: String(process.env.DB_NAME),
       entities: [
-        UserBlock,
+        ProfileBlock,
         Categories,
         FeedHashTagMapping,
         FeedImgs,
@@ -116,7 +116,7 @@ import { UserBlockModule } from './user-block/user-block.module';
     AlarmsModule,
     EmailModule,
     ReportsModule,
-    UserBlockModule,
+    ProfileBlockModule,
   ],
   controllers: [AppController],
   providers: [AppService, AwsService],

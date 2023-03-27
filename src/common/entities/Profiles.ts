@@ -13,6 +13,7 @@ import { Likes } from "./Likes";
 import { ProfileHashTagMapping } from "./ProfileHashTagMapping";
 import { Persona } from "./Persona";
 import { Users } from "./Users";
+import { ProfileBlock } from "./ProfileBlock";
 
 @Index("FK_Profiles_personaId_Persona_personaId", ["personaId"], {})
 @Index("FK_Profiles_userId_Users_userId", ["userId"], {})
@@ -73,4 +74,10 @@ export class Profiles {
   })
   @JoinColumn([{ name: "userId", referencedColumnName: "userId" }])
   user: Users;
+
+  @OneToMany(() => ProfileBlock, (profileBlock) => profileBlock.fromProfile)
+  fromProfileBlocked: ProfileBlock[];
+
+  @OneToMany(() => ProfileBlock, (profileBlock) => profileBlock.toProfile)
+  toProfileBlocked: ProfileBlock[];
 }

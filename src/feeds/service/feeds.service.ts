@@ -227,33 +227,7 @@ export class FeedsService {
     categoryId: number,
     onlyFollowing: any,
   ): Promise<any> {
-    // [REFACTORED]
-    // return this.feeds;
-    // const feedEntity = await this.feedRepsitory.retrieveFeeds(
-    //   profileId,
-    //   pageNumber,
-    //   categoryId,
-    // );
-    // const feedIdList = [];
-    //
-    // console.log(feedEntity);
-    // if (feedEntity.length == 0) {
-    //   return errResponse(baseResponse.FEED_NOT_FOUND);
-    // }
-    // for (let i = 0; i < feedEntity.length; i++) {
-    //   feedIdList.push(feedEntity[i].feedId);
-    // }
-    // const isLikeEntity = await this.likeRepository.isLike(
-    //   feedIdList,
-    //   profileId,
-    // );
-    // console.log(feedEntity);
-    //
-    // const foundDTO: retrieveFeedsReturnDto = new retrieveFeedsReturnDto(feedEntity, isLikeEntity);
-    //
-    // // console.log(util.inspect(foundDTO, {showHidden: false, depth: null}));
-    // return foundDTO;
-    // ---
+    
     const hasFollow = await this.followRepository.getFollow(profileId);
     if ((onlyFollowing == 'true' || onlyFollowing== true)&& hasFollow.length==0) {
       return errResponse(baseResponse.FOLLOWER_NOT_EXIST);
@@ -268,7 +242,6 @@ export class FeedsService {
 
     // 원하는 정보들만 가공해서 보여주기
     const feedListDTO: retrieveFeedListDto = new retrieveFeedListDto(
-      loginedUserId,
       profileId,
       rawFeedList,
       onlyFollowing,
@@ -514,7 +487,6 @@ export class FeedsService {
 
     // 원하는 정보들만 가공해서 보여주기
     const feedListDTO: retrieveFeedListDto = new retrieveFeedListDto(
-      loginedUserId,
       profileId,
       rawFeedList,
       onlyFollowing,

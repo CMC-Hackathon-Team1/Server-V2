@@ -1,7 +1,6 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Profiles } from './Profiles';
 import { Reports } from './Reports';
-import { UserBlock } from "./UserBlock";
 
 @Entity("Users", { schema: "OnNOff" })
 export class Users {
@@ -84,9 +83,5 @@ export class Users {
   @OneToMany(() => Reports, (reports) => reports.user)
   reports: Reports[];
 
-  @OneToMany(() => UserBlock, (userBlock) => userBlock.fromUser)
-  fromUserBlocked: UserBlock[];
-
-  @OneToMany(() => UserBlock, (userBlock) => userBlock.toUser)
-  toUserBlocked: UserBlock[];
+  
 }

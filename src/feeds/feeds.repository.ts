@@ -149,8 +149,7 @@ export class FeedRepository {
       // .leftJoinAndSelect('Feeds.likes', 'likes')
       .leftJoinAndSelect('Feeds.feedHashTagMappings', 'feedHashTagMapping')
       .leftJoinAndSelect('feedHashTagMapping.hashTag', 'hashTag')
-      .leftJoinAndSelect('profiles.user', 'users')
-      .leftJoinAndSelect('users.toUserBlocked','Blocked')
+      .leftJoinAndSelect('profiles.toProfileBlocked', 'Blocked')
       .orderBy({ 'Feeds.createdAt': 'DESC', 'Feeds.feedId': 'DESC' })
     // .andWhere('likes.profileId=:ownProfileId', { ownProfileId: profileId })   // 본인이 좋아요 누른 게시글만
     ;
@@ -338,6 +337,7 @@ export class FeedRepository {
       .leftJoinAndSelect('Feeds.categories', 'category')
       .leftJoinAndSelect('Feeds.feedHashTagMappings', 'feedHashTagMapping')
       .leftJoinAndSelect('feedHashTagMapping.hashTag', 'hashTag')
+      .leftJoinAndSelect('profiles.toProfileBlocked', 'Blocked')
       .whereInIds(feedIdList)
       .orderBy({ 'Feeds.createdAt': 'DESC', 'Feeds.feedId': 'DESC' })
     ;

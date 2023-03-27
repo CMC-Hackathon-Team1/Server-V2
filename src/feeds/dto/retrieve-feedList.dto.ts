@@ -1,20 +1,25 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { UserBlock } from '../../common/entities/UserBlock';
+import { ProfileBlock } from '../../common/entities/ProfileBlock';
 import DateFormatter from '../../common/utils/dateFormatter';
 
 export class retrieveFeedListDto {
   @ApiProperty({ description: 'feedArray' })
   feedArray: Feed[] = [];
 
-  constructor(loginedUserId : number,profileId: number, rawFeedList: any[], onlyFollowing: any) {
+  constructor(profileId: number, rawFeedList: any[], onlyFollowing: any) {
     // let cnt = 0;
     // 데이터 가공하기
     for (let i = 0; i < rawFeedList.length; i++) {
-      console.log(loginedUserId)
-      let userBlockList: Array<UserBlock> = rawFeedList.at(i).profile.user.toUserBlocked;
+      let profileBlockList: Array<ProfileBlock> = rawFeedList.at(i).profile.toProfileBlocked;
       let contain = false;
-      for (let i = 0; i < userBlockList.length;i++) {
-        if (userBlockList.at(i).fromUserId == loginedUserId) {
+      console.log("blcok 있니?");
+      console.log("blcok 있니?");
+      console.log("blcok 있니?");
+
+      for (let i = 0; i < profileBlockList.length; i++) {
+        console.log("block 들옴 ^^");
+        console.log(profileBlockList);
+        if (profileBlockList.at(i).fromProfileId == profileId) {
           contain = true;
         }
       }

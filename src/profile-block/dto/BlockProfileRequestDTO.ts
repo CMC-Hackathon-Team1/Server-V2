@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty, IsNumber } from "class-validator";
+import { IsNotEmpty, IsNumber, IsString } from "class-validator";
 
 export class BlockProfileRequestDTO{
     @ApiProperty({
@@ -17,4 +17,12 @@ export class BlockProfileRequestDTO{
     @IsNotEmpty()
     @IsNumber()
     toProfileId: number;
+
+    @ApiProperty({
+        description:"차단할지, 차단 해제할지 유무",
+        example:"BLOCK, UNBLOCK"
+    })
+    @IsNotEmpty()
+    @IsString()
+    type: String;
 }

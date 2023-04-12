@@ -5,13 +5,22 @@ import { SaveProfileDto } from './dto/saveProfile.dto';
 import { Profiles } from '../common/entities/Profiles';
 import { ProfileModel } from './dto/profile.model';
 import { ProfileWithPersonaNameDto } from './dto/profileWithPersonaName.dto';
+import { Users } from '../common/entities/Users';
 
 @Injectable()
 export class ProfilesRepository {
+ 
+  
   constructor(
     @InjectRepository(Profiles)
     private profilesTable: Repository<Profiles>,
-  ) {}
+  ) { }
+  
+  async getProfilesOfUser(userId: number) {
+    return await this.profilesTable.findBy({
+      userId: userId
+    });
+  }
 
   async getOne(profileId: number) {
     return await this.profilesTable.findBy({

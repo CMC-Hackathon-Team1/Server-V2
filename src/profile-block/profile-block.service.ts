@@ -4,14 +4,16 @@ import baseResponse from '../common/utils/baseResponseStatus';
 import { errResponse, sucResponse } from '../common/utils/response';
 import { ProfilesRepository } from '../profiles/profiles.repository';
 import { ProfileBlockRepository } from './profile-block.repository';
+import { UsersRepository } from '../users/users.repository';
 
 @Injectable()
 export class ProfileBlockService {
     constructor(
+        private usersRepository: UsersRepository,
         private profilesRepository: ProfilesRepository,
         private profileBlockRepository: ProfileBlockRepository,
     ){};
-    async blockProfile(loginedUserId:number,fromProfileId: number, toProfileId: number) {
+    async blockProfile(loginedUserId:number,fromProfileId: number, toProfileId: number,type : String) {
         try {
             // check loginedUserId => fromProfileId 같은 유저 맞는지?
             const isExistFromProfile=await this.profilesRepository.getProfileByProfileId(fromProfileId);
@@ -25,19 +27,33 @@ export class ProfileBlockService {
                 console.log(isExistToProfile);
                 return errResponse(baseResponse.TO_USER_ID_NOT_FOUND);
             }
-
-            const profileBlock = new ProfileBlock(fromProfileId, toProfileId);
-            console.log("여기서?");
-            const isExist = await this.profileBlockRepository.isExist(profileBlock);
-            console.log("여기서?");
-            let foundEntity;
-            if(isExist.length==0){
-                foundEntity=await this.profileBlockRepository.postBlock(profileBlock);
-                return sucResponse(baseResponse.BLCOK);
-            }else{
-                await this.profileBlockRepository.deleteBlock(profileBlock);
-                return sucResponse(baseResponse.UN_BLCOK);
+            
+            console.log("뭐지 이게..?");
+            const userEntity = await this.usersRepository.getUserByProfileId(toProfileId);
+            console.log("자 여기!!!!!!!!!!!!!!!!!!!!!")
+            console.log("자 여기!!!!!!!!!!!!!!!!!!!!!")
+            console.log("자 여기!!!!!!!!!!!!!!!!!!!!!")
+            console.log("자 여기!!!!!!!!!!!!!!!!!!!!!")
+            console.log("자 여기!!!!!!!!!!!!!!!!!!!!!")
+            console.log(userEntity);
+            console.log("yogi wee eh!!!!!!!!!!!!!!!!!!!!!!")
+            console.log("yogi wee eh!!!!!!!!!!!!!!!!!!!!!")
+            const profileList = await this.profilesRepository.getProfilesOfUser(userEntity.userId);
+            console.log(profileList);
+            for (let i = 0; i < profileList.length;i++) {
+                const profileBlock=new ProfileBlock(fromProfileId, profileList[i].profileId); 
+                const isExist = await this.profileBlockRepository.isExist(profileBlock);
+                let foundEntity;
+                if(type=="BLOCK" && isExist.length==0){
+                    foundEntity=await this.profileBlockRepository.postBlock(profileBlock);
+                } else if (type == "UNBLOCK" && isExist.length != 0) {
+                    await this.profileBlockRepository.deleteBlock(profileBlock);
+                }
             }
+            console.log(type);
+            console.log(type=="BLOCK")
+            return type=="BLOCK" ? sucResponse(baseResponse.BLCOK) : sucResponse(baseResponse.UN_BLCOK);
+
         } catch (err) {
             console.log(err);
             return errResponse(baseResponse.DB_ERROR);

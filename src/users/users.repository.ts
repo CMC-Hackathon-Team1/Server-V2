@@ -7,11 +7,21 @@ import { UserStatus } from './enum/userStatus.enum';
 
 @Injectable()
 export class UsersRepository {
+  
+  
   constructor(
     @InjectRepository(Users)
     private usersTable: Repository<Users>,
   ) {}
 
+  async getUserByProfileId(toProfileId: number) {
+    return await this.usersTable
+      .createQueryBuilder('Users')
+      .leftJoin('Users.profiles', 'profiles')
+      .where('profiles.profileId=:toProfileId', { toProfileId: toProfileId })
+      .getOne();
+  }
+  
   // 유저 삭제
   async deleteUserByUserId(userId: number) {
     return await this.usersTable.delete(userId);

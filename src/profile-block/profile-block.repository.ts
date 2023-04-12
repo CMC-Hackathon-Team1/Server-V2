@@ -6,6 +6,7 @@ import { ProfileBlock } from '../common/entities/ProfileBlock';
 @Injectable()
 export class ProfileBlockRepository {
     
+    
     constructor(
         @InjectRepository(ProfileBlock)
         private profileBlockTable: Repository<ProfileBlock>,
@@ -16,6 +17,15 @@ export class ProfileBlockRepository {
             fromProfileId: profileBlock.fromProfileId,
             toProfileId:profileBlock.toProfileId
         });
+    }
+    async getProfileList(profileId: number) {
+        return await this.profileBlockTable
+            .createQueryBuilder('ProfileBlock')
+            .select([
+                "ProfileBlock.toProfileId as blockedProfileId"
+            ])
+            .where("ProfileBlock.fromProfileId=:fpi",{fpi:profileId})
+            .getRawMany();
     }
     async postBlock(profileBlock: ProfileBlock){
         let result=null;

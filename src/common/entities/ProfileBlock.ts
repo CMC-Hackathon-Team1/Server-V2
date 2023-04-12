@@ -34,9 +34,13 @@ export class ProfileBlock {
   })
   @JoinColumn([{ name: "to_profile_id", referencedColumnName: "profileId" }])
   toProfile: Profiles;
+  
+  @Column("varchar", { name: "status", length: 10 })
+  status: String;
 
-  constructor(fromProfileId: number, toProfileId: number) {
+  constructor(fromProfileId: number, toProfileId: number, status: String) {
     this.fromProfileId=fromProfileId;
-    this.toProfileId=toProfileId;
+    this.toProfileId = toProfileId;
+    this.status = status;
   }
 }

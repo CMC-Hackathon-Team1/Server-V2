@@ -9,13 +9,28 @@ import { Users } from '../common/entities/Users';
 
 @Injectable()
 export class ProfilesRepository {
- 
+  
   
   constructor(
     @InjectRepository(Profiles)
     private profilesTable: Repository<Profiles>,
   ) { }
-  
+  async getBlockedProfiles(profileIdList: Array<number>) {
+    return await this.profilesTable
+      .createQueryBuilder('Profiles')
+      .select(
+        [
+          'Persona.personaName',
+          'Profiles.profileName',
+          'Profiles.profileImgUrl'
+        ]
+      )
+      .leftJoin('Profiles.toProfileBlocked', 'ProfileBlock')
+      .leftJoin('Profiles.persona','Persona')
+      .andWhere('ProfileBlock.status=:status', { status: 'HOST' })
+      .andWhere('ProfileBlock.toProfileId in (:tpi)', { tpi: profileIdList })
+      .getMany();
+  }
   async getProfilesOfUser(userId: number) {
     return await this.profilesTable.findBy({
       userId: userId

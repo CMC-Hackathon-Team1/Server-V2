@@ -67,7 +67,7 @@ export class ProfileBlockController {
         })
         @ApiBearerAuth('Authorization')
         @UseGuards(JWTAuthGuard)
-        @Get('/blocoked-profiles')
+        @Get('/blocked-profiles')
         async getBlockedProfiles(@Query('profileId') profileId: number,@Request() req: any) {
             const loginedUserId = req.user.userId;
             console.log(profileId);

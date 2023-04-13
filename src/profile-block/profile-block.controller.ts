@@ -33,8 +33,8 @@ export class ProfileBlockController {
         description: baseResponse.UN_BLCOK.message,
     })
     @ApiResponse({
-    status: baseResponse.DB_ERROR.statusCode,
-    description: baseResponse.DB_ERROR.message,
+        status: baseResponse.DB_ERROR.statusCode,
+        description: baseResponse.DB_ERROR.message,
     })
     @ApiBearerAuth('Authorization')
     @UseGuards(JWTAuthGuard)
@@ -50,11 +50,15 @@ export class ProfileBlockController {
         );
     }
 
-    @ApiOperation({
-        summary:
-            '유저 차단 목록 조회 API',
-        description:
-            '유저 차단 목록을 조회하는 API이다. 본인이 차단한 프로필이 대표로 목록에 나타난다.',
+        @ApiOperation({
+            summary:
+                '유저 차단 목록 조회 API',
+            description:
+                '유저 차단 목록을 조회하는 API이다. 본인이 차단한 프로필이 대표로 목록에 나타난다.',
+        })
+        @ApiResponse({
+        status: baseResponse.SUCCESS.statusCode,
+        description: baseResponse.SUCCESS.message,
         })
         @ApiResponse({
         status: baseResponse.DB_ERROR.statusCode,

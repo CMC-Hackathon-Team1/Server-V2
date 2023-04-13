@@ -17,22 +17,27 @@ export class ProfileBlockService {
         private profileBlockRepository: ProfileBlockRepository,
     ) { };
     async getBlockedProfiles(profileId: number) {
-        const blcokedProfileIdObjectList = await this.profileBlockRepository.getProfileList(profileId);
-        console.log("뭐지?")
-        const blockedProfileIdList = new Array();
-        for (let i = 0; i < blcokedProfileIdObjectList.length; i++) blockedProfileIdList.push(blcokedProfileIdObjectList.at(i).blockedProfileId);
-        console.log("여기서..?");
-        const profileList = await this.profilesRepository.getBlockedProfiles(blockedProfileIdList);
-        const blockedProfileList = new Array();
+        try {
+            const blcokedProfileIdObjectList = await this.profileBlockRepository.getProfileList(profileId);
+            const blockedProfileIdList = new Array();
 
-        for (let i = 0; i < profileList.length; i++) {
-            const profile = profileList.at(i);
-            console.log(profile);
-            blockedProfileList.push(new BlcokedProfileDTO(profile["persona"].personaName, profile.profileName, profile.profileImgUrl));
+            for (let i = 0; i < blcokedProfileIdObjectList.length; i++)
+                blockedProfileIdList.push(blcokedProfileIdObjectList.at(i).blockedProfileId);
+
+            const profileList = await this.profilesRepository.getBlockedProfiles(blockedProfileIdList);
+            const blockedProfileList = new Array();
+
+            for (let i = 0; i < profileList.length; i++) {
+                const profile = profileList.at(i);
+                blockedProfileList.push(new BlcokedProfileDTO(profile.profileId,profile["persona"].personaName, profile.profileName, profile.profileImgUrl));
+            }
+
+            return sucResponse(baseResponse.SUCCESS,blockedProfileList);
+        } catch (err) {
+            console.log(err);
+            return errResponse(baseResponse.DB_ERROR);
         }
-
-        console.log(profileList);
-        return sucResponse(baseResponse.SUCCESS,blockedProfileList);
+        
     }
     async blockProfile(loginedUserId:number,fromProfileId: number, toProfileId: number,type : String) {
         try {

@@ -1,9 +1,11 @@
 import { Body, Controller, Post, UseGuards, Request, Query ,  Get} from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiCreatedResponse, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JWTAuthGuard } from '../auth/security/auth.guard.jwt';
 import baseResponse from '../common/utils/baseResponseStatus';
 import { BlockProfileRequestDTO } from './dto/BlockProfileRequestDTO';
 import { ProfileBlockService } from './profile-block.service';
+import { BlcokedProfileDTO } from './dto/BlockedProfileDTO';
+import { errResponse } from '../common/utils/response';
 
 @ApiTags('Users')
 @Controller('profile-block')
@@ -19,22 +21,27 @@ export class ProfileBlockController {
     @ApiResponse({
         status: baseResponse.FROM_USER_ID_NOT_FOUND.statusCode,
         description: baseResponse.FROM_USER_ID_NOT_FOUND.message,
+        schema: { example: errResponse(baseResponse.FROM_USER_ID_NOT_FOUND) },
     })
     @ApiResponse({
         status: baseResponse.TO_USER_ID_NOT_FOUND.statusCode,
         description: baseResponse.TO_USER_ID_NOT_FOUND.message,
+        schema: { example: errResponse(baseResponse.TO_USER_ID_NOT_FOUND) },
     })
     @ApiResponse({
         status: baseResponse.BLCOK.statusCode,
         description: baseResponse.BLCOK.message,
+        schema: { example: errResponse(baseResponse.BLCOK) },
     })
     @ApiResponse({
         status: baseResponse.UN_BLCOK.statusCode,
         description: baseResponse.UN_BLCOK.message,
+        schema: { example: errResponse(baseResponse.UN_BLCOK) },
     })
     @ApiResponse({
         status: baseResponse.DB_ERROR.statusCode,
         description: baseResponse.DB_ERROR.message,
+        schema: { example: errResponse(baseResponse.DB_ERROR) },
     })
     @ApiBearerAuth('Authorization')
     @UseGuards(JWTAuthGuard)
@@ -56,13 +63,21 @@ export class ProfileBlockController {
             description:
                 '유저 차단 목록을 조회하는 API이다. 본인이 차단한 프로필이 대표로 목록에 나타난다.',
         })
-        @ApiResponse({
-        status: baseResponse.SUCCESS.statusCode,
-        description: baseResponse.SUCCESS.message,
+        @ApiCreatedResponse({
+            status: baseResponse.SUCCESS.statusCode,
+            type: BlcokedProfileDTO,
+            isArray: true,
+            description: baseResponse.SUCCESS.message+"\n (만약 차단유저가 한 명도 없을경우 빈배열로 반환된다.)",
         })
         @ApiResponse({
-        status: baseResponse.DB_ERROR.statusCode,
-        description: baseResponse.DB_ERROR.message,
+            status: baseResponse.JWT_UNAUTHORIZED.statusCode,
+            description: baseResponse.JWT_UNAUTHORIZED.message,
+            schema: { example: errResponse(baseResponse.JWT_UNAUTHORIZED) },
+        })
+        @ApiResponse({
+            status: baseResponse.DB_ERROR.statusCode,
+            description: baseResponse.DB_ERROR.message,
+            schema: { example: errResponse(baseResponse.DB_ERROR) },
         })
         @ApiQuery({
             name: 'profileId',

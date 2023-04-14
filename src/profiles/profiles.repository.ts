@@ -21,6 +21,7 @@ export class ProfilesRepository {
       .select(
         [
           'Persona.personaName',
+          'Profiles.profileId',
           'Profiles.profileName',
           'Profiles.profileImgUrl'
         ]

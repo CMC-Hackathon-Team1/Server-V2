@@ -37,6 +37,7 @@ export class ProfileBlockService {
             console.log("test3");
             for (let i = 0; i < profileList.length; i++) {
                 const profile = profileList.at(i);
+                console.log(profile);
                 blockedProfileList.push(new BlcokedProfileDTO(profile.profileId,profile["persona"].personaName, profile.profileName, profile.profileImgUrl));
             }
 

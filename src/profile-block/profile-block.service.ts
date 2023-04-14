@@ -18,7 +18,9 @@ export class ProfileBlockService {
     ) { };
     async getBlockedProfiles(profileId: number) {
         try {
+            console.log("여기 오긴 하니?");
             const blcokedProfileIdObjectList = await this.profileBlockRepository.getProfileList(profileId);
+            console.log("당황스럽네 ㅋㅋ");
             const blockedProfileIdList = new Array();
 
             if (blcokedProfileIdObjectList.length == 0) {

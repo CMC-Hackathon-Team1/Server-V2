@@ -21,12 +21,18 @@ export class ProfileBlockService {
             const blcokedProfileIdObjectList = await this.profileBlockRepository.getProfileList(profileId);
             const blockedProfileIdList = new Array();
 
+            if (blcokedProfileIdObjectList.length == 0) {
+                return sucResponse(baseResponse.SUCCESS,[]);
+            }
+            console.log("test1");
             for (let i = 0; i < blcokedProfileIdObjectList.length; i++)
                 blockedProfileIdList.push(blcokedProfileIdObjectList.at(i).blockedProfileId);
 
+            console.log("test2");
             const profileList = await this.profilesRepository.getBlockedProfiles(blockedProfileIdList);
             const blockedProfileList = new Array();
 
+            console.log("test3");
             for (let i = 0; i < profileList.length; i++) {
                 const profile = profileList.at(i);
                 blockedProfileList.push(new BlcokedProfileDTO(profile.profileId,profile["persona"].personaName, profile.profileName, profile.profileImgUrl));

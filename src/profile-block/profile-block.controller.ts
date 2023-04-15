@@ -90,6 +90,24 @@ export class ProfileBlockController {
         async getBlockedProfiles(@Query('profileId') profileId: number,@Request() req: any) {
             const loginedUserId = req.user.userId;
             console.log(profileId);
+            console.log("loginedUserId" + loginedUserId);
+            console.log("loginedUserId" + loginedUserId);
+            console.log("loginedUserId" + loginedUserId);
+            console.log("loginedUserId" + loginedUserId);
+            console.log("loginedUserId" + loginedUserId);
+            console.log("loginedUserId" + loginedUserId);
+            console.log("loginedUserId" + loginedUserId);
+            console.log("loginedUserId" + loginedUserId);
+
+            console.log("loginedUserId" + loginedUserId);
+            console.log("loginedUserId" + loginedUserId);
+
+            console.log("loginedUserId" + loginedUserId);
+            console.log("loginedUserId" + loginedUserId);
+            console.log("loginedUserId" + loginedUserId); console.log("loginedUserId" + loginedUserId); console.log("loginedUserId" + loginedUserId);
+            console.log("loginedUserId" + loginedUserId);
+            console.log("loginedUserId" + loginedUserId);
+            console.log("loginedUserId" + loginedUserId);
             return this.profileBlockService.getBlockedProfiles(profileId);
         
         }

@@ -45,9 +45,7 @@ export class AlarmsService {
     const targetAlarmTokens = [];
     targetTokenList.forEach((item) => targetAlarmTokens.push(item));
 
-    console.log(message);
     console.log(targetAlarmTokens);
-
     const FCMContent = {
       // ...AlarmContents.FOLLOW('작가 야옹이', '개발자 강아지'),
       // ...AlarmContents.NOTICE,
@@ -56,7 +54,6 @@ export class AlarmsService {
       ...message,
       tokens: targetAlarmTokens
     };
-
     const admin = require('firebase-admin');
 
     admin
@@ -74,9 +71,7 @@ export class AlarmsService {
   async followingAlarm(fromProfileId: number, toProfileId: number) {
     const targetProfile = await this.profilesRepository.getProfileByProfileId(toProfileId);
     const targetUserId = targetProfile.userId;
-
     const targetUser = await this.usersRepository.getUserByUserId(targetUserId);
-    
     if (targetUser.followAlarmStatus == 'ACTIVE') {
       const fromProfile = await this.profilesRepository.getProfileByProfileId(fromProfileId);
       const fromProfileName = fromProfile.profileName;
@@ -110,10 +105,11 @@ export class AlarmsService {
     const toProfileId = targetFeed.profileId;
 
     const targetProfile = await this.profilesRepository.getProfileByProfileId(toProfileId);
+    console.log(targetProfile);
     const targetUserId = targetProfile.userId;
 
     const targetUser = await this.usersRepository.getUserByUserId(targetUserId);
-
+    console.log(targetUser);
     
     if (targetUser.likeAlarmStatus == 'ACTIVE') {
       const fromProfile = await this.profilesRepository.getProfileByProfileId(fromProfileId);

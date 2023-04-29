@@ -77,6 +77,7 @@ export class ProfilesRepository {
       .createQueryBuilder('Profiles')
       .leftJoinAndSelect('Profiles.persona', 'Persona')
       .select([
+        'Profiles.userId AS userId',
         'Profiles.profileId AS profileId',
         'Persona.personaName AS personaName',
         'Profiles.profileName AS profileName',
